@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Sdk Example</string>
+    <string name="home">Home</string>
+    <string name="settings">Settings</string>
+    <string name="purchase">Purchase</string>
+    <string name="search">Search</string>
+    <string name="discover">Discover</string>
+    <string name="title_activity_event_tracking">EventTrackingActivity</string>
+    <string name="action_track_customer_event">Track Customer Event</string>
+    <string name="action_track_event">Track Event</string>
+    <string name="action_track_purchase">Track Purchase</string>
+    <string name="action_track_install">Track Install</string>
+
+    <string name="hint_custids">Customer Id</string>
+    <string name="hint_auth_code">Authentication Code</string>
+    <string name="hint_project_token">Project Token</string>
+    <string name="hint_registered">Registered</string>
+    <string name="hint_api_url">API Url</string>
+    <string name="action_authenticate">Authenticate</string>
+    <string name="action_fill_fields">Fill fields</string>
+    <string name="action_manual_flush">Manual Flush</string>
+    <string name="action_track_customer_update">Track Customer Update</string>
+    <string name="manual_flush">Manual Flush</string>
+    <string name="track">Track</string>
+    <string name="fetch">Fetch</string>
+    <string name="anonymize">Anonymize</string>
+
+    <string name="sendsay_inbox_button">Inbox</string>
+    <string name="sendsay_inbox_title">Inbox</string>
+    <string name="sendsay_inbox_defaultTitle">Inbox message</string>
+    <string name="sendsay_inbox_emptyTitle">Empty Inbox</string>
+    <string name="sendsay_inbox_emptyMessage">You have no messages yet.</string>
+    <string name="sendsay_inbox_errorTitle">Something went wrong :(</string>
+    <string name="sendsay_inbox_errorMessage">We could not retrieve your messages.</string>
+    <string name="hint_public_key">API key ID of Private</string>
+    <string name="content_blocks_title">InAppCB</string>
+    <string name="content_blocks_messages_list">Products</string>
+    <string name="content_blocks_sdk_not_init">SDK has not been initialized</string>
+    <string name="content_blocks_default_carousel_title">Default Carousel: example_carousel</string>
+    <string name="content_blocks_custom_carousel_title">Customized Carousel: example_carousel</string>
+    <string name="content_blocks_android_carousel_title">Android Carousel: example_carousel_and</string>
+    <string name="clear_local_data_button">Clear local data</string>
+</resources>

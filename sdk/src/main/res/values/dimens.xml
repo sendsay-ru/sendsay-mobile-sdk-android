@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="sendsay_sdk_in_app_message_dialog_max_width">600dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_dialog_corner_radius">15dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_slide_in_corner_radius">5dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_fullscreen_padding">10dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_dialog_padding">20dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_max_button_width">300dp</dimen>
+    <dimen name="sendsay_sdk_in_app_message_max_buttons_width">140dp</dimen>
+</resources>

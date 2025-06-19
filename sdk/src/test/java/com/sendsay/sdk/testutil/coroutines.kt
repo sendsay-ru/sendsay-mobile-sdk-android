@@ -1,0 +1,39 @@
+package com.sendsay.sdk.testutil
+
+import com.sendsay.sdk.util.backgroundThreadDispatcher
+import com.sendsay.sdk.util.mainThreadDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.robolectric.shadows.ShadowLooper
+
+/**
+ * Runs all coroutines in Dispatchers.Main only for given block. To invoke scheduler works call function as parameter.
+ * Dispatchers are reset to default after block execution.
+ * Example:
+ * ```
+ * @Test
+ * fun `your test`() = runInSingleThread { idleThreads ->
+ *      var invoked = false
+ *      runBackgroundThread {
+ *          // do something
+ *          invoked = true
+ *      }
+ *      idleThreads()
+ *      assertTrue(invoked)
+ * }
+ * ```
+ */
+internal inline fun runInSingleThread(crossinline testBlock: (() -> Unit) -> Unit) {
+    mainThreadDispatcher = CoroutineScope(Dispatchers.Main)
+    backgroundThreadDispatcher = CoroutineScope(Dispatchers.Main)
+    try {
+        testBlock.invoke {
+            for (i in 0..10) {
+                ShadowLooper.idleMainLooper()
+            }
+        }
+    } finally {
+        mainThreadDispatcher = CoroutineScope(Dispatchers.Main)
+        backgroundThreadDispatcher = CoroutineScope(Dispatchers.Default)
+    }
+}

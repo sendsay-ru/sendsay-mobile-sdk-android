@@ -1,0 +1,15 @@
+{
+  "projectToken": "testToken",
+  "authorization": "Token testToken",
+  "baseURL": "https://testUrl.test.com",
+  "contentType": "application/json",
+  "maxTries": 10,
+  "sessionTimeout": 60.0,
+  "automaticSessionTracking": true,
+  "automaticPushNotification": true,
+  "pushIcon": null,
+  "pushChannelName": "Sendsay",
+  "pushChannelDescription": "Notifications",
+  "pushChannelId": "0",
+  "pushNotificationImportance": 3
+}

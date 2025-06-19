@@ -1,0 +1,58 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext.kotlin_version = '1.9.25'
+    ext.ksp_version = '1.0.20'
+    ext.jacoco_version = '0.8.12'
+    ext.room_version = '2.6.1'
+
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url 'https://developer.huawei.com/repo/'
+        }
+    }
+
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.12.0"
+        classpath "org.jacoco:org.jacoco.core:$jacoco_version"
+        classpath 'com.android.tools.build:gradle:8.6.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.14'
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:9.2.1"
+        classpath 'com.huawei.agconnect:agcp:1.9.1.300'
+        classpath 'com.dipien:bye-bye-jetifier:1.2.2'
+        classpath 'com.panaxeo:shadow-aar:0.1.1'
+        classpath "androidx.room:room-gradle-plugin:2.6.1"
+    }
+}
+
+plugins {
+    // version must match used kotlin, find full version: https://github.com/google/ksp/releases
+    id 'com.google.devtools.ksp' version "$kotlin_version-$ksp_version" apply false
+}
+apply plugin: 'io.codearte.nexus-staging'
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {url 'https://developer.huawei.com/repo/'}
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+subprojects {
+    apply plugin: "org.jlleitschuh.gradle.ktlint"
+    apply plugin: "com.dipien.byebyejetifier"
+    ktlint {
+        verbose = true
+        android = true
+    }
+}

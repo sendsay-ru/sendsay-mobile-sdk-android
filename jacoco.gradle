@@ -1,0 +1,41 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "$jacoco_version"
+    reportsDirectory = file("$buildDir/reports")
+}
+
+sourceSets {
+    main {
+        resources.includes = ['**/jacoco-agent.properties']
+    }
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports"
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: [])
+    def mainSrc = "$project.projectDir/src/main/kotlin"
+
+    sourceDirectories.from = files([mainSrc])
+    classDirectories.from = files([debugTree])
+    executionData.from = fileTree(
+        dir: project.buildDir,
+        includes: [
+            'jacoco/testDebugUnitTest.exec',
+            'outputs/code-coverage/connected/*coverage.ec'
+        ]
+    )
+}

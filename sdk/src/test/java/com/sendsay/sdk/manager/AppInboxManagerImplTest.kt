@@ -1,0 +1,726 @@
+package com.sendsay.sdk.manager
+
+import android.content.Context
+import android.os.Looper
+import androidx.test.core.app.ApplicationProvider
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.models.CustomerIds
+import com.sendsay.sdk.models.Event
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayNotificationActionType
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.models.FetchError
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.MessageItem
+import com.sendsay.sdk.models.MessageItemAction
+import com.sendsay.sdk.models.Result
+import com.sendsay.sdk.network.SendsayService
+import com.sendsay.sdk.repository.AppInboxCache
+import com.sendsay.sdk.repository.AppInboxCacheImpl
+import com.sendsay.sdk.repository.CustomerIdsRepository
+import com.sendsay.sdk.repository.DrawableCache
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.MockFile
+import com.sendsay.sdk.testutil.componentForTesting
+import com.sendsay.sdk.testutil.mocks.SendsayMockService
+import com.sendsay.sdk.testutil.runInSingleThread
+import com.sendsay.sdk.testutil.waitForIt
+import com.google.gson.Gson
+import io.mockk.CapturingSlot
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkClass
+import io.mockk.slot
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.LooperMode
+
+@RunWith(RobolectricTestRunner::class)
+internal class AppInboxManagerImplTest : SendsaySDKTest() {
+
+    companion object {
+        public fun buildMessage(
+            id: String,
+            type: String = "push",
+            read: Boolean = true,
+            received: Double = System.currentTimeMillis().toDouble(),
+            data: Map<String, Any?> = mapOf()
+        ): MessageItem {
+            return MessageItem(
+                id = id,
+                rawType = type,
+                read = read,
+                rawContent =
+                    data + mapOf(
+                    "attributes" to mapOf(
+                        "sent_timestamp" to received
+                    )
+                )
+            )
+        }
+        /**
+         * Copied directly from APP editor, contains 2 actions (deeplink + browser), 1 image, title and message
+         */
+        public fun buildHtmlMessageContent(): String {
+            return """
+            <style>
+                .in-app-message-wrapper {
+                    display: flex;
+                    width: 100%;
+                    height: 100%;
+                    font-family: sans-serif;
+                }
+
+                .in-app-message {
+                    display: block;
+                    position: relative;
+                    user-select: none;
+                    max-height: 600px;
+                    margin: auto 22px;
+                    border: 0;
+                    border-radius: 8px;
+                    box-shadow: 0px 4px 8px rgba(102, 103, 128, 0.25);
+                    overflow-y: auto;
+                    width: 100%;
+                }
+
+                .in-app-message .image {
+                    max-height: 160px;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    pointer-events: none;
+                }
+
+                .in-app-message .image>img {
+                    width: 100%;
+                    height: auto;
+                }
+
+                .in-app-message .close-icon {
+                    display: inline-block;
+                    position: absolute;
+                    width: 16px;
+                    height: 16px;
+                    top: 10px;
+                    right: 10px;
+                    background-color: rgba(250, 250, 250, 0.6);
+                    border-radius: 50%;
+                    cursor: pointer;
+                }
+
+                .in-app-message .close-icon::before,
+                .in-app-message .close-icon::after {
+                    content: "";
+                    height: 11px;
+                    width: 2px;
+                    position: absolute;
+                    top: 2px;
+                    left: 7px;
+                }
+
+                .in-app-message .close-icon::before {
+                    transform: rotate(45deg);
+                }
+
+                .in-app-message .close-icon::after {
+                    transform: rotate(-45deg);
+                }
+
+                .in-app-message .content {
+                    display: flex;
+                    font-size: 16px;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 20px 13px;
+                }
+
+                .in-app-message .content .title {
+                    box-sizing: border-box;
+                    font-weight: bold;
+                    text-align: center;
+                    transition: font-size 300ms ease-in-out;
+                }
+
+                .in-app-message .content .body {
+                    box-sizing: border-box;
+                    text-align: center;
+                    word-break: break-word;
+                    transition: font-size 300ms ease-in-out;
+                    margin-top: 8px;
+                }
+
+                .in-app-message .content .buttons {
+                    display: flex;
+                    width: 100%;
+                    justify-content: center;
+                    margin-top: 15px;
+                }
+
+                .in-app-message .content .buttons .button {
+                    max-width: 100%;
+                    min-width: 110px;
+                    font-size: 14px;
+                    text-align: center;
+                    border-radius: 4px;
+                    padding: 8px;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    transition: color, background-color 250ms ease-in-out;
+                }
+
+                .in-app-message .content .buttons .button:only-child {
+                    margin: 0 auto;
+                }
+
+                .in-app-message.modal-in-app-message>.content>.buttons>.button:nth-child(2) {
+                    margin-left: 8px;
+                }
+                
+                .css-image {
+                    background-image: url('https://i.ytimg.com/vi/t4nM1FoUqYs/maxresdefault.jpg')
+                }
+
+            </style>
+
+
+            <div class="in-app-message-wrapper">
+                <div class="in-app-message modal-in-app-message " style="background-color: #ffffff">
+
+                    <div class="image">
+                        <img src="https://i.ytimg.com/vi/t4nM1FoUqYs/maxresdefault.jpg" />
+                    </div>
+
+
+                    <style>
+                        .in-app-message .close-icon::before,
+                        .in-app-message .close-icon::after {
+                            background-color: #000000;
+                        }
+
+                    </style>
+                    <div class="close-icon" data-actiontype="close"></div>
+
+                    <div class="content">
+                        <span class="title" style="color:#000000;font-size:22px">
+                            Book a tour for Antelope Canyon
+                        </span>
+                        <span class="body" style="color:#000000;font-size:14px">
+                            This is an example of your in-app message body text.
+                        </span>
+                        <div class="buttons">
+
+                            <span class="button" style="color:#ffffff;background-color:#f44cac" data-link="message:%3C3358921718340173851@unknownmsgid%3E">
+                                Deeplink
+                            </span>
+                            <span class="button" style="color:#ffffff;background-color:#f44cac" data-link="https://sendsay.com">
+                                Web
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        """.trimIndent()
+        }
+    }
+
+    private lateinit var appInboxManager: AppInboxManager
+    private lateinit var appInboxCache: AppInboxCache
+    private lateinit var customerIdsRepository: CustomerIdsRepository
+    private lateinit var drawableCache: DrawableCache
+    private lateinit var fetchManager: FetchManager
+    private lateinit var apiService: SendsayService
+
+    @Before
+    fun before() {
+        fetchManager = mockk()
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(Result(true, arrayListOf()))
+        }
+        drawableCache = mockk()
+        every { drawableCache.has(any()) } returns true
+        every { drawableCache.preload(any(), any()) } answers {
+            arg<(Boolean) -> Unit>(1).invoke(true)
+        }
+        every { drawableCache.clearExcept(any()) } just Runs
+        every { drawableCache.showImage(any(), any(), any()) } just Runs
+        every { drawableCache.getFile(any()) } returns MockFile()
+        customerIdsRepository = mockk()
+        every { customerIdsRepository.get() } returns CustomerIds().apply {
+            this.cookie = null
+            this.externalIds = hashMapOf()
+        }
+        apiService = SendsayMockService(true)
+        appInboxCache = AppInboxCacheImpl(
+            ApplicationProvider.getApplicationContext(), Gson()
+        )
+        // Need to be initialized to use bitmapCache for HTML parser
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val initialProject = SendsayProject("https://base-url.com", "project-token", "Token auth")
+        Sendsay.flushMode = FlushMode.MANUAL
+        skipInstallEvent()
+        Sendsay.init(context, SendsayConfiguration(
+            baseURL = initialProject.baseUrl,
+            projectToken = initialProject.projectToken,
+            authorization = initialProject.authorization)
+        )
+        appInboxManager = AppInboxManagerImpl(
+            fetchManager = fetchManager,
+            drawableCache = drawableCache,
+            projectFactory = Sendsay.componentForTesting.projectFactory,
+            customerIdsRepository = customerIdsRepository,
+            appInboxCache = appInboxCache
+        )
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should load only supported messages`() = runInSingleThread {
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(Result(true, arrayListOf(
+                buildMessage("id1", type = "push"),
+                buildMessage("id2", type = "html"),
+                buildMessage("id3", type = "whatSoEver")
+            )))
+        }
+        waitForIt { done ->
+            appInboxManager.fetchAppInbox { data ->
+                assertEquals(2, data?.size)
+                done()
+            }
+        }
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should parse PUSH message`() = runInSingleThread {
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(Result(true, arrayListOf(
+                buildMessage("id1", type = "push", data = mapOf(
+                    "title" to "Title",
+                    "message" to "Message",
+                    "actions" to arrayOf(
+                        buildActionAsMap(SendsayNotificationActionType.BROWSER, "https://google.com", "Web"),
+                        buildActionAsMap(SendsayNotificationActionType.DEEPLINK, "mail:something", "Deeplink")
+                    )
+                ))
+            )))
+        }
+        waitForIt { done ->
+            appInboxManager.fetchAppInbox { data ->
+                assertEquals(1, data?.size)
+                val pushMessage = data?.get(0)?.content
+                assertNotNull(pushMessage)
+                assertEquals("Title", pushMessage.title)
+                assertEquals("Message", pushMessage.message)
+                assertEquals(2, pushMessage.actions.size)
+                val webAction = pushMessage.actions.find {
+                    act -> act.type.value == SendsayNotificationActionType.BROWSER.value
+                }
+                assertNotNull(webAction)
+                assertEquals("https://google.com", webAction.url)
+                assertEquals("Web", webAction.title)
+                val deeplinkAction = pushMessage.actions.find {
+                    act -> act.type.value == SendsayNotificationActionType.DEEPLINK.value
+                }
+                assertNotNull(deeplinkAction)
+                assertEquals("mail:something", deeplinkAction.url)
+                assertEquals("Deeplink", deeplinkAction.title)
+                done()
+            }
+        }
+    }
+
+    private fun buildActionAsMap(
+        type: SendsayNotificationActionType,
+        url: String,
+        title: String
+    ) = mapOf(
+        "action" to type.value,
+        "url" to url,
+        "title" to title
+    )
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should parse HTML message`() = runInSingleThread {
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(Result(true, arrayListOf(
+                buildMessage("id1", type = "html", data = mapOf(
+                    "title" to "Title",
+                    "pre_header" to "Message",
+                    "message" to buildHtmlMessageContent()
+                ))
+            )))
+        }
+        appInboxManager.fetchAppInbox { data ->
+            assertEquals(1, data?.size)
+            val pushMessage = data?.get(0)?.content
+            assertNotNull(pushMessage)
+            assertEquals("Title", pushMessage.title)
+            assertEquals("Message", pushMessage.message)
+            assertEquals(3, pushMessage.actions.size)
+            val webAction = pushMessage.actions.find {
+                act -> act.type.value == SendsayNotificationActionType.BROWSER.value
+            }
+            assertNotNull(webAction)
+            assertEquals("https://sendsay.com", webAction.url)
+            assertEquals("Web", webAction.title)
+            val deeplinkAction = pushMessage.actions.find {
+                act -> act.type.value == SendsayNotificationActionType.DEEPLINK.value
+            }
+            assertNotNull(deeplinkAction)
+            assertEquals("message:%3C3358921718340173851@unknownmsgid%3E", deeplinkAction.url)
+            assertEquals("Deeplink", deeplinkAction.title)
+        }
+        waitForIt { done ->
+            appInboxManager.fetchAppInbox { data ->
+                assertEquals(1, data?.size)
+                val pushMessage = data?.get(0)?.content
+                assertNotNull(pushMessage)
+                assertEquals("Title", pushMessage.title)
+                assertEquals("Message", pushMessage.message)
+                assertEquals(3, pushMessage.actions.size)
+                val webAction = pushMessage.actions.find { act ->
+                    act.type.value == MessageItemAction.Type.BROWSER.value
+                }
+                assertNotNull(webAction)
+                assertEquals("https://sendsay.com", webAction.url)
+                assertEquals("Web", webAction.title)
+                val deeplinkAction = pushMessage.actions.find { act ->
+                    act.type.value == MessageItemAction.Type.DEEPLINK.value
+                }
+                assertNotNull(deeplinkAction)
+                assertEquals("message:%3C3358921718340173851@unknownmsgid%3E", deeplinkAction.url)
+                assertEquals("Deeplink", deeplinkAction.title)
+                done()
+            }
+        }
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should deny markAsRead action for empty AppInbox`() = runInSingleThread {
+        // fetchManager should not be called but keep it
+        val testMessage = buildMessage("id1", type = "push")
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3)
+                .invoke(
+                    Result(
+                        true,
+                        arrayListOf(
+                            testMessage,
+                            buildMessage("id2", type = "html")
+                        ),
+                        "sync_123"
+                    )
+                )
+        }
+        waitForIt { done ->
+            appInboxManager.markMessageAsRead(testMessage) { marked ->
+                assertFalse(marked)
+                done()
+            }
+        }
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should allow markAsRead action after fetched AppInbox`() = runInSingleThread {
+        skipInstallEvent()
+        identifyCustomer(cookie = "hash-cookie")
+        val testMessage = buildMessage("id1", type = "push")
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3)
+                .invoke(
+                    Result(
+                        true,
+                        arrayListOf(
+                            testMessage,
+                            buildMessage("id2", type = "html")
+                        ),
+                        "sync_123"
+                    )
+                )
+        }
+        // fetchManager should not be asked for marking so fail if so
+        every { fetchManager.markAppInboxAsRead(any(), any(), any(), any(), any(), any()) } answers {
+            arg<(Result<FetchError>) -> Unit>(5)
+                .invoke(Result(false, FetchError(null, "Should not be called")))
+        }
+        waitForIt { done ->
+            appInboxManager.markMessageAsRead(testMessage) { marked ->
+                assertFalse(marked)
+                done()
+            }
+        }
+        waitForIt { done ->
+            appInboxManager.fetchAppInbox { data ->
+                assertEquals(2, data?.size)
+                done()
+            }
+        }
+        // fetchManager should be asked for marking so valid answer is expected
+        every { fetchManager.markAppInboxAsRead(any(), any(), any(), any(), any(), any()) } answers {
+            arg<(Result<Any?>) -> Unit>(4)
+                .invoke(Result(true, null))
+        }
+        waitForIt { done ->
+            appInboxManager.markMessageAsRead(testMessage) { marked ->
+                assertTrue(marked)
+                done()
+            }
+        }
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should call markAsRead action with same customerIds as fetched AppInbox - onlyCookie`() = runInSingleThread {
+        // setup
+        identifyCustomer(cookie = "hash-cookie")
+        val customerIdsWhileFetch = slot<CustomerIds>()
+        val customerIdsWhileMarkAsRead = slot<CustomerIds>()
+        runFetchAndMarkAsRead(customerIdsWhileFetch, customerIdsWhileMarkAsRead)
+        assertTrue(customerIdsWhileFetch.isCaptured)
+        assertTrue(customerIdsWhileMarkAsRead.isCaptured)
+        val customerIdsMapWhileFetch = customerIdsWhileFetch.captured.toHashMap().filter { it.value != null }
+        val customerIdsMapWhileRead = customerIdsWhileMarkAsRead.captured.toHashMap().filter { it.value != null }
+        assertEquals(1, customerIdsMapWhileFetch.size)
+        assertEquals(1, customerIdsMapWhileRead.size)
+        assertEquals(customerIdsMapWhileFetch, customerIdsMapWhileRead)
+    }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should call markAsRead action with same customerIds as fetched AppInbox - singleExternal`() =
+        runInSingleThread {
+            // setup
+            identifyCustomer(ids = hashMapOf("registered" to "email@test.com"))
+            val customerIdsWhileFetch = slot<CustomerIds>()
+            val customerIdsWhileMarkAsRead = slot<CustomerIds>()
+            runFetchAndMarkAsRead(customerIdsWhileFetch, customerIdsWhileMarkAsRead)
+            assertTrue(customerIdsWhileFetch.isCaptured)
+            assertTrue(customerIdsWhileMarkAsRead.isCaptured)
+            val customerIdsMapWhileFetch = customerIdsWhileFetch.captured.toHashMap().filter { it.value != null }
+            val customerIdsMapWhileRead = customerIdsWhileMarkAsRead.captured.toHashMap().filter { it.value != null }
+            assertEquals(1, customerIdsMapWhileFetch.size)
+            assertEquals(1, customerIdsMapWhileRead.size)
+            assertEquals(customerIdsMapWhileFetch, customerIdsMapWhileRead)
+        }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should call markAsRead action with same customerIds as fetched AppInbox - multipleExternal`() =
+        runInSingleThread {
+            // setup
+            identifyCustomer(
+                ids = hashMapOf(
+                    "registered" to "email@test.com",
+                    "registered2" to "email2@test.com",
+                    "registered3" to "email3@test.com"
+                )
+            )
+            val customerIdsWhileFetch = slot<CustomerIds>()
+            val customerIdsWhileMarkAsRead = slot<CustomerIds>()
+            runFetchAndMarkAsRead(customerIdsWhileFetch, customerIdsWhileMarkAsRead)
+            assertTrue(customerIdsWhileFetch.isCaptured)
+            assertTrue(customerIdsWhileMarkAsRead.isCaptured)
+            val customerIdsMapWhileFetch = customerIdsWhileFetch.captured.toHashMap().filter { it.value != null }
+            val customerIdsMapWhileRead = customerIdsWhileMarkAsRead.captured.toHashMap().filter { it.value != null }
+            assertEquals(3, customerIdsMapWhileFetch.size)
+            assertEquals(3, customerIdsMapWhileRead.size)
+            assertEquals(customerIdsMapWhileFetch, customerIdsMapWhileRead)
+        }
+
+    @Test
+    @LooperMode(LooperMode.Mode.LEGACY)
+    fun `should call markAsRead action with same customerIds as fetched AppInbox - cookieAndExternal`() =
+        runInSingleThread {
+            // setup
+            identifyCustomer(
+                cookie = "hash-cookie", ids = hashMapOf(
+                    "registered" to "email@test.com",
+                    "registered2" to "email2@test.com",
+                    "registered3" to "email3@test.com"
+                )
+            )
+            val customerIdsWhileFetch = slot<CustomerIds>()
+            val customerIdsWhileMarkAsRead = slot<CustomerIds>()
+            runFetchAndMarkAsRead(customerIdsWhileFetch, customerIdsWhileMarkAsRead)
+            assertTrue(customerIdsWhileFetch.isCaptured)
+            assertTrue(customerIdsWhileMarkAsRead.isCaptured)
+            val customerIdsMapWhileFetch = customerIdsWhileFetch.captured.toHashMap().filter { it.value != null }
+            val customerIdsMapWhileRead = customerIdsWhileMarkAsRead.captured.toHashMap().filter { it.value != null }
+            assertEquals(4, customerIdsMapWhileFetch.size)
+            assertEquals(4, customerIdsMapWhileRead.size)
+            assertEquals(customerIdsMapWhileFetch, customerIdsMapWhileRead)
+        }
+
+    @Test
+    fun `should return actual messages for customer`() {
+        val awaitSeconds = 5L
+        val untilCustomerChanged = CountDownLatch(1)
+        val untilFirstFetchStarted = CountDownLatch(1)
+        val untilFetchProcessIsDone = CountDownLatch(1)
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            val customerIdsUsedForFetch = arg<CustomerIds>(1).toHashMap()["registered"]
+            untilFirstFetchStarted.countDown()
+            assertTrue(untilCustomerChanged.await(awaitSeconds, TimeUnit.SECONDS))
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(
+                Result(
+                    true, arrayListOf(
+                        buildMessage(
+                            "id1", type = "html", data = mapOf(
+                                "title" to "Assigned to $customerIdsUsedForFetch",
+                                "pre_header" to "Message",
+                                "message" to buildHtmlMessageContent()
+                            )
+                        )
+                    )
+                )
+            )
+        }
+        // step 1: be customer 'user1'
+        identifyCustomer(cookie = "cookie1", ids = hashMapOf("registered" to "user1"))
+        // step 2: invoke fetching while customer is 'user1'
+        var fetchedAppInboxData: List<MessageItem>? = null
+        appInboxManager.fetchAppInbox {
+            fetchedAppInboxData = it
+            untilFetchProcessIsDone.countDown()
+        }
+        // step 3: change to customer 'user2' while first fetch is running
+        assertTrue(untilFirstFetchStarted.await(awaitSeconds, TimeUnit.SECONDS))
+        identifyCustomer(cookie = "cookie2", ids = hashMapOf("registered" to "user2"))
+        untilCustomerChanged.countDown()
+        // step 4: wait until second fetch is done
+        val fetchDataReceived = untilFetchProcessIsDone.await(1, TimeUnit.SECONDS)
+        if (!fetchDataReceived) {
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+        assertTrue(untilFetchProcessIsDone.await(awaitSeconds, TimeUnit.SECONDS))
+        // validate:
+        assertNotNull(fetchedAppInboxData)
+        assertEquals(1, fetchedAppInboxData?.size)
+        val message = fetchedAppInboxData?.get(0)?.content
+        assertEquals("Assigned to user2", message?.title)
+    }
+
+    @Test
+    fun `should return actual messages for customer for all fetch attempts`() {
+        var fetchedAppInboxData1: List<MessageItem>? = null
+        var fetchedAppInboxData2: List<MessageItem>? = null
+        var fetchedAppInboxData3: List<MessageItem>? = null
+        val awaitSeconds = 5L
+        val releaseFetchProces = CountDownLatch(1)
+        val untilFirstFetchStarted = CountDownLatch(1)
+        val untilFetchProcessIsDone1 = CountDownLatch(1)
+        val untilFetchProcessIsDone2 = CountDownLatch(1)
+        val untilFetchProcessIsDone3 = CountDownLatch(1)
+        every { fetchManager.fetchAppInbox(any(), any(), any(), any(), any()) } answers {
+            val customerIdsUsedForFetch = arg<CustomerIds>(1).toHashMap()["registered"] ?: "not-registered"
+            untilFirstFetchStarted.countDown()
+            assertTrue(releaseFetchProces.await(awaitSeconds, TimeUnit.SECONDS))
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3).invoke(
+                Result(
+                    true, arrayListOf(
+                        buildMessage(
+                            "id1", type = "html", data = mapOf(
+                                "title" to "Assigned to $customerIdsUsedForFetch",
+                                "pre_header" to "Message",
+                                "message" to buildHtmlMessageContent()
+                            )
+                        )
+                    )
+                )
+            )
+        }
+        appInboxManager.fetchAppInbox {
+            fetchedAppInboxData1 = it
+            untilFetchProcessIsDone1.countDown()
+        }
+        identifyCustomer(cookie = "cookie1", ids = hashMapOf("registered" to "user1"))
+        appInboxManager.fetchAppInbox {
+            fetchedAppInboxData2 = it
+            untilFetchProcessIsDone2.countDown()
+        }
+        assertTrue(untilFirstFetchStarted.await(awaitSeconds, TimeUnit.SECONDS))
+        identifyCustomer(cookie = "cookie2", ids = hashMapOf("registered" to "user2"))
+        appInboxManager.fetchAppInbox {
+            fetchedAppInboxData3 = it
+            untilFetchProcessIsDone3.countDown()
+        }
+        releaseFetchProces.countDown()
+        val fetchDataReceived = untilFetchProcessIsDone1.await(1, TimeUnit.SECONDS)
+        if (!fetchDataReceived) {
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+        assertTrue(untilFetchProcessIsDone1.await(awaitSeconds, TimeUnit.SECONDS))
+        for (fetchedData in listOf(fetchedAppInboxData1, fetchedAppInboxData2, fetchedAppInboxData3)) {
+            assertNotNull(fetchedData)
+            assertEquals(1, fetchedData.size)
+            assertEquals("Assigned to user2", fetchedData[0].content?.title)
+        }
+    }
+
+    private fun runFetchAndMarkAsRead(
+        customerIdsWhileFetch: CapturingSlot<CustomerIds>,
+        customerIdsWhileMarkAsRead: CapturingSlot<CustomerIds>
+    ) {
+        val testMessage = buildMessage("id1", type = "push")
+        every {
+            fetchManager.fetchAppInbox(any(), capture(customerIdsWhileFetch), any(), any(), any())
+        } answers {
+            arg<(Result<ArrayList<MessageItem>?>) -> Unit>(3)
+                .invoke(
+                    Result(
+                        true,
+                        arrayListOf(
+                            testMessage,
+                            buildMessage("id2", type = "html")
+                        ),
+                        "sync_123"
+                    )
+                )
+        }
+        // fetchManager should be asked for marking so valid answer is expected
+        every {
+            fetchManager.markAppInboxAsRead(any(), capture(customerIdsWhileMarkAsRead), any(), any(), any(), any())
+        } answers {
+            arg<(Result<Any?>) -> Unit>(4)
+                .invoke(Result(true, null))
+        }
+        waitForIt { done ->
+            appInboxManager.fetchAppInbox { data ->
+                done()
+            }
+        }
+        waitForIt { done ->
+            appInboxManager.markMessageAsRead(testMessage) { marked ->
+                done()
+            }
+        }
+    }
+
+    private fun identifyCustomer(cookie: String? = null, ids: HashMap<String, String?> = hashMapOf()) {
+        every { customerIdsRepository.get() } returns CustomerIds().apply {
+            this.cookie = cookie
+            this.externalIds = ids
+        }
+        appInboxManager.onEventCreated(mockkClass(Event::class), EventType.TRACK_CUSTOMER)
+    }
+}

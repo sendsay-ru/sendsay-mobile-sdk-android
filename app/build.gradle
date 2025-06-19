@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("fcm")) {
+    apply plugin: 'com.google.gms.google-services'
+}
+if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("hms")) {
+    apply plugin: 'com.huawei.agconnect'
+}
+
+android {
+    namespace 'com.sendsay.example'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.sendsay.example"
+        minSdkVersion 21
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+        vectorDrawables.useSupportLibrary = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    signingConfigs {
+        config {
+            // Set the parameters based on the actual signing information.
+            storeFile file('Sendsay.jks')
+            storePassword 'Sendsay'
+            keyPassword 'Sendsay'
+            keyAlias 'key0'
+        }
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.config
+        }
+        release {
+            signingConfig signingConfigs.config
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "messagingService"
+    productFlavors {
+        fcm {
+            dimension = "messagingService"
+        }
+        hms {
+            dimension = "messagingService"
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.0'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.0'
+    fcmImplementation 'com.google.firebase:firebase-messaging:23.1.0'
+    fcmImplementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
+    hmsImplementation 'com.huawei.agconnect:agconnect-core:1.7.3.302'
+    hmsImplementation 'com.huawei.hms:push:6.11.0.300'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    implementation project(path: ':sdk')
+}

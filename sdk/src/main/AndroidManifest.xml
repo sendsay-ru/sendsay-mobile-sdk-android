@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <application
+        android:fullBackupContent="@xml/sendsay_default_backup_rules"
+        tools:ignore="UnusedAttribute">
+        <activity
+            android:name=".view.InAppMessageActivity"
+            android:theme="@style/Theme.InAppMessageActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity
+            android:name=".services.SendsayPushTrackingActivity"
+            android:enabled="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true">
+            <!-- we need this to be called before the app is opened to process campaign data inside the notification -->
+            <intent-filter android:priority="999">
+                <action android:name="com.sendsay.sdk.action.PUSH_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_URL_CLICKED" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".services.SendsayPushTrackingActivityOlderApi"
+            android:enabled="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true">
+            <!-- we need this to be called before the app is opened to process campaign data inside the notification -->
+            <intent-filter android:priority="999">
+                <action android:name="com.sendsay.sdk.action.PUSH_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_URL_CLICKED" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".view.AppInboxListActivity"
+            android:theme="@style/Theme.AppInboxListActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity
+            android:name=".view.AppInboxDetailActivity"
+            android:theme="@style/Theme.AppInboxDetailActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity
+            android:name=".view.NotificationsPermissionActivity"
+            android:theme="@style/Theme.Invisible"
+            />
+
+        <receiver
+            android:name=".receiver.AppUpdateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <provider android:name=".services.SendsayContextProvider"
+            android:authorities="${applicationId}.sdk.contextprovider"
+            android:exported="false"
+            android:enabled="true" />
+
+    </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
+</manifest>

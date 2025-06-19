@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+>
+    <LinearLayout
+        android:id="@+id/inAppMessageSlideInContainer"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        >
+
+        <com.sendsay.sdk.view.InAppMessageSlideInImageView
+            android:id="@+id/imageViewImage"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dp"
+            >
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Title"
+                android:layout_gravity="start"
+                android:gravity="start"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="body"
+                android:layout_gravity="start"
+                android:gravity="start"
+                android:layout_marginTop="5dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal"
+                android:gravity="start"
+                >
+                <Button
+                    android:id="@+id/buttonAction1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Action"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="5dp"
+                    android:textAllCaps="false"
+                    android:background="@drawable/in_app_message_slide_in_button" />
+                <Button
+                    android:id="@+id/buttonAction2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Action"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="5dp"
+                    android:textAllCaps="false"
+                    android:background="@drawable/in_app_message_slide_in_button" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

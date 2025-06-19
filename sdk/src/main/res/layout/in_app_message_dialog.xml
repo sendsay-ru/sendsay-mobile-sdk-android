@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/inAppMessageDialogContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/inAppMessageDialogRoot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_max="600dp"
+        >
+
+        <Button
+            android:id="@+id/buttonClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="32dp"
+            android:text="×"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="-10dp"
+            android:layout_marginRight="0dp"
+            android:minHeight="40dp"
+            android:minWidth="40dp"
+            android:padding="0dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <com.sendsay.sdk.view.InAppMessageDialogImageView
+            android:id="@+id/imageViewImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutBackground"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="20dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/in_app_message_dialog_background_bottom"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageViewImage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Title"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:id="@+id/textViewBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="body"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                >
+                <Space
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content" />
+                <Button
+                    android:id="@+id/buttonAction1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:text="Action"
+                    android:layout_marginTop="20dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:minWidth="100dp"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:textAllCaps="false"
+                    android:background="@drawable/in_app_message_dialog_button"
+                    android:ellipsize="end"
+                    android:lines="1"/>
+                <Space
+                    android:id="@+id/buttonSpace"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"/>
+                <Button
+                    android:id="@+id/buttonAction2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:text="Action"
+                    android:layout_marginTop="20dp"
+                    android:minWidth="100dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:textAllCaps="false"
+                    android:background="@drawable/in_app_message_dialog_button"
+                    android:ellipsize="end"
+                    android:lines="1"/>
+                <Space
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
