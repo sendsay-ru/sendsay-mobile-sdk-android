@@ -18,6 +18,8 @@ import com.sendsay.sdk.manager.FetchManager
 import com.sendsay.sdk.manager.FetchManagerImpl
 import com.sendsay.sdk.manager.FlushManager
 import com.sendsay.sdk.manager.FlushManagerImpl
+import com.sendsay.sdk.manager.InAppContentBlockManager
+import com.sendsay.sdk.manager.InAppContentBlockManagerImpl
 import com.sendsay.sdk.manager.PushNotificationSelfCheckManager
 import com.sendsay.sdk.manager.PushNotificationSelfCheckManagerImpl
 import com.sendsay.sdk.manager.SegmentsManager
@@ -159,7 +161,7 @@ internal class SendsayComponent(
         onEventCreated = { event, type ->
 //            inAppMessageManager.onEventCreated(event, type)
             appInboxManager.onEventCreated(event, type)
-//            inAppContentBlockManager.onEventCreated(event, type)
+            inAppContentBlockManager.onEventCreated(event, type)
         }
     )
 
@@ -236,15 +238,15 @@ internal class SendsayComponent(
         preferences
     )
 
-//    internal val inAppContentBlockManager: InAppContentBlockManager = InAppContentBlockManagerImpl(
-//        inAppContentBlockDisplayStateRepository,
-//        fetchManager,
-//        projectFactory,
-//        customerIdsRepository,
-//        drawableCache,
-//        htmlNormalizedCache,
-//        fontCache
-//    )
+    internal val inAppContentBlockManager: InAppContentBlockManager = InAppContentBlockManagerImpl(
+        inAppContentBlockDisplayStateRepository,
+        fetchManager,
+        projectFactory,
+        customerIdsRepository,
+        drawableCache,
+        htmlNormalizedCache,
+        fontCache
+    )
 
     fun anonymize(
         sendsayProject: SendsayProject,
@@ -264,7 +266,7 @@ internal class SendsayComponent(
 //        inAppMessageManager.clear()
         uniqueIdentifierRepository.clear()
         customerIdsRepository.clear()
-//        inAppContentBlockManager.clearAll()
+        inAppContentBlockManager.clearAll()
         sessionManager.reset()
         segmentsManager.clearAll()
         pushNotificationRepository.clearAll()
@@ -294,6 +296,6 @@ internal class SendsayComponent(
         fcmManager.trackToken(token, SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, tokenType)
 //        inAppMessageManager.reload()
         appInboxManager.reload()
-//        inAppContentBlockManager.loadInAppContentBlockPlaceholders()
+        inAppContentBlockManager.loadInAppContentBlockPlaceholders()
     }
 }

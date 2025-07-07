@@ -313,6 +313,53 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                      }
                    ]
                 }
+//           {
+//            "ssec":{
+//                   "dt":"$currentDateTime",
+//        "transaction_id": "2968",
+//        "transaction_sum": 8570,
+//        "items": [
+//            {
+//                "id": 101626,
+//                "qnt": 1,
+//                "price": 4490,
+//                "model": "506-066 139249",
+//                "name": "Кеды",
+//                "picture": [
+//                    "https://m.media-amazon.com/images/I/71UiJ6CG9ZL._AC_UL320_.jpg"
+//                ],
+//                "url": "https://sendsay.ru/catalog/kedy/kedy_290/",
+//                "category_id": 1117
+//            },
+//            {
+//                "id": 101115,
+//                "qnt": 1,
+//                "price": 2590,
+//                "description": "",
+//                "model": "210-045 138761",
+//                "name": "Рюкзак",
+//                "picture": [
+//                    "https://m.media-amazon.com/images/I/91fkUMA5K1L._AC_UL320_.jpg"
+//                ],
+//                "url": "https://sendsay.ru/catalog/ryukzaki/ryukzak_745/",
+//                "category_id": 1153
+//            },
+//            {
+//                "id": 101695,
+//                "qnt": 1,
+//                "price": 1490,
+//                "description": "",
+//                "model": "1110-001 139276",
+//                "name": "Сумка",
+//                "picture": [
+//                    "https://m.media-amazon.com/images/I/81h0fWxyp9S._AC_UL320_.jpg"
+//                ],
+//                "url": "https://sendsay.ru/catalog/sumki_1/sumka_468/",
+//                "category_id": 1154
+//            }
+//        ]
+//                }
+//            }
             }""".trimIndent()
 
         val gson = Gson()

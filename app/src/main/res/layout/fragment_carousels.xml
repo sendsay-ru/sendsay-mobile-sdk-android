@@ -19,12 +19,12 @@
             android:layout_alignParentTop="true"
             android:text="@string/content_blocks_default_carousel_title"/>
 
-<!--        <com.sendsay.sdk.view.ContentBlockCarouselView-->
-<!--            android:id="@+id/content_blocks_carousel_default"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_below="@+id/content_blocks_carousel_title_1"-->
-<!--            app:placeholderId="example_carousel" />-->
+        <com.sendsay.sdk.view.ContentBlockCarouselView
+            android:id="@+id/content_blocks_carousel_default"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/content_blocks_carousel_title_1"
+            app:placeholderId="example_carousel" />
 
         <TextView
             android:id="@+id/content_blocks_carousel_status"
@@ -39,15 +39,15 @@
             android:layout_below="@+id/content_blocks_carousel_status"
             android:text="@string/content_blocks_custom_carousel_title"/>
 
-<!--        <com.sendsay.sdk.view.ContentBlockCarouselView-->
-<!--            android:id="@+id/content_blocks_carousel_custom"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_below="@+id/content_blocks_carousel_title_2"-->
-<!--            app:placeholderId="example_carousel"-->
-<!--            app:scrollDelay="10"-->
-<!--            app:maxMessagesCount="5"-->
-<!--            />-->
+        <com.sendsay.sdk.view.ContentBlockCarouselView
+            android:id="@+id/content_blocks_carousel_custom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/content_blocks_carousel_title_2"
+            app:placeholderId="example_carousel"
+            app:scrollDelay="10"
+            app:maxMessagesCount="5"
+            />
 
         <TextView
             android:id="@+id/content_blocks_carousel_title_3"

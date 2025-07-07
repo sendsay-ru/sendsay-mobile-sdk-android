@@ -232,7 +232,7 @@ class MainActivity : AppCompatActivity() {
             R.id.trackFragment,
             R.id.flushFragment,
             R.id.anonymizeFragment,
-//            R.id.inAppContentBlocksFragment
+            R.id.inAppContentBlocksFragment
         )
         val appBarConfiguration = AppBarConfiguration(
             topLevelDestinationIds = topLevelDestinationIds

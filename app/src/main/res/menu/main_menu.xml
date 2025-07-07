@@ -20,8 +20,8 @@
         android:icon="@drawable/ic_anonymous"
         android:title="@string/anonymize"/>
 
-<!--    <item-->
-<!--        android:id="@+id/inAppContentBlocks"-->
-<!--        android:icon="@drawable/ic_content_blocks"-->
-<!--        android:title="@string/content_blocks_title"/>-->
+    <item
+        android:id="@+id/inAppContentBlocks"
+        android:icon="@drawable/ic_content_blocks"
+        android:title="@string/content_blocks_title"/>
 </menu>

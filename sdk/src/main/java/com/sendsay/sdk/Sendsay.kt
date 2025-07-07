@@ -45,6 +45,7 @@ import com.sendsay.sdk.models.FlushMode.PERIOD
 import com.sendsay.sdk.models.FlushPeriod
 import com.sendsay.sdk.models.InAppContentBlock
 import com.sendsay.sdk.models.InAppContentBlockAction
+import com.sendsay.sdk.models.InAppContentBlockPlaceholderConfiguration
 import com.sendsay.sdk.models.MessageItem
 import com.sendsay.sdk.models.MessageItemAction
 import com.sendsay.sdk.models.NotificationAction
@@ -68,6 +69,8 @@ import com.sendsay.sdk.services.SendsayContextProvider
 import com.sendsay.sdk.services.SendsayInitManager
 import com.sendsay.sdk.services.MessagingUtils
 import com.sendsay.sdk.services.SendsayDeintegrateManager
+import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_MAX_MESSAGES_COUNT
+import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_SCROLL_DELAY
 import com.sendsay.sdk.telemetry.TelemetryManager
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.OnForegroundStateListener
@@ -83,6 +86,8 @@ import com.sendsay.sdk.util.logOnException
 import com.sendsay.sdk.util.logOnExceptionWithResult
 import com.sendsay.sdk.util.returnOnException
 import com.sendsay.sdk.util.runOnMainThread
+import com.sendsay.sdk.view.ContentBlockCarouselView
+import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
 import java.util.concurrent.CopyOnWriteArrayList
 
 //@SuppressLint("StaticFieldLeak")
@@ -847,7 +852,7 @@ object Sendsay {
         deintegration.registerForIntegrationStopped(component.pushTokenRepository)
         deintegration.registerForIntegrationStopped(component.campaignRepository)
         deintegration.registerForIntegrationStopped(component.deviceInitiatedRepository)
-//        deintegration.registerForIntegrationStopped(component.inAppContentBlockManager)
+        deintegration.registerForIntegrationStopped(component.inAppContentBlockManager)
 //        deintegration.registerForIntegrationStopped(component.inAppMessageManager)
         deintegration.registerForIntegrationStopped(component.inAppMessagePresenter)
 
@@ -868,7 +873,7 @@ object Sendsay {
 
         startSessionTracking(configuration.automaticSessionTracking)
 
-//        component.inAppContentBlockManager.loadInAppContentBlockPlaceholders()
+        component.inAppContentBlockManager.loadInAppContentBlockPlaceholders()
 
         component.segmentsManager.onSdkInit()
 
@@ -1322,39 +1327,39 @@ object Sendsay {
         )
     }.logOnExceptionWithResult().getOrNull()
 
-//    fun getInAppContentBlocksPlaceholder(
-//        placeholderId: String,
-//        context: Context,
-//        config: InAppContentBlockPlaceholderConfiguration? = null
-//    ): InAppContentBlockPlaceholderView? = runCatching<InAppContentBlockPlaceholderView?> {
-//        requireInitialized<InAppContentBlockPlaceholderView>(
-//            initializedBlock = {
-//                Sendsay.component.inAppContentBlockManager.getPlaceholderView(
-//                    placeholderId,
-//                    context,
-//                    config ?: InAppContentBlockPlaceholderConfiguration()
-//                )
-//            }
-//        )
-//    }.logOnExceptionWithResult().getOrNull()
+    fun getInAppContentBlocksPlaceholder(
+        placeholderId: String,
+        context: Context,
+        config: InAppContentBlockPlaceholderConfiguration? = null
+    ): InAppContentBlockPlaceholderView? = runCatching<InAppContentBlockPlaceholderView?> {
+        requireInitialized<InAppContentBlockPlaceholderView>(
+            initializedBlock = {
+                Sendsay.component.inAppContentBlockManager.getPlaceholderView(
+                    placeholderId,
+                    context,
+                    config ?: InAppContentBlockPlaceholderConfiguration()
+                )
+            }
+        )
+    }.logOnExceptionWithResult().getOrNull()
 
-//    fun getInAppContentBlocksCarousel(
-//        context: Context,
-//        placeholderId: String,
-//        maxMessagesCount: Int? = null,
-//        scrollDelay: Int? = null
-//    ): ContentBlockCarouselView? = runCatching<ContentBlockCarouselView?> {
-//        requireInitialized<ContentBlockCarouselView>(
-//            initializedBlock = {
-//                ContentBlockCarouselView(
-//                        context,
-//                        placeholderId,
-//                        maxMessagesCount ?: DEFAULT_MAX_MESSAGES_COUNT,
-//                        scrollDelay ?: DEFAULT_SCROLL_DELAY
-//                )
-//            }
-//        )
-//    }.logOnExceptionWithResult().getOrNull()
+    fun getInAppContentBlocksCarousel(
+        context: Context,
+        placeholderId: String,
+        maxMessagesCount: Int? = null,
+        scrollDelay: Int? = null
+    ): ContentBlockCarouselView? = runCatching<ContentBlockCarouselView?> {
+        requireInitialized<ContentBlockCarouselView>(
+            initializedBlock = {
+                ContentBlockCarouselView(
+                        context,
+                        placeholderId,
+                        maxMessagesCount ?: DEFAULT_MAX_MESSAGES_COUNT,
+                        scrollDelay ?: DEFAULT_SCROLL_DELAY
+                )
+            }
+        )
+    }.logOnExceptionWithResult().getOrNull()
 
     fun requestPushAuthorization(context: Context, listener: (Boolean) -> Unit) = runCatching {
         NotificationsPermissionReceiver.requestPushAuthorization(context) { granted ->

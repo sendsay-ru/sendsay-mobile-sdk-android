@@ -63,7 +63,7 @@ class AuthenticationActivity : AppCompatActivity() {
     private fun initSdk() {
         // Start our sendsay configuration
         val configuration = SendsayConfiguration()
-        configuration.authorization = authorizationToken
+        configuration.authorization = "Token ${authorizationToken.split(" ").last()}"
         configuration.advancedAuthEnabled = advancedPublicKey.isNotBlank()
         configuration.projectToken = projectToken
         configuration.baseURL = apiUrl
