@@ -91,6 +91,10 @@ internal class AppInboxManagerImpl(
         messageId: String,
         callback: ((Boolean) -> Unit)?
     ) {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox message ${messageId} not read, isAppInboxEnabled is disabled")
+            return
+        }
         if (Sendsay.isStopped) {
             Logger.e(this, "App inbox message $messageId not read, SDK is stopping")
             runOnMainThread {
@@ -105,6 +109,10 @@ internal class AppInboxManagerImpl(
     }
 
     private fun handleSuccessMarkAsReadResponse(messageId: String, callback: ((Boolean) -> Unit)?) {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox message ${messageId} not read, isAppInboxEnabled is disabled")
+            return
+        }
         if (Sendsay.isStopped) {
             Logger.e(this, "App inbox message $messageId not read, SDK is stopping")
             runOnMainThread {
@@ -141,6 +149,10 @@ internal class AppInboxManagerImpl(
 
     private fun invokeFetchAppInbox(customerIds: CustomerIds) {
         requireMutualSendsayProject { expoProject ->
+            if (Sendsay.isAppInboxEnabled) {
+                Logger.e(this, "App inbox fetch failed, isAppInboxEnabled is disabled")
+                return@requireMutualSendsayProject
+            }
             if (expoProject.authorization == null) {
                 Logger.e(this, "AppInbox loading failed. Authorization token is missing")
                 notifyFetchCallbacks(null)
@@ -173,6 +185,10 @@ internal class AppInboxManagerImpl(
         result: Result<ArrayList<MessageItem>?>?,
         processCustomerIds: CustomerIds
     ) {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox fetch failed, isAppInboxEnabled is disabled")
+            return
+        }
         if (Sendsay.isStopped) {
             Logger.e(this, "App inbox fetch failed, SDK is stopping")
             notifyFetchCallbacks(null)
@@ -268,6 +284,16 @@ internal class AppInboxManagerImpl(
     }
 
     override fun fetchAppInboxItem(messageId: String, callback: (MessageItem?) -> Unit) {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox fetch ITEM failed, isAppInboxEnabled is disabled")
+            return
+        }
+        if (Sendsay.isStopped) {
+            Logger.e(this, "App inbox fetch ITEM failed, SDK is stopping")
+            notifyFetchCallbacks(null)
+            isFetching.set(false)
+            return
+        }
         fetchAppInbox { messages ->
             val foundMessage = messages?.find { messageItem -> messageItem.id == messageId }
             callback.invoke(foundMessage)
@@ -275,6 +301,16 @@ internal class AppInboxManagerImpl(
     }
 
     override fun reload() {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox RELOAD failed, isAppInboxEnabled is disabled")
+            return
+        }
+        if (Sendsay.isStopped) {
+            Logger.e(this, "App inbox RELOAD failed, SDK is stopping")
+            notifyFetchCallbacks(null)
+            isFetching.set(false)
+            return
+        }
         appInboxCache.clear()
         fetchAppInbox { Logger.d(this, "AppInbox loaded") }
     }

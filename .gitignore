@@ -17,4 +17,5 @@
 .cxx
 local.properties
 *.jks
-google-services.json
+google-services*.json
+agconnect-services*.json
