@@ -16,7 +16,8 @@ import com.sendsay.sdk.util.Logger
 import java.util.Date
 import java.util.UUID
 
-internal class TelemetryManager(application: Application, userId: String? = null) : OnIntegrationStoppedCallback {
+internal class TelemetryManager(application: Application, userId: String? = null) :
+    OnIntegrationStoppedCallback {
     companion object {
         const val TELEMETRY_PREFS_KEY = "SENDSAY_TELEMETRY"
         const val INSTALL_ID_KEY = "INSTALL_ID"
@@ -29,18 +30,19 @@ internal class TelemetryManager(application: Application, userId: String? = null
     private val appInfo = TelemetryUtility.getAppInfo(application)
     private val runId = UUID.randomUUID().toString()
     private var installId: String
+
     init {
         if (Sendsay.isStopped) {
             Logger.e(this, "Install ID for telemetry is not generated, SDK is stopping")
             installId = INSTALL_ID_PLACEHOLDER
         } else {
-        try {
-            val prefs = getSharedPreferences(application)
-            installId = prefs.getString(INSTALL_ID_KEY, null) ?: UUID.randomUUID().toString()
-            if (!prefs.contains(INSTALL_ID_KEY)) {
-                prefs.edit().putString(INSTALL_ID_KEY, installId).commit()
-            }
-        } catch (e: Exception) {
+            try {
+                val prefs = getSharedPreferences(application)
+                installId = prefs.getString(INSTALL_ID_KEY, null) ?: UUID.randomUUID().toString()
+                if (!prefs.contains(INSTALL_ID_KEY)) {
+                    prefs.edit().putString(INSTALL_ID_KEY, installId).commit()
+                }
+            } catch (e: Exception) {
                 installId = INSTALL_ID_PLACEHOLDER
             }
         }
@@ -54,7 +56,8 @@ internal class TelemetryManager(application: Application, userId: String? = null
         userId ?: installId
     )
 
-    internal val crashManager: CrashManager = CrashManager(telemetryStorage, telemetryUpload, Date(), runId)
+    internal val crashManager: CrashManager =
+        CrashManager(telemetryStorage, telemetryUpload, Date(), runId)
 
     fun start() {
         if (Sendsay.isStopped) {
@@ -63,7 +66,7 @@ internal class TelemetryManager(application: Application, userId: String? = null
         }
         crashManager.start()
         telemetryUpload.uploadSessionStart(runId) {
-            Logger.i(this, "Session start upload ${if (it.isSuccess) "succeeded" else "failed" }")
+            Logger.i(this, "Session start upload ${if (it.isSuccess) "succeeded" else "failed"}")
         }
     }
 
@@ -73,16 +76,18 @@ internal class TelemetryManager(application: Application, userId: String? = null
             return
         }
         val mutableProperties = properties.toMutableMap()
-        mutableProperties.putAll(hashMapOf(
-            "sdkVersion" to BuildConfig.SENDSAY_VERSION_NAME,
-            "appName" to appInfo.packageName,
-            "appVersion" to appInfo.versionName,
-            "appNameVersion" to "${appInfo.packageName} - ${appInfo.versionName}",
-            "appNameVersionSdkVersion"
-                to "${appInfo.packageName} - ${appInfo.versionName} - SDK ${BuildConfig.SENDSAY_VERSION_NAME}"
-        ))
+        mutableProperties.putAll(
+            hashMapOf(
+                "sdkVersion" to BuildConfig.SENDSAY_VERSION_NAME,
+                "appName" to appInfo.packageName,
+                "appVersion" to appInfo.versionName,
+                "appNameVersion" to "${appInfo.packageName} - ${appInfo.versionName}",
+                "appNameVersionSdkVersion"
+                        to "${appInfo.packageName} - ${appInfo.versionName} - SDK ${BuildConfig.SENDSAY_VERSION_NAME}"
+            )
+        )
         telemetryUpload.uploadEventLog(EventLog(eventType.value, mutableProperties, runId)) {
-            Logger.i(this, "Event upload ${if (it.isSuccess) "succeeded" else "failed" }")
+            Logger.i(this, "Event upload ${if (it.isSuccess) "succeeded" else "failed"}")
         }
     }
 

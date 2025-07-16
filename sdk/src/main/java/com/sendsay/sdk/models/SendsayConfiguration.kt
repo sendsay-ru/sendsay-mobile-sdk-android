@@ -75,7 +75,31 @@ data class SendsayConfiguration(
      * Flag that enables or disables manual session auto-close.
      * It determines whether the SDK automatically tracks `session_end` for sessions that remain open when `Sendsay.trackSessionStart()` is called multiple times in manual session tracking mode.
      */
-    var manualSessionAutoClose: Boolean = true
+    var manualSessionAutoClose: Boolean = true,
+
+    /**
+     * Flag that enables or disables in-app messages for this session.
+     * Can/Must be overridden by get config from Backend method.
+     * Default value is false, cause if the config was not retrieved from server,
+     * then in-app messages is unavailable too.
+     */
+    var isInAppMessagesEnabled: Boolean = false,
+
+    /**
+     * Flag that enables or disables in-app Content Blocks for this session.
+     * Can/Must be overridden by get config from Backend method.
+     * Default value is false, cause if the config was not retrieved from server,
+     * then in-app content blocks is unavailable too.
+     */
+    var isInAppCBEnabled: Boolean = false,
+
+    /**
+     * Flag that enables or disables App Inbox for this session.
+     * Can/Must be overridden by get config from Backend method.
+     * Default value is false, cause if the config was not retrieved from server,
+     * then in-app content blocks is unavailable too.
+     */
+    var isAppInboxEnabled: Boolean = false,
 ) {
 
     companion object {

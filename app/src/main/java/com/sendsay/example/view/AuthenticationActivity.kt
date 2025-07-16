@@ -3,7 +3,6 @@ package com.sendsay.example.view
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.sendsay.example.App
@@ -12,16 +11,20 @@ import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.utils.isVaildUrl
 import com.sendsay.example.utils.isValid
 import com.sendsay.example.utils.onTextChanged
+import com.sendsay.sdk.BuildConfig
 import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
+import com.sendsay.sdk.Sendsay.runDebugMode
 import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayConfiguration.Companion.TOKEN_AUTH_PREFIX
+import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
 
 class AuthenticationActivity : AppCompatActivity() {
 
     var projectToken = "x-17496430561032892"
     var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
-    var authorizationToken = "Token 192P7IBe8VbXlTlZlb5gP_agFwuMfpUOpkE9KxnKmCsCJ1tj-lbaB5tLgC62s-JXTsxkz"
+    var authorizationToken =
+        "Token 192P7IBe8VbXlTlZlb5gP_agFwuMfpUOpkE9KxnKmCsCJ1tj-lbaB5tLgC62s-JXTsxkz"
     var advancedPublicKey = "PK"
     var registeredIds = "x-17496430561032892"
 
@@ -48,7 +51,8 @@ class AuthenticationActivity : AppCompatActivity() {
         viewBinding.authenticateButton.setOnClickListener {
             if (!viewBinding.editTextProjectToken.isValid() ||
                 !viewBinding.editTextAuthCode.isValid() ||
-                !viewBinding.editTextApiUrl.isVaildUrl()) {
+                !viewBinding.editTextApiUrl.isVaildUrl()
+            ) {
                 Toast.makeText(this, "Empty field", Toast.LENGTH_SHORT).show()
             } else {
                 initSdk()
@@ -63,12 +67,15 @@ class AuthenticationActivity : AppCompatActivity() {
     private fun initSdk() {
         // Start our sendsay configuration
         val configuration = SendsayConfiguration()
-        configuration.authorization = "Token ${authorizationToken.split(" ").last()}"
+
+        // ingore existing prefix for authorization token (Token, Bearer or Basic)
+        configuration.authorization = TOKEN_AUTH_PREFIX + authorizationToken.split(" ").last()
         configuration.advancedAuthEnabled = advancedPublicKey.isNotBlank()
         configuration.projectToken = projectToken
         configuration.baseURL = apiUrl
         configuration.httpLoggingLevel = SendsayConfiguration.HttpLoggingLevel.BODY
-        configuration.defaultProperties["thisIsADefaultStringProperty"] = "This is a default string value"
+        configuration.defaultProperties["thisIsADefaultStringProperty"] =
+            "This is a default string value"
         configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
         configuration.automaticPushNotification = true
         configuration.tokenTrackFrequency = EVERY_LAUNCH
@@ -90,14 +97,14 @@ class AuthenticationActivity : AppCompatActivity() {
                 customerIds = hashMapOf(
                     "registered" to (App.instance.registeredIdManager.registeredID ?: ""),
 //                    Pair("phone", "+79112343393")
-                    Pair("phone", "+79602386404")
+                    "phone" to "+79602386404"
                 )
             )
         }
 
         // Set up our flushing
         Sendsay.flushMode = FlushMode.IMMEDIATE
-        Sendsay.checkPushSetup = true
+        Sendsay.checkPushSetup = runDebugMode
 
         // Start our SDK
         // Sendsay.initFromFile(App.instance)

@@ -34,7 +34,7 @@ import com.sendsay.sdk.util.currentTimeSeconds
 internal class TrackingConsentManagerImpl(
     private val eventManager: EventManager,
     private val campaignRepository: CampaignRepository,
-//    private val inappMessageTrackingDelegate: InAppMessageTrackingDelegate,
+    private val inappMessageTrackingDelegate: InAppMessageTrackingDelegate,
     private val inAppContentBlockTrackingDelegate: InAppContentBlockTrackingDelegate
 ) : TrackingConsentManager {
 
@@ -120,59 +120,59 @@ internal class TrackingConsentManagerImpl(
         )
     }
 
-//    override fun trackInAppMessageShown(message: InAppMessage, mode: MODE) {
-//        var trackingAllowed = true
-//        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-//            Logger.e(this, "Event for shown inAppMessage is not tracked because consent is not given")
-//            trackingAllowed = false
-//        }
-//        inappMessageTrackingDelegate.track(message, "show", false, trackingAllowed)
-//    }
-//
-//    override fun trackInAppMessageClick(message: InAppMessage, buttonText: String?, buttonLink: String?, mode: MODE) {
-//        var trackingAllowed = true
-//        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(buttonLink)) {
-//            Logger.e(this, "Event for clicked inAppMessage is not tracked because consent is not given")
-//            trackingAllowed = false
-//        }
-//        inappMessageTrackingDelegate.track(
-//            message,
-//            "click",
-//            true,
-//            trackingAllowed,
-//            buttonText,
-//            buttonLink
-//        )
-//    }
-//
-//    override fun trackInAppMessageClose(
-//        message: InAppMessage,
-//        buttonText: String?,
-//        userInteraction: Boolean,
-//        mode: MODE
-//    ) {
-//        var trackingAllowed = true
-//        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-//            Logger.e(this, "Event for closed inAppMessage is not tracked because consent is not given")
-//            trackingAllowed = false
-//        }
-//        inappMessageTrackingDelegate.track(
-//            message,
-//            "close",
-//            userInteraction,
-//            trackingAllowed,
-//            text = buttonText
-//        )
-//    }
-//
-//    override fun trackInAppMessageError(message: InAppMessage, error: String, mode: MODE) {
-//        var trackingAllowed = true
-//        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-//            Logger.e(this, "Event for error of inAppMessage showing is not tracked because consent is not given")
-//            trackingAllowed = false
-//        }
-//        inappMessageTrackingDelegate.track(message, "error", false, trackingAllowed, error = error)
-//    }
+    override fun trackInAppMessageShown(message: InAppMessage, mode: MODE) {
+        var trackingAllowed = true
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
+            Logger.e(this, "Event for shown inAppMessage is not tracked because consent is not given")
+            trackingAllowed = false
+        }
+        inappMessageTrackingDelegate.track(message, "show", false, trackingAllowed)
+    }
+
+    override fun trackInAppMessageClick(message: InAppMessage, buttonText: String?, buttonLink: String?, mode: MODE) {
+        var trackingAllowed = true
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(buttonLink)) {
+            Logger.e(this, "Event for clicked inAppMessage is not tracked because consent is not given")
+            trackingAllowed = false
+        }
+        inappMessageTrackingDelegate.track(
+            message,
+            "click",
+            true,
+            trackingAllowed,
+            buttonText,
+            buttonLink
+        )
+    }
+
+    override fun trackInAppMessageClose(
+        message: InAppMessage,
+        buttonText: String?,
+        userInteraction: Boolean,
+        mode: MODE
+    ) {
+        var trackingAllowed = true
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
+            Logger.e(this, "Event for closed inAppMessage is not tracked because consent is not given")
+            trackingAllowed = false
+        }
+        inappMessageTrackingDelegate.track(
+            message,
+            "close",
+            userInteraction,
+            trackingAllowed,
+            text = buttonText
+        )
+    }
+
+    override fun trackInAppMessageError(message: InAppMessage, error: String, mode: MODE) {
+        var trackingAllowed = true
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
+            Logger.e(this, "Event for error of inAppMessage showing is not tracked because consent is not given")
+            trackingAllowed = false
+        }
+        inappMessageTrackingDelegate.track(message, "error", false, trackingAllowed, error = error)
+    }
 
     override fun trackAppInboxOpened(item: MessageItem, mode: MODE) {
         val customerIds = item.customerIds
@@ -363,16 +363,16 @@ internal class TrackingConsentManagerImpl(
                 }
             )
             val campaignRepository = CampaignRepositoryImpl(SendsayGson.instance, preferences)
-//            val inappMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
-//                context, eventManager
-//            )
+            val inappMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
+                context, eventManager
+            )
             val inAppContentBlockTrackingDelegate = InAppContentBlockTrackingDelegateImpl(
                 context, eventManager
             )
             return TrackingConsentManagerImpl(
                 eventManager = eventManager,
                 campaignRepository = campaignRepository,
-//                inappMessageTrackingDelegate = inappMessageTrackingDelegate,
+                inappMessageTrackingDelegate = inappMessageTrackingDelegate,
                 inAppContentBlockTrackingDelegate = inAppContentBlockTrackingDelegate
             )
         }

@@ -16,7 +16,11 @@ internal class SendsayServiceImpl(
 ) : SendsayService {
 
     override fun postCampaignClick(sendsayProject: SendsayProject, event: Event): Call {
-        return doPost(sendsayProject, ApiEndPoint.EndPointName.TRACK_CAMPAIGN, CampaignClickEvent(event))
+        return doPost(
+            sendsayProject,
+            ApiEndPoint.EndPointName.TRACK_CAMPAIGN,
+            CampaignClickEvent(event)
+        )
     }
 
     override fun postEvent(sendsayProject: SendsayProject, event: Event): Call {
@@ -31,25 +35,45 @@ internal class SendsayServiceImpl(
         sendsayProject: SendsayProject,
         attributesRequest: CustomerAttributesRequest
     ): Call {
-        return doPost(sendsayProject, ApiEndPoint.EndPointName.CUSTOMERS_ATTRIBUTES, attributesRequest)
+        return doPost(
+            sendsayProject,
+            ApiEndPoint.EndPointName.CUSTOMERS_ATTRIBUTES,
+            attributesRequest
+        )
     }
 
     override fun postFetchConsents(sendsayProject: SendsayProject): Call {
         return doPost(sendsayProject, ApiEndPoint.EndPointName.CONSENTS, null)
     }
 
-//    override fun postFetchInAppMessages(sendsayProject: SendsayProject, customerIds: CustomerIds): Call {
-//        return doPost(
-//            sendsayProject,
-//            ApiEndPoint.EndPointName.IN_APP_MESSAGES,
-//            hashMapOf(
-//                "customer_ids" to customerIds.toHashMap(),
-//                "device" to "android"
-//            )
-//        )
-//    }
+    override fun postFetchInAppMessages(
+        sendsayProject: SendsayProject,
+        customerIds: CustomerIds
+    ): Call {
+        return doPost(
+            sendsayProject,
+            ApiEndPoint.EndPointName.IN_APP_MESSAGES,
+            hashMapOf(
+                "customer_ids" to customerIds.toHashMap(),
+                "device" to "android"
+            )
+        )
+    }
 
-    override fun postFetchAppInbox(sendsayProject: SendsayProject, customerIds: CustomerIds, syncToken: String?): Call {
+    override fun fetchInitConfig(sendsayProject: SendsayProject): Call {
+        return doGet(
+            sendsayProject,
+            ApiEndPoint.forName(ApiEndPoint.EndPointName.GET_CONFIG)
+                .withToken(sendsayProject.projectToken)
+                .toString(),
+        )
+    }
+
+    override fun postFetchAppInbox(
+        sendsayProject: SendsayProject,
+        customerIds: CustomerIds,
+        syncToken: String?
+    ): Call {
         val reqBody = hashMapOf<String, Any>(
             "customer_ids" to customerIds.toHashMap()
         )
@@ -116,7 +140,18 @@ internal class SendsayServiceImpl(
         bodyContent: Any?
     ): Call {
         val jsonBody = bodyContent?.let { gson.toJson(it) }
-        return networkManager.post(sendsayProject.baseUrl + endpoint, sendsayProject.authorization, jsonBody)
+        return networkManager.post(
+            sendsayProject.baseUrl + endpoint,
+            sendsayProject.authorization,
+            jsonBody
+        )
+    }
+
+    internal fun doGet(
+        sendsayProject: SendsayProject,
+        endpoint: String,
+    ): Call {
+        return networkManager.get(sendsayProject.baseUrl + endpoint, sendsayProject.authorization)
     }
 
     override fun fetchStaticInAppContentBlocks(sendsayProject: SendsayProject): Call {

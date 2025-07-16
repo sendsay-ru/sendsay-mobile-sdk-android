@@ -61,7 +61,7 @@ internal class VersionChecker(
                                 "#### Your version: $actualVersion  Last version: $lastVersion\n" +
                                 "#### Upgrade to the latest version to benefit from the new features " +
                                         "and better stability:\n" +
-                                "#### https://github.com/sendsay/$gitProject/releases\n" +
+                                "#### https://gitlab.sndsy.ru/$gitProject/releases\n" +
                                 "####"
                                 )
                             }

@@ -32,6 +32,10 @@ internal class AppInboxManagerImpl(
     internal val onFetchDoneCallbacks = LinkedBlockingQueue<(List<MessageItem>?) -> Unit>()
 
     public override fun markMessageAsRead(message: MessageItem, callback: ((Boolean) -> Unit)?) {
+        if (Sendsay.isAppInboxEnabled) {
+            Logger.e(this, "App inbox message ${message.id} not read, isAppInboxEnabled is disabled")
+            return
+        }
         if (message.syncToken == null || message.customerIds.isEmpty()) {
             Logger.e(this, "Unable to mark message ${message.id} as read, try to fetch AppInbox")
             runOnMainThread {

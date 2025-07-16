@@ -36,6 +36,7 @@ import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.Call
@@ -324,6 +325,42 @@ internal inline fun runOnBackgroundThread(delayMillis: Long, crossinline block: 
             block.invoke()
         }.logOnException()
     }
+}
+
+internal inline fun runOnBackgroundThread(
+    delayMillis: Long,
+    timeoutMillis: Long? = null,
+    crossinline block: suspend () -> Unit,
+    crossinline onTimeout: () -> Unit
+): Job {
+    var cancellerJob: Job? = null
+    val backgroundJob = backgroundThreadDispatcher.launch {
+        runCatching {
+            try {
+                delay(delayMillis)
+            } catch (e: Exception) {
+                Logger.w(this, "Delayed task has been cancelled: ${e.localizedMessage}")
+                return@runCatching
+            }
+            block.invoke()
+            cancellerJob?.cancel("Task finished successfully")
+        }.logOnException()
+    }
+    cancellerJob = timeoutMillis?.let {
+        backgroundThreadDispatcher.launch {
+            runCatching {
+                try {
+                    delay(it)
+                } catch (e: Exception) {
+                    Logger.v(this, "Task cancellation stopped: ${e.localizedMessage}")
+                    return@runCatching
+                }
+                backgroundJob.cancel("Task timed out after $it millis")
+                onTimeout.invoke()
+            }.logOnException()
+        }
+    }
+    return backgroundJob
 }
 
 internal inline fun ensureOnBackgroundThread(crossinline block: () -> Unit) {

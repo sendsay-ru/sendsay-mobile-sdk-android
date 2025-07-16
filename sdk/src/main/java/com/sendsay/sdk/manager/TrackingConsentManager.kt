@@ -17,10 +17,10 @@ internal interface TrackingConsentManager {
         shownStatus: Constants.PushNotifShownStatus,
         notificationChannelImportance: NotificationChannelImportance
     )
-//    fun trackInAppMessageShown(message: InAppMessage, mode: MODE)
-//    fun trackInAppMessageClick(message: InAppMessage, buttonText: String?, buttonLink: String?, mode: MODE)
-//    fun trackInAppMessageClose(message: InAppMessage, buttonText: String?, userInteraction: Boolean, mode: MODE)
-//    fun trackInAppMessageError(message: InAppMessage, error: String, mode: MODE)
+    fun trackInAppMessageShown(message: InAppMessage, mode: MODE)
+    fun trackInAppMessageClick(message: InAppMessage, buttonText: String?, buttonLink: String?, mode: MODE)
+    fun trackInAppMessageClose(message: InAppMessage, buttonText: String?, userInteraction: Boolean, mode: MODE)
+    fun trackInAppMessageError(message: InAppMessage, error: String, mode: MODE)
     fun trackAppInboxOpened(item: MessageItem, mode: MODE)
     fun trackAppInboxClicked(message: MessageItem, buttonText: String?, buttonLink: String?, mode: MODE)
     fun trackInAppContentBlockShown(placeholderId: String, contentBlock: InAppContentBlock, mode: MODE)

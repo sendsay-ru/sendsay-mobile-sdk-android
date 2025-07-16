@@ -10,7 +10,7 @@ internal class InAppMessageActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-//        presentedMessageView = Sendsay.getPresentedInAppMessageView(this)
+        presentedMessageView = Sendsay.getPresentedInAppMessageView(this)
 
         if (presentedMessageView == null) {
             finish()

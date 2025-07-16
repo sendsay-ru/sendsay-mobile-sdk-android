@@ -12,7 +12,7 @@ internal interface SendsayService {
     fun postFetchAttributes(sendsayProject: SendsayProject, attributesRequest: CustomerAttributesRequest): Call
     fun postFetchConsents(sendsayProject: SendsayProject): Call
     fun postCampaignClick(sendsayProject: SendsayProject, event: Event): Call
-//    fun postFetchInAppMessages(sendsayProject: SendsayProject, customerIds: CustomerIds): Call
+    fun postFetchInAppMessages(sendsayProject: SendsayProject, customerIds: CustomerIds): Call
     fun postFetchAppInbox(sendsayProject: SendsayProject, customerIds: CustomerIds, syncToken: String?): Call
     fun postReadFlagAppInbox(
         sendsayProject: SendsayProject,
@@ -26,6 +26,7 @@ internal interface SendsayService {
         pushToken: String,
         tokenType: TokenType
     ): Call
+    fun fetchInitConfig(sendsayProject: SendsayProject): Call
     fun fetchStaticInAppContentBlocks(sendsayProject: SendsayProject): Call
     fun fetchPersonalizedInAppContentBlocks(
         sendsayProject: SendsayProject,

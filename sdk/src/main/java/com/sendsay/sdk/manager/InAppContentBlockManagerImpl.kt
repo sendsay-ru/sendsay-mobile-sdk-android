@@ -359,6 +359,10 @@ internal class InAppContentBlockManagerImpl(
             Logger.e(this, "InAppCB: In-app content blocks fetch failed, SDK is stopping")
             return
         }
+        if (!Sendsay.isInAppCBEnabled) {
+            Logger.e(this, "In-app content blocks fetch failed, Sendsay.isInAppCBEnabled = false")
+            return
+        }
         Logger.d(this, "InAppCB: Loading of InApp Content Block placeholders requested")
         ensureOnBackgroundThread {
             dataAccess.waitForAccessWithDone { done ->

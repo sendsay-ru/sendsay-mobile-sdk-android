@@ -12,6 +12,7 @@ import com.sendsay.sdk.manager.ConnectionManager
 import com.sendsay.sdk.manager.ConnectionManagerImpl
 import com.sendsay.sdk.manager.EventManager
 import com.sendsay.sdk.manager.EventManagerImpl
+import com.sendsay.sdk.manager.EventManagerInAppMessageTrackingDelegate
 import com.sendsay.sdk.manager.FcmManager
 import com.sendsay.sdk.manager.FcmManagerImpl
 import com.sendsay.sdk.manager.FetchManager
@@ -20,6 +21,11 @@ import com.sendsay.sdk.manager.FlushManager
 import com.sendsay.sdk.manager.FlushManagerImpl
 import com.sendsay.sdk.manager.InAppContentBlockManager
 import com.sendsay.sdk.manager.InAppContentBlockManagerImpl
+import com.sendsay.sdk.manager.InAppMessageManager
+import com.sendsay.sdk.manager.InAppMessageManagerImpl
+import com.sendsay.sdk.manager.InAppMessageTrackingDelegate
+import com.sendsay.sdk.manager.InitConfigManager
+import com.sendsay.sdk.manager.InitConfigManagerImpl
 import com.sendsay.sdk.manager.PushNotificationSelfCheckManager
 import com.sendsay.sdk.manager.PushNotificationSelfCheckManagerImpl
 import com.sendsay.sdk.manager.SegmentsManager
@@ -54,6 +60,9 @@ import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.FontCacheImpl
 import com.sendsay.sdk.repository.HtmlNormalizedCacheImpl
 import com.sendsay.sdk.repository.InAppContentBlockDisplayStateRepositoryImpl
+import com.sendsay.sdk.repository.InAppMessageDisplayStateRepositoryImpl
+import com.sendsay.sdk.repository.InAppMessagesCache
+import com.sendsay.sdk.repository.InAppMessagesCacheImpl
 import com.sendsay.sdk.repository.PushNotificationRepository
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl
 import com.sendsay.sdk.repository.PushTokenRepository
@@ -106,12 +115,12 @@ internal class SendsayComponent(
 
     internal val campaignRepository: CampaignRepository = CampaignRepositoryImpl(SendsayGson.instance, preferences)
 
-//    internal val inAppMessagesCache: InAppMessagesCache = InAppMessagesCacheImpl(context, SendsayGson.instance)
+    internal val inAppMessagesCache: InAppMessagesCache = InAppMessagesCacheImpl(context, SendsayGson.instance)
 
     internal val appInboxCache: AppInboxCache = AppInboxCacheImpl(context, SendsayGson.instance)
 
-//    internal val inAppMessageDisplayStateRepository =
-//        InAppMessageDisplayStateRepositoryImpl(preferences, SendsayGson.instance)
+    internal val inAppMessageDisplayStateRepository =
+        InAppMessageDisplayStateRepositoryImpl(preferences, SendsayGson.instance)
 
     // Network Handler
     internal val networkManager: NetworkHandler = NetworkHandlerImpl(sendsayConfiguration)
@@ -151,7 +160,7 @@ internal class SendsayComponent(
         sendsayService,
         connectionManager,
         onEventUploaded = { uploadedEvent ->
-//            inAppMessageManager.onEventUploaded(uploadedEvent)
+            inAppMessageManager.onEventUploaded(uploadedEvent)
             segmentsManager.onEventUploaded(uploadedEvent)
         }
     )
@@ -159,7 +168,7 @@ internal class SendsayComponent(
     internal val eventManager: EventManager = EventManagerImpl(
         sendsayConfiguration, eventRepository, customerIdsRepository, flushManager, projectFactory,
         onEventCreated = { event, type ->
-//            inAppMessageManager.onEventCreated(event, type)
+            inAppMessageManager.onEventCreated(event, type)
             appInboxManager.onEventCreated(event, type)
             inAppContentBlockManager.onEventCreated(event, type)
         }
@@ -169,16 +178,16 @@ internal class SendsayComponent(
         campaignRepository, eventManager
     )
 
-//    internal val inAppMessageTrackingDelegate: InAppMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
-//        context, eventManager
-//    )
+    internal val inAppMessageTrackingDelegate: InAppMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
+        context, eventManager
+    )
 
     internal val inAppContentBlockTrackingDelegate = InAppContentBlockTrackingDelegateImpl(
         context, eventManager
     )
 
     internal val trackingConsentManager: TrackingConsentManager = TrackingConsentManagerImpl(
-        eventManager, campaignRepository, /*inAppMessageTrackingDelegate,*/ inAppContentBlockTrackingDelegate
+        eventManager, campaignRepository, inAppMessageTrackingDelegate, inAppContentBlockTrackingDelegate
     )
 
     internal val fcmManager: FcmManager = FcmManagerImpl(
@@ -196,6 +205,11 @@ internal class SendsayComponent(
         eventManager,
         backgroundTimerManager,
         sendsayConfiguration.manualSessionAutoClose
+    )
+
+    internal val initConfigManager: InitConfigManager = InitConfigManagerImpl(
+        fetchManager,
+        projectFactory
     )
 
     internal val pushNotificationSelfCheckManager: PushNotificationSelfCheckManager =
@@ -217,17 +231,17 @@ internal class SendsayComponent(
         appInboxCache = appInboxCache
     )
 
-//    internal val inAppMessageManager: InAppMessageManager = InAppMessageManagerImpl(
-//        customerIdsRepository,
-//        inAppMessagesCache,
-//        fetchManager,
-//        inAppMessageDisplayStateRepository,
-//        inAppMessagesBitmapCache,
-//        fontCache,
-//        inAppMessagePresenter,
-//        trackingConsentManager,
-//        projectFactory
-//    )
+    internal val inAppMessageManager: InAppMessageManager = InAppMessageManagerImpl(
+        customerIdsRepository,
+        inAppMessagesCache,
+        fetchManager,
+        inAppMessageDisplayStateRepository,
+        drawableCache,
+        fontCache,
+        inAppMessagePresenter,
+        trackingConsentManager,
+        projectFactory
+    )
 
     internal val inAppContentBlockDisplayStateRepository = InAppContentBlockDisplayStateRepositoryImpl(
         preferences
@@ -263,7 +277,7 @@ internal class SendsayComponent(
         fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.HMS)
         deviceInitiatedRepository.set(false)
         campaignRepository.clear()
-//        inAppMessageManager.clear()
+        inAppMessageManager.clear()
         uniqueIdentifierRepository.clear()
         customerIdsRepository.clear()
         inAppContentBlockManager.clearAll()
@@ -294,7 +308,7 @@ internal class SendsayComponent(
         }
         // Do not use TokenFrequency from the configuration, setup token from new customer immediately during anonymize
         fcmManager.trackToken(token, SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, tokenType)
-//        inAppMessageManager.reload()
+        inAppMessageManager.reload()
         appInboxManager.reload()
         inAppContentBlockManager.loadInAppContentBlockPlaceholders()
     }

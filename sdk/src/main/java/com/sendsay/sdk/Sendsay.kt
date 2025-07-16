@@ -1,5 +1,6 @@
 package com.sendsay.sdk
 
+import android.app.Activity
 import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -46,6 +47,8 @@ import com.sendsay.sdk.models.FlushPeriod
 import com.sendsay.sdk.models.InAppContentBlock
 import com.sendsay.sdk.models.InAppContentBlockAction
 import com.sendsay.sdk.models.InAppContentBlockPlaceholderConfiguration
+import com.sendsay.sdk.models.InAppMessage
+import com.sendsay.sdk.models.InAppMessageCallback
 import com.sendsay.sdk.models.MessageItem
 import com.sendsay.sdk.models.MessageItemAction
 import com.sendsay.sdk.models.NotificationAction
@@ -88,6 +91,8 @@ import com.sendsay.sdk.util.returnOnException
 import com.sendsay.sdk.util.runOnMainThread
 import com.sendsay.sdk.view.ContentBlockCarouselView
 import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
+import com.sendsay.sdk.view.InAppMessagePresenter
+import com.sendsay.sdk.view.InAppMessageView
 import java.util.concurrent.CopyOnWriteArrayList
 
 //@SuppressLint("StaticFieldLeak")
@@ -100,6 +105,9 @@ object Sendsay {
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     internal var isStopped = false
+    internal var isInAppMessagesEnabled = false
+    internal var isInAppCBEnabled = false
+    internal var isAppInboxEnabled = false
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -234,10 +242,11 @@ object Sendsay {
      * Whenever a in-app message button is clicked, this callback is called, if set up.
      * Otherwise default button behaviour is handled by the SDK
      */
-//    var inAppMessageActionCallback: InAppMessageCallback = Constants.InApps.defaultInAppMessageDelegate
-//        set(value) = runCatching {
-//            field = value
-//        }.logOnException()
+    var inAppMessageActionCallback: InAppMessageCallback =
+        Constants.InApps.defaultInAppMessageDelegate
+        set(value) = runCatching {
+            field = value
+        }.logOnException()
 
     /**
      * Set which level the debugger should output log messages
@@ -405,6 +414,10 @@ object Sendsay {
 
         configuration.validate()
 
+//        isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
+//        isInAppCBEnabled = configuration.isInAppCBEnabled
+//        isAppInboxEnabled = configuration.isAppInboxEnabled
+
         Logger.i(this, "Initializing Sendsay SDK version ${BuildConfig.SENDSAY_VERSION_NAME}")
 
         if (Looper.myLooper() == null)
@@ -425,7 +438,10 @@ object Sendsay {
             override fun onStateChanged(isForeground: Boolean) {
                 requireInitialized(
                     notInitializedBlock = {
-                        Logger.w(this, "Sendsay deinitialized meanwhile, stopping PushNotifPermission checker")
+                        Logger.w(
+                            this,
+                            "Sendsay deinitialized meanwhile, stopping PushNotifPermission checker"
+                        )
                         SendsayContextProvider.removeForegroundStateListener(this)
                     },
                     initializedBlock = {
@@ -762,8 +778,10 @@ object Sendsay {
         try {
             return TrackingConsentManagerImpl.createSdklessInstance(applicationContext)
         } catch (e: Exception) {
-            Logger.e(this, "Tracking not handled" +
-                " error occured while preparing a tracking process, see logs", e)
+            Logger.e(
+                this, "Tracking not handled" +
+                        " error occured while preparing a tracking process, see logs", e
+            )
             return null
         }
     }
@@ -780,15 +798,22 @@ object Sendsay {
         // Simple FCM manager - without SDK init
         val configuration = SendsayConfigRepository.get(applicationContext)
         if (configuration == null) {
-            Logger.w(this, "Notification delivery not handled," +
-                " previous SDK configuration not found")
+            Logger.w(
+                this, "Notification delivery not handled," +
+                        " previous SDK configuration not found"
+            )
             return null
         }
         try {
-            return TimeLimitedFcmManagerImpl.createSdklessInstance(applicationContext, configuration)
+            return TimeLimitedFcmManagerImpl.createSdklessInstance(
+                applicationContext,
+                configuration
+            )
         } catch (e: Exception) {
-            Logger.e(this, "Notification delivery not handled," +
-                " error occured while preparing a handling process, see logs", e)
+            Logger.e(
+                this, "Notification delivery not handled," +
+                        " error occured while preparing a handling process, see logs", e
+            )
             return null
         }
     }
@@ -816,12 +841,16 @@ object Sendsay {
         } catch (e: Exception) {
             Logger.e(
                 this,
-                "Notification data not stored due to error, see logs", e)
+                "Notification data not stored due to error, see logs", e
+            )
             return null
         }
     }
 
-    internal fun <T> requireInitialized(notInitializedBlock: (() -> T)? = null, initializedBlock: () -> T): T? {
+    internal fun <T> requireInitialized(
+        notInitializedBlock: (() -> T)? = null,
+        initializedBlock: () -> T
+    ): T? {
         if (!isInitialized) {
             Logger.e(this, "Sendsay SDK was not initialized properly!")
             return notInitializedBlock?.invoke()
@@ -830,7 +859,10 @@ object Sendsay {
     }
 
     // extra function without return type for Unit, above method would have return type Unit?
-    private fun requireInitialized(notInitializedBlock: (() -> Unit)? = null, initializedBlock: () -> Unit) {
+    private fun requireInitialized(
+        notInitializedBlock: (() -> Unit)? = null,
+        initializedBlock: () -> Unit
+    ) {
         requireInitialized<Unit>(notInitializedBlock, initializedBlock)
     }
 
@@ -853,8 +885,9 @@ object Sendsay {
         deintegration.registerForIntegrationStopped(component.campaignRepository)
         deintegration.registerForIntegrationStopped(component.deviceInitiatedRepository)
         deintegration.registerForIntegrationStopped(component.inAppContentBlockManager)
-//        deintegration.registerForIntegrationStopped(component.inAppMessageManager)
+        deintegration.registerForIntegrationStopped(component.inAppMessageManager)
         deintegration.registerForIntegrationStopped(component.inAppMessagePresenter)
+        deintegration.registerForIntegrationStopped(component.initConfigManager)
 
         ensureOnBackgroundThread {
             telemetry?.reportEvent(
@@ -877,21 +910,38 @@ object Sendsay {
 
         component.segmentsManager.onSdkInit()
 
+        component.initConfigManager.fetchInitConfig(onSuccess = {
+            Logger.i(this, "Init config fetched successfully")
+            isInAppMessagesEnabled =
+                it?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
+            isInAppCBEnabled = it?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
+            isAppInboxEnabled = it?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
+        }, onFailure = {
+            Logger.e(this, "Failed to fetch init config with message: ${it.message}")
+            isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
+            isInAppCBEnabled = configuration.isInAppCBEnabled
+            isAppInboxEnabled = configuration.isAppInboxEnabled
+        })
+
+
+
         context.addAppStateCallbacks(
-            onOpen = {
-                Logger.i(this, "App is opened")
-                if (flushMode == APP_CLOSE) {
-                    flushMode = PERIOD
+            onOpen =
+                {
+                    Logger.i(this, "App is opened")
+                    if (flushMode == APP_CLOSE) {
+                        flushMode = PERIOD
+                    }
+                },
+            onClosed =
+                {
+                    Logger.i(this, "App is closed")
+                    if (flushMode == PERIOD) {
+                        flushMode = APP_CLOSE
+                        // Flush data when app is closing for flush mode periodic.
+                        component.flushManager.flushData()
+                    }
                 }
-            },
-            onClosed = {
-                Logger.i(this, "App is closed")
-                if (flushMode == PERIOD) {
-                    flushMode = APP_CLOSE
-                    // Flush data when app is closing for flush mode periodic.
-                    component.flushManager.flushData()
-                }
-            }
         )
 
         if (checkPushSetup && runDebugMode) {
@@ -985,7 +1035,8 @@ object Sendsay {
         this.component.fcmManager.trackToken(
             component.pushTokenRepository.get(),
             tokenTrackFrequency,
-            component.pushTokenRepository.getLastTokenType())
+            component.pushTokenRepository.getLastTokenType()
+        )
     }
 
     /**
@@ -1030,17 +1081,17 @@ object Sendsay {
         projectRouteMap: Map<EventType, List<SendsayProject>>? = null
     ) = runCatching {
         requireInitialized(
-                notInitializedBlock = {
-                    Logger.v(this@Sendsay, "Sendsay is not initialize")
-                },
-                initializedBlock = {
-                    initGate.clear()
-                    component.anonymize(
-                            sendsayProject ?: component.projectFactory.mainSendsayProject,
-                            projectRouteMap ?: configuration.projectRouteMap
-                    )
-                    telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.ANONYMIZE)
-                }
+            notInitializedBlock = {
+                Logger.v(this@Sendsay, "Sendsay is not initialize")
+            },
+            initializedBlock = {
+                initGate.clear()
+                component.anonymize(
+                    sendsayProject ?: component.projectFactory.mainSendsayProject,
+                    projectRouteMap ?: configuration.projectRouteMap
+                )
+                telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.ANONYMIZE)
+            }
         )
     }.logOnException()
 
@@ -1088,43 +1139,43 @@ object Sendsay {
     }
 
     // used by InAppMessageActivity to get currently displayed message
-//    internal val presentedInAppMessage: InAppMessagePresenter.PresentedMessage?
-//        get() {
-//            return inAppMessagePresenter?.presentedMessage
-//        }
-//
-//    internal val inAppMessagePresenter: InAppMessagePresenter?
-//        get() {
-//            if (!isInitialized) return null
-//            return component.inAppMessagePresenter
-//        }
+    internal val presentedInAppMessage: InAppMessagePresenter.PresentedMessage?
+        get() {
+            return inAppMessagePresenter?.presentedMessage
+        }
+
+    internal val inAppMessagePresenter: InAppMessagePresenter?
+        get() {
+            if (!isInitialized) return null
+            return component.inAppMessagePresenter
+        }
 
     // used by InAppMessageActivity to get currently displayed message View
-    // View is not kept as field but generating from scratch to avoid memory leaks
-//    internal fun getPresentedInAppMessageView(activity: Activity): InAppMessageView? {
-//        val presenting = presentedInAppMessage ?: return null
-//        val inappMessageView = inAppMessagePresenter?.getView(
-//                activity,
-//                presenting.messageType,
-//                presenting.payload,
-//                presenting.payloadUi,
-//                presenting.payloadHtml,
-//                presenting.timeout,
-//                { button ->
-//                    presenting.actionCallback(button)
-//                },
-//                { userInteraction, cancelButton ->
-//                    presenting.dismissedCallback(userInteraction, cancelButton)
-//                },
-//                { error: String ->
-//                    presenting.failedCallback(error)
-//                }
-//        )
-//        if (inappMessageView == null) {
-//            presenting.failedCallback("Unable to present message")
-//        }
-//        return inappMessageView
-//    }
+// View is not kept as field but generating from scratch to avoid memory leaks
+    internal fun getPresentedInAppMessageView(activity: Activity): InAppMessageView? {
+        val presenting = presentedInAppMessage ?: return null
+        val inappMessageView = inAppMessagePresenter?.getView(
+            activity,
+            presenting.messageType,
+            presenting.payload,
+            presenting.payloadUi,
+            presenting.payloadHtml,
+            presenting.timeout,
+            { button ->
+                presenting.actionCallback(button)
+            },
+            { userInteraction, cancelButton ->
+                presenting.dismissedCallback(userInteraction, cancelButton)
+            },
+            { error: String ->
+                presenting.failedCallback(error)
+            }
+        )
+        if (inappMessageView == null) {
+            presenting.failedCallback("Unable to present message")
+        }
+        return inappMessageView
+    }
 
     internal fun selfCheckPushReceived() {
         component.pushNotificationSelfCheckManager.selfCheckPushReceived()
@@ -1164,7 +1215,10 @@ object Sendsay {
             Logger.d(this, "Received push notification token")
             val fcmManagerInstance = getFcmManager(context)
             if (fcmManagerInstance == null) {
-                Logger.d(this, "Token not refreshed: SDK is not initialized nor configured previously")
+                Logger.d(
+                    this,
+                    "Token not refreshed: SDK is not initialized nor configured previously"
+                )
                 val pushTokenRepository = PushTokenRepositoryProvider.get(context)
                 pushTokenRepository.setUntrackedToken(
                     token,
@@ -1184,65 +1238,65 @@ object Sendsay {
      * - parameter 'message' has TRUE value of 'hasTrackingConsent' property
      * - parameter 'buttonLink' has TRUE value of query parameter 'xnpe_force_track'
      */
-//    fun trackInAppMessageClick(
-//        message: InAppMessage,
-//        buttonText: String?,
-//        buttonLink: String?
-//    ) = runCatching {
-//        initGate.waitForInitialize {
-//            component.trackingConsentManager.trackInAppMessageClick(
-//                message, buttonText, buttonLink, CONSIDER_CONSENT
-//            )
-//        }
-//    }.logOnException()
+    fun trackInAppMessageClick(
+        message: InAppMessage,
+        buttonText: String?,
+        buttonLink: String?
+    ) = runCatching {
+        initGate.waitForInitialize {
+            component.trackingConsentManager.trackInAppMessageClick(
+                message, buttonText, buttonLink, CONSIDER_CONSENT
+            )
+        }
+    }.logOnException()
 
     /**
      * Track in-app message banner click event
      * Event is tracked even if InAppMessage and button link have not a tracking consent.
      */
-//    fun trackInAppMessageClickWithoutTrackingConsent(
-//        message: InAppMessage,
-//        buttonText: String?,
-//        buttonLink: String?
-//    ) = runCatching {
-//        initGate.waitForInitialize {
-//            component.trackingConsentManager.trackInAppMessageClick(
-//                message, buttonText, buttonLink, IGNORE_CONSENT
-//            )
-//        }
-//    }.logOnException()
+    fun trackInAppMessageClickWithoutTrackingConsent(
+        message: InAppMessage,
+        buttonText: String?,
+        buttonLink: String?
+    ) = runCatching {
+        initGate.waitForInitialize {
+            component.trackingConsentManager.trackInAppMessageClick(
+                message, buttonText, buttonLink, IGNORE_CONSENT
+            )
+        }
+    }.logOnException()
 
     /**
      * Track in-app message banner close event
      * Event is tracked if parameter 'message' has TRUE value of 'hasTrackingConsent' property
      */
-//    fun trackInAppMessageClose(
-//        message: InAppMessage,
-//        buttonText: String? = null,
-//        interaction: Boolean? = null
-//    ) = runCatching {
-//        initGate.waitForInitialize {
-//            component.trackingConsentManager.trackInAppMessageClose(
-//                message, buttonText, interaction ?: true, CONSIDER_CONSENT
-//            )
-//        }
-//    }.logOnException()
+    fun trackInAppMessageClose(
+        message: InAppMessage,
+        buttonText: String? = null,
+        interaction: Boolean? = null
+    ) = runCatching {
+        initGate.waitForInitialize {
+            component.trackingConsentManager.trackInAppMessageClose(
+                message, buttonText, interaction ?: true, CONSIDER_CONSENT
+            )
+        }
+    }.logOnException()
 
     /**
      * Track in-app message banner close event
      * Event is tracked even if InAppMessage has not a tracking consent.
      */
-//    fun trackInAppMessageCloseWithoutTrackingConsent(
-//        message: InAppMessage,
-//        buttonText: String? = null,
-//        interaction: Boolean? = null
-//    ) = runCatching {
-//        initGate.waitForInitialize {
-//            component.trackingConsentManager.trackInAppMessageClose(
-//                message, buttonText, interaction ?: true, IGNORE_CONSENT
-//            )
-//        }
-//    }.logOnException()
+    fun trackInAppMessageCloseWithoutTrackingConsent(
+        message: InAppMessage,
+        buttonText: String? = null,
+        interaction: Boolean? = null
+    ) = runCatching {
+        initGate.waitForInitialize {
+            component.trackingConsentManager.trackInAppMessageClose(
+                message, buttonText, interaction ?: true, IGNORE_CONSENT
+            )
+        }
+    }.logOnException()
 
     fun getAppInboxButton(context: Context): Button = runCatching<Button> {
         return appInboxProvider.getAppInboxButton(context)
@@ -1259,9 +1313,10 @@ object Sendsay {
         return appInboxProvider.getAppInboxListFragment(context)
     }.logOnExceptionWithResult().returnOnException { Fragment() }
 
-    fun getAppInboxDetailFragment(context: Context, messageId: String): Fragment = runCatching<Fragment> {
-        return appInboxProvider.getAppInboxDetailFragment(context, messageId)
-    }.logOnExceptionWithResult().returnOnException { Fragment() }
+    fun getAppInboxDetailFragment(context: Context, messageId: String): Fragment =
+        runCatching<Fragment> {
+            return appInboxProvider.getAppInboxDetailFragment(context, messageId)
+        }.logOnExceptionWithResult().returnOnException { Fragment() }
 
     fun getAppInboxDetailView(context: Context, messageId: String): View = runCatching<View> {
         return appInboxProvider.getAppInboxDetailView(context, messageId)
@@ -1300,13 +1355,14 @@ object Sendsay {
         }
     }.logOnException()
 
-    fun trackAppInboxClickWithoutTrackingConsent(action: MessageItemAction, message: MessageItem) = runCatching {
-        initGate.waitForInitialize {
-            component.trackingConsentManager.trackAppInboxClicked(
-                message, action.title, action.url, IGNORE_CONSENT
-            )
-        }
-    }.logOnException()
+    fun trackAppInboxClickWithoutTrackingConsent(action: MessageItemAction, message: MessageItem) =
+        runCatching {
+            initGate.waitForInitialize {
+                component.trackingConsentManager.trackAppInboxClicked(
+                    message, action.title, action.url, IGNORE_CONSENT
+                )
+            }
+        }.logOnException()
 
     fun markAppInboxAsRead(message: MessageItem, callback: ((Boolean) -> Unit)?) = runCatching {
         initGate.waitForInitialize {
@@ -1352,10 +1408,10 @@ object Sendsay {
         requireInitialized<ContentBlockCarouselView>(
             initializedBlock = {
                 ContentBlockCarouselView(
-                        context,
-                        placeholderId,
-                        maxMessagesCount ?: DEFAULT_MAX_MESSAGES_COUNT,
-                        scrollDelay ?: DEFAULT_SCROLL_DELAY
+                    context,
+                    placeholderId,
+                    maxMessagesCount ?: DEFAULT_MAX_MESSAGES_COUNT,
+                    scrollDelay ?: DEFAULT_SCROLL_DELAY
                 )
             }
         )
@@ -1377,11 +1433,11 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockClick(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    buttonText = action.name,
-                    buttonLink = action.url,
-                    mode = CONSIDER_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                buttonText = action.name,
+                buttonLink = action.url,
+                mode = CONSIDER_CONSENT
             )
         }
     }.logOnException()
@@ -1393,11 +1449,11 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockClick(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    buttonText = action.name,
-                    buttonLink = action.url,
-                    mode = IGNORE_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                buttonText = action.name,
+                buttonLink = action.url,
+                mode = IGNORE_CONSENT
             )
         }
     }.logOnException()
@@ -1408,9 +1464,9 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockClose(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    mode = CONSIDER_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                mode = CONSIDER_CONSENT
             )
         }
     }.logOnException()
@@ -1421,9 +1477,9 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockClose(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    mode = IGNORE_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                mode = IGNORE_CONSENT
             )
         }
     }.logOnException()
@@ -1434,9 +1490,9 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockShown(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    mode = CONSIDER_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                mode = CONSIDER_CONSENT
             )
         }
     }.logOnException()
@@ -1447,9 +1503,9 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockShown(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    mode = IGNORE_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                mode = IGNORE_CONSENT
             )
         }
     }.logOnException()
@@ -1461,10 +1517,10 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockError(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    error = errorMessage,
-                    mode = CONSIDER_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                error = errorMessage,
+                mode = CONSIDER_CONSENT
             )
         }
     }.logOnException()
@@ -1476,10 +1532,10 @@ object Sendsay {
     ) = runCatching {
         initGate.waitForInitialize {
             component.trackingConsentManager.trackInAppContentBlockError(
-                    placeholderId = placeholderId,
-                    contentBlock = message,
-                    error = errorMessage,
-                    mode = IGNORE_CONSENT
+                placeholderId = placeholderId,
+                contentBlock = message,
+                error = errorMessage,
+                mode = IGNORE_CONSENT
             )
         }
     }.logOnException()
@@ -1547,17 +1603,20 @@ object Sendsay {
     }.logOnException()
 
     internal fun processPushNotificationClickInternally(openedPushDataIntent: Intent) {
-        val action = openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO) as? NotificationAction?
+        val action =
+            openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO) as? NotificationAction?
         Logger.d(this, "Interaction: $action")
         val notifActionType = when (openedPushDataIntent.action) {
             SendsayExtras.ACTION_DEEPLINK_CLICKED -> SendsayNotificationActionType.DEEPLINK
             SendsayExtras.ACTION_URL_CLICKED -> SendsayNotificationActionType.BROWSER
             else -> SendsayNotificationActionType.APP
         }
-        val data = openedPushDataIntent.getParcelableExtra(SendsayExtras.EXTRA_DATA) as NotificationData?
+        val data =
+            openedPushDataIntent.getParcelableExtra(SendsayExtras.EXTRA_DATA) as NotificationData?
         val payloadRawData = openedPushDataIntent
             .getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA) as? HashMap<String, String>
-        val deliveredTimestamp = openedPushDataIntent.getDoubleExtra(SendsayExtras.EXTRA_DELIVERED_TIMESTAMP, 0.0)
+        val deliveredTimestamp =
+            openedPushDataIntent.getDoubleExtra(SendsayExtras.EXTRA_DELIVERED_TIMESTAMP, 0.0)
         val payload = payloadRawData?.let {
             NotificationPayload(it).apply {
                 this.deliveredTimestamp = deliveredTimestamp
@@ -1576,8 +1635,10 @@ object Sendsay {
                 timestamp = clickedTimestamp
             )
         } else {
-            Logger.e(this,
-                "Event for clicked notification is not tracked because consent is not given nor forced")
+            Logger.e(
+                this,
+                "Event for clicked notification is not tracked because consent is not given nor forced"
+            )
         }
         if (payload != null) {
             notifyCallbacksForNotificationClick(notifActionType, action?.url, payload)

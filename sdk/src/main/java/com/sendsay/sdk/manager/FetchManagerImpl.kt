@@ -19,6 +19,7 @@ import com.sendsay.sdk.network.SendsayService
 import com.sendsay.sdk.util.Logger
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.sendsay.sdk.models.ConfigItem
 import java.io.IOException
 import okhttp3.Call
 import okhttp3.Callback
@@ -189,22 +190,36 @@ internal class FetchManagerImpl(
         )
     }
 
-//    override fun fetchInAppMessages(
-//        sendsayProject: SendsayProject,
-//        customerIds: CustomerIds,
-//        onSuccess: (Result<ArrayList<InAppMessage>>) -> Unit,
-//        onFailure: (Result<FetchError>) -> Unit
-//    ) {
-//        api.postFetchInAppMessages(sendsayProject, customerIds).enqueue(
-//            getStandardFetchCallback(
-//                object : TypeToken<Result<ArrayList<InAppMessage>?>>() {},
-//                { result: Result<ArrayList<InAppMessage>?> ->
-//                    onSuccess(Result(true, result.results ?: arrayListOf()))
-//                },
-//                onFailure
-//            )
-//        )
-//    }
+    override fun fetchInAppMessages(
+        sendsayProject: SendsayProject,
+        customerIds: CustomerIds,
+        onSuccess: (Result<ArrayList<InAppMessage>>) -> Unit,
+        onFailure: (Result<FetchError>) -> Unit
+    ) {
+        api.postFetchInAppMessages(sendsayProject, customerIds).enqueue(
+            getStandardFetchCallback(
+                object : TypeToken<Result<ArrayList<InAppMessage>?>>() {},
+                { result: Result<ArrayList<InAppMessage>?> ->
+                    onSuccess(Result(true, result.results ?: arrayListOf()))
+                },
+                onFailure
+            )
+        )
+    }
+
+    override fun fetchInitConfig(
+        sendsayProject: SendsayProject,
+        onSuccess: (Result<ConfigItem?>) -> Unit,
+        onFailure: (Result<FetchError>) -> Unit
+    ) {
+        api.fetchInitConfig(sendsayProject).enqueue(
+            getStandardFetchCallback(
+                object : TypeToken<Result<ConfigItem?>>() {},
+                onSuccess,
+                onFailure
+            )
+        )
+    }
 
     override fun fetchAppInbox(
         sendsayProject: SendsayProject,

@@ -1,5 +1,6 @@
 package com.sendsay.sdk.manager
 
+import com.sendsay.sdk.models.ConfigItem
 import com.sendsay.sdk.models.Consent
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.CustomerRecommendation
@@ -27,12 +28,18 @@ internal interface FetchManager {
         onFailure: (Result<FetchError>) -> Unit
     )
 
-//    fun fetchInAppMessages(
-//        sendsayProject: SendsayProject,
-//        customerIds: CustomerIds,
-//        onSuccess: (Result<ArrayList<InAppMessage>>) -> Unit,
-//        onFailure: (Result<FetchError>) -> Unit
-//    )
+    fun fetchInAppMessages(
+        sendsayProject: SendsayProject,
+        customerIds: CustomerIds,
+        onSuccess: (Result<ArrayList<InAppMessage>>) -> Unit,
+        onFailure: (Result<FetchError>) -> Unit
+    )
+
+    fun fetchInitConfig(
+        sendsayProject: SendsayProject,
+        onSuccess: (Result<ConfigItem?>) -> Unit,
+        onFailure: (Result<FetchError>) -> Unit
+    )
 
     fun fetchAppInbox(
         sendsayProject: SendsayProject,
