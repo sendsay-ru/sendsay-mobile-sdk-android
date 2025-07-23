@@ -11,7 +11,7 @@ class TokenTracker {
             override fun run() {
                 try {
                     // Obtain the app ID from the agconnect-service.json file.
-                    val appId = "104661225"
+                    val appId = "114729999"
 
                     // Set tokenScope to HCM.
                     val tokenScope = "HCM"

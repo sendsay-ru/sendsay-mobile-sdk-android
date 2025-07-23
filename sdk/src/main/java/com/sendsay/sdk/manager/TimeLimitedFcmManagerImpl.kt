@@ -88,14 +88,14 @@ internal class TimeLimitedFcmManagerImpl(
             val pushTokenRepository = PushTokenRepositoryProvider.get(context)
             val pushNotificationRepository = PushNotificationRepositoryImpl(preferences)
             val campaignRepository = CampaignRepositoryImpl(SendsayGson.instance, preferences)
-//            val inappMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
-//                context, eventManager
-//            )
+            val inappMessageTrackingDelegate = EventManagerInAppMessageTrackingDelegate(
+                context, eventManager
+            )
             val inAppContentBlockTrackingDelegate = InAppContentBlockTrackingDelegateImpl(
                 context, eventManager
             )
             val trackingConsentManager = TrackingConsentManagerImpl(
-                eventManager, campaignRepository, /*inappMessageTrackingDelegate,*/ inAppContentBlockTrackingDelegate
+                eventManager, campaignRepository, inappMessageTrackingDelegate, inAppContentBlockTrackingDelegate
             )
             return TimeLimitedFcmManagerImpl(
                 context, configuration, eventManager, pushTokenRepository, trackingConsentManager
