@@ -18,7 +18,7 @@ SDK [доступен как открытый исходный код на GitHu
 - [Первоначальная настройка SDK](docs/setup.md)
   - [Конфигурация](docs/configuration.md)
   - [Авторизация](docs/authorization.md)
-  - [Очистка данных](docs/data-flushing.md)
+  - [Отправка данных](docs/data-flushing.md)
 - [Отслеживание](docs/tracking.md)
 - [Android App Links](docs/app-links.md)
 - [Push-уведомления](hdocs/push-notifications.md)
