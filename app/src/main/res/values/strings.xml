@@ -14,7 +14,7 @@
     <string name="hint_custids">Customer Id</string>
     <string name="hint_auth_code">Authentication Code</string>
     <string name="hint_project_token">Project Token</string>
-    <string name="hint_registered">Registered</string>
+    <string name="hint_registered">registered</string>
     <string name="hint_example">ex. email@adderess.com</string>
     <string name="hint_api_url">API Url</string>
     <string name="action_authenticate">Authenticate</string>

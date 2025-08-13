@@ -75,7 +75,7 @@ class TrackCustomAttributesDialog : DialogFragment() {
         val buttonAdd: Button = view.findViewById<Button>(R.id.buttonAddProperty)
         val buttonUpdate: Button = view.findViewById<Button>(R.id.buttonUpdate)
 
-        idsRegisteredView.setText(App.instance.registeredIdManager.registeredID)
+        idsRegisteredView.setText("registred")
 
         val spinnerAdapter: ArrayAdapter<String> =
             ArrayAdapter(
