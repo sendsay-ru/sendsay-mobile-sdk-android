@@ -6,19 +6,30 @@
     android:layout_height="match_parent"
     tools:layout_editor_absoluteY="25dp">
 
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Properties-Member.Set"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idsTextView" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/borders_rect"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/idsTextView">
+        app:layout_constraintTop_toBottomOf="@+id/label">
 
 
         <TextView
@@ -42,85 +53,157 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editTextName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:inputType="text"
-        android:imeOptions="actionNext"
-        android:maxLines="1"
-        android:layout_marginTop="24dp"
-        android:ems="10"
-        android:text="first_name"
-        app:layout_constraintEnd_toStartOf="@+id/space"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/space" />
+    <!--    <EditText-->
+    <!--        android:id="@+id/editTextName"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginEnd="16dp"-->
+    <!--        android:layout_marginStart="16dp"-->
+    <!--        android:inputType="text"-->
+    <!--        android:imeOptions="actionNext"-->
+    <!--        android:maxLines="1"-->
+    <!--        android:layout_marginTop="24dp"-->
+    <!--        android:ems="10"-->
+    <!--        android:text="first_name"-->
+    <!--        app:layout_constraintEnd_toStartOf="@+id/space"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="@+id/space" />-->
 
-    <Space
-        android:id="@+id/space"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.58"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+    <!--    <Space-->
+    <!--        android:id="@+id/space"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginEnd="8dp"-->
+    <!--        android:layout_marginStart="8dp"-->
+    <!--        android:layout_marginTop="8dp"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.58"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />-->
 
     <Button
         android:id="@+id/buttonUpdate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:text="Update"
         android:theme="@style/AppButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextName"
+        app:layout_constraintTop_toBottomOf="@+id/editTextValue"
         app:layout_constraintVertical_bias="0.0" />
 
-    <Button
-        android:theme="@style/AppButton"
-        android:id="@+id/buttonAddAttr"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextPropName"
+        android:layout_width="142dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Add"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextName" />
-
-    <EditText
-        android:id="@+id/editTextValue"
-        android:inputType="text"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:ems="10"
         android:imeOptions="actionNext"
+        android:inputType="text"
         android:maxLines="1"
+        android:text="property"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editTextValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="New Name"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextName"
-        app:layout_constraintEnd_toStartOf="@+id/buttonAddAttr"
-        app:layout_constraintStart_toEndOf="@+id/space"
-        app:layout_constraintTop_toTopOf="@+id/editTextName" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/borders_rect"
+        android:ems="10"
+        android:gravity="start"
+        android:imeOptions="actionNext"
+        android:inputType="textMultiLine"
+        android:minHeight="160dp"
+        android:padding="8dp"
+        android:text="value"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPropName"
+        app:textInputLayoutFocusedRectEnabled="false" />
 
-    <TextView
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="92dp"
+        android:layout_height="32dp"
+        android:background="@drawable/borders_rect"
+        android:pointerIcon="arrow"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextPropName"
+        app:layout_constraintStart_toEndOf="@+id/editTextPropName"
+        app:layout_constraintTop_toTopOf="@+id/editTextPropName" />
+
+    <LinearLayout
+        android:id="@+id/switchLayout"
+        android:layout_width="56dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextPropName"
+        app:layout_constraintStart_toEndOf="@+id/spinner"
+        app:layout_constraintTop_toTopOf="@+id/editTextPropName">
+
+        <TextView
+            android:id="@+id/switchTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="isCopy" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchWidget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppButton" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonAddProperty"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:text="Add"
+        android:theme="@style/AppButton"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextPropName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/switchLayout"
+        app:layout_constraintTop_toTopOf="@+id/editTextPropName" />
+
+    <EditText
         android:id="@+id/idsTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/hint_registered"
+        android:singleLine="true"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/valTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
+
+    <EditText
+        android:id="@+id/valTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:hint="@string/hint_example"
+        android:singleLine="true"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/idsTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/idsTextView"
+        app:layout_constraintTop_toTopOf="@+id/idsTextView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
