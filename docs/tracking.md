@@ -6,25 +6,23 @@ categorySlug: integrations
 parentDocSlug: android-sdk
 ---
 
-Вы можете отслеживать события в Engagement, чтобы узнать больше о шаблонах использования вашего приложения и сегментировать клиентов по их взаимодействиям.
+Вы можете передавать данные и события в CDP Sendsay, чтобы узнать больше о ваших клиентах.
 
 По умолчанию SDK автоматически отслеживает определенные события, включая:
 
 * Установку (после установки приложения и после вызова [anonymize](#anonymize))
 * Начало и окончание пользовательской сессии
 
-Кроме того, вы можете отслеживать любые пользовательские события, связанные с вашим бизнесом.
-
+Кроме того, вы можете отслеживать пользовательские события, связанные с вашими бизнес-процессами.
 
 ## События
 
 ### Отслеживание событий
 
-Используйте метод `trackEvent()` для отслеживания любого типа пользовательских событий, связанных с вашим бизнесом.
+Используйте метод `trackEvent()` для отслеживания пользовательских событий, связанных с вашими бизнес-процессами.
 
 Вы можете использовать любое имя для типа пользовательского события. Мы рекомендуем использовать описательное и удобочитаемое имя.
 
-Обратитесь к документации [Пользовательские события](https://documentation.bloomreach.com/engagement/docs/custom-events) для обзора часто используемых пользовательских событий.
 
 #### Аргументы
 
@@ -34,9 +32,23 @@ parentDocSlug: android-sdk
 | timestamp                 | Double         | Unix timestamp (в секундах), указывающий, когда событие было отслежено. Укажите значение `nil` для использования текущего времени. |
 | eventType **(обязательно)**  | String         | Название типа события, например `screen_view`. |
 
+#### SSEC (События модуля "Продажи")
+
+Обратитесь к документации [События модуля "Продажи"](https://docs.sendsay.ru/ecom/how-to-configure-data-transfer).
+
+```kotlin
+тут пример ssec-события
+```
+
+#### CCE (Пользовательские события)
+
+```kotlin
+тут пример cce-события
+```
+
 #### Примеры
 
-Представьте, что вы хотите отслеживать, какие экраны просматривает клиент. Вы можете создать пользовательское событие `screen_view` для этого.
+Представьте, что вы хотите отслеживать, какие экраны просматривает клиент. Вы можете создать пользовательское событие `screen_view` для этого и передавать его в Пользовательские события CDP Sendsay
 
 Сначала создайте `PropertiesList` со свойствами, которые вы хотите отслеживать вместе с этим событием. В нашем примере вы хотите отслеживать имя экрана, поэтому вы включаете свойство `screen_name` вместе с любыми другими соответствующими свойствами:
 
@@ -90,25 +102,16 @@ Sendsay.trackEvent(
 
 ## Клиенты
 
-[Идентификация ваших клиентов](https://documentation.bloomreach.com/engagement/docs/customer-identification) позволяет отслеживать их на различных устройствах и платформах, улучшая качество данных о клиентах.
+Без дополнительной идентификации события отслеживаются для анонимного клиента, определяемого только по т.н. cookie (автоматически сгенеренный идентификтор). Когда клиент идентифицируется по собственному идентификатору (email, телефон, csid), события будут ассоциированы с переданным основным идентификатором.
 
-Без идентификации события отслеживаются для анонимного клиента, определяемого только по cookie. Когда клиент идентифицируется по hard ID, эти события будут перенесены вновь идентифицированному клиенту.
-
-> 👍
->
-> Помните, что, хотя пользователь приложения и запись клиента могут быть связаны через soft или hard ID, они являются отдельными сущностями, каждая со своим собственным жизненным циклом. Подумайте о том, как соотносятся их жизненные циклы и когда использовать [identify](#identify) и [anonymize](#anonymize).
 
 ### Идентификация
 
-Используйте метод `identifyCustomer()` для идентификации клиента по его уникальному [hard ID](https://documentation.bloomreach.com/engagement/docs/customer-identification#hard-id).
+Используйте метод `identifyCustomer()` для идентификации клиента по его уникальному для ваших бизнес-процессов идентификатору (email, телефон, csid).
 
-По умолчанию hard ID - это `registered`, и его значение обычно адрес электронной почты клиента. Однако ваш проект Engagement может определять другой hard ID.
+По умолчанию используется ключ `registered`, и его значение обычно адрес электронной почты клиента. Однако ваши настройки мобильного приложения могут определять другой основной идентификатор.
 
-По желанию вы можете отслеживать дополнительные свойства клиента, такие как имя и фамилия, возраст и т.д.
-
-> ❗️
->
-> Хотя возможно использовать `identifyCustomer` с [soft ID](https://documentation.bloomreach.com/engagement/docs/customer-identification#section-soft-id), разработчики должны соблюдать осторожность при этом. В некоторых случаях (например, после использования `anonymize`) это может непреднамеренно связать текущего пользователя с неправильным профилем клиента.
+По желанию вы можете передавать в CDP Sendsay дополнительные свойства клиента, такие как имя и фамилия, возраст и т.д.
 
 > ❗️
 >
@@ -122,6 +125,10 @@ Sendsay.trackEvent(
 | customerIds **(обязательно)**  | CustomerIds    | Словарь уникальных идентификаторов клиента. Принимаются только идентификаторы, определенные в проекте Engagement. |
 | properties                  | PropertiesList | Словарь свойств клиента. |
 | timestamp                   | Double         | Unix timestamp (в секундах), указывающий, когда свойства клиента были обновлены. Укажите значение `nil` для использования текущего времени. |
+
+#### Передача данных в профиль клиента (member.set)
+
+Обратитесь к документации [метода member.set SendsayAPI](https://sendsay.ru/api/api.html#%D0%A1%D0%BE%D0%B7%D0%B4%D0%B0%D1%82%D1%8C-%D0%BF%D0%BE%D0%B4%D0%BF%D0%B8%D1%81%D1%87%D0%B8%D0%BA%D0%B0-%D0%9E%D0%B1%D0%BD%D0%BE%D0%B2%D0%B8%D1%82%D1%8C-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5-%D0%BF%D0%BE%D0%B4%D0%BF%D0%B8%D1%81%D1%87%D0%B8%D0%BA%D0%B0-%D0%9A%D0%94).
 
 #### Примеры
 
@@ -400,221 +407,6 @@ Invoking this method will cause the SDK to:
 * Stop handling of received push notifications.
 * Stop tracking of deep links and universal links (your app's handling of them isn't affected).
 
-## Остановка интеграции SDK
-
-Your application should always ask the customer for consent to track their app usage. If the customer consents to tracking of events at the application level but not at the personal data level, using the `anonymize()` method is normally sufficient.
-
-If the customer doesn't consent to any tracking before the SDK is initialized, it's recommended that the SDK isn't initialized at all. For the case of deleting personalized data before SDK initialization, see more info in the usage of the [clearLocalCustomerData](#clear-local-customer-data) method.
-
-The customer may also revoke all tracking consent later, after the SDK is fully initialized and tracking is enabled. In this case, you can stop SDK integration and remove all locally stored data by using the `Sendsay.stopIntegration()` method.
-
-Use the `stopIntegration()` method to delete all information stored locally and stop the SDK if it is already running.
-
-Invoking this method will cause the SDK to:
-
-* Remove the push notification token for the current customer from local device storage.
-* Clear local repositories and caches, including all previously tracked events that were not flushed yet.
-* Clear all session start and end information.
-* Remove the customer record stored locally.
-* Clear any In-app messages, In-app content blocks, and App inbox messages previously loaded.
-* Clear the SDK configuration from the last invoked initialization.
-* Stop handling of received push notifications.
-* Stop tracking of Deep links and Universal links (your app's handling of them is not affected).
-
-If the SDK is already running, invoking of this method also:
-
-* Stops and disables session start and session end tracking even if your application tries later on.
-* Stops and disables any tracking of events even if your application tries later on.
-* Stops and disables any flushing of tracked events even if your application tries later on.
-* Stops displaying of In-app messages, In-app content blocks, and App inbox messages.
-  * Already displayed messages are dismissed.
-  * Please validate dismiss behaviour if you [customized](https://documentation.bloomreach.com/engagement/docs/android-sdk-app-inbox#customize-app-inbox) the App Inbox UI layout. 
-
-After invoking the `stopIntegration()` method, the SDK will drop any API method invocation until you [initialize the SDK](https://documentation.bloomreach.com/engagement/docs/android-sdk-setup#initialize_the_sdk) again. 
-
-### Use cases
-
-Correct usage of `stopIntegration()` method depends on the use case so please consider all scenarios.
-
-#### Ask the customer for consent
-
-Developers should always respect user privacy, not just to comply with GDPR, but to build trust and create better, more ethical digital experiences.
-
-Permission requests in mobile apps should be clear, transparent, and contextually relevant. Explain why the permission is needed and request it only when necessary, ensuring users can make an informed choice.
-
-You may use system dialog or In-app messages for that purpose.
-
-![](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/gdpr-dialog-example.png)
-
-In the case of the in-app message dialog, you can customize [In-app message action callback](https://documentation.bloomreach.com/engagement/docs/android-sdk-in-app-messages#customize-in-app-message-actions) to handle the user's decision about allowing or denying tracking permission.
-
-```kotlin
-Sendsay.inAppMessageActionCallback = object : InAppMessageCallback {  
-    // set overrideDefaultBehavior to true to handle URL opening manually
-    override var overrideDefaultBehavior = true
-    // set trackActions to true to keep tracking of click and close actions
-    override var trackActions = true
-  
-    override fun inAppMessageClickAction(message: InAppMessage, button: InAppMessageButton, context: Context) {
-        if (messageIsForGdpr(message)) {
-            handleGdprUserResponse(button)
-        } else if (button.url != null) {
-            openUrl(button)
-        }
-    }
-
-    override fun inAppMessageCloseAction(
-        message: InAppMessage,
-        button: InAppMessageButton?,
-        interaction: Boolean,
-        context: Context
-    ) {
-        if (messageIsForGdpr(message) && interaction) {
-            // regardless from `button` nullability, parameter `interaction` with true tells that user closed message
-            Logger.i(this, "Stopping SDK")
-            Sendsay.stopIntegration()
-        }
-    }
-
-    override fun inAppMessageShown(message: InAppMessage, context: Context) {
-        // Here goes your code
-    }
-
-    override fun inAppMessageError(message: InAppMessage?, errorMessage: String, context: Context) {
-        // Here goes your code
-    }
-
-    private fun messageIsForGdpr(message: InAppMessage): Boolean {
-        // apply your detection for GDPR related In-app
-        // our example app is triggering GDPR In-app by custom event tracking so we used it for detection
-        // you may implement detection against message title, ID, payload, etc.
-        return message.applyEventFilter("event_name", mapOf("property" to "gdpr"), null)
-    }
-
-    private fun openUrl(button: InAppMessageButton) {
-        try {
-            startActivity(
-                Intent(Intent.ACTION_VIEW).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    data = Uri.parse(button.url)
-                }
-            )
-        } catch (e: ActivityNotFoundException) {
-            Logger.e(this, "Unable to open URL", e)
-        }
-    }
-}
-```
-
-#### Stop the SDK but upload tracked data
-
-The SDK caches data (such as sessions, events, and customer properties) in an internal local database and periodically sends them to Bloomreach Engagement. These data are kept locally if the device has no network, or if you configured SDK to upload them less frequently.
-
-Invoking the `stopIntegration()` method will remove all these locally stored data that may not be uploaded yet. To avoid loss of these data please request to flush them before stopping the SDK:
-
-```kotlin
-// Flushing requires that SDK is initialized
-Sendsay.configure(...)
-// Invoke flush force-fully
-Sendsay.flushMode = FlushMode.MANUAL
-val flushIsDone = Semaphore(0, true)
-Sendsay.flushData {
-    flushIsDone.release()
-}
-// Flushing process is asynchronous, we should wait until it is done
-messageShownInvoked.tryAcquire(20, TimeUnit.SECONDS)
-// All data are uploaded, we may stop SDK
-Sendsay.stopIntegration()
-```
-
-#### Stop the SDK and wipe all tracked data
-
-The SDK caches data (such as sessions, events, and customer properties) in an internal local database and periodically sends them to the Bloomreach Engagement app. These data are kept locally if the device has no network, or if you configured SDK to upload them less frequently.
-
-You may face the use case where the customer gets removed from the Bloomreach Enagagement platform and subsequently you want to remove them from local storage too.
-
-Please do not initialize the SDK in this case as, depending on your configuration, the SDK may upload the stored tracked events. This may lead to customer's profile being recreated in Bloomreach Enagagement. This is because stored events may have been tracked for this customer and uploading them will result in the recreation of the customer profile based on the assigned customer IDs.
-
-To prevent this from happening, invoke `stopIntegration()` immediately without initializing the SDK:
-
-```kotlin
-Sendsay.stopIntegration()
-```
-
-This results in all previously stored data being removed from the device. The next SDK initialization will be considered a fresh new start.
-
-#### Stop the already running SDK
-
-The method `stopIntegration()` can be invoked anytime on a configured and running SDK.
-
-This can be used in case the customer previously consented to tracking but revoked their consent later. You may freely invoke `stopIntegration()` with immediate effect.
-
-```kotlin
-// User gave you permission to track
-Sendsay.configure(...)
-
-// Later, user decides to stop tracking
-Sendsay.stopIntegration()
-```
-
-This results in the SDK stopping all internal processes (such as session tracking and push notifications handling) and removing all locally stored data.
-
-Please be aware that `stopIntegration()` stops any further tracking and flushing of data so if you require to upload tracked data to Bloomreach Engagement, then [flush them synchronously](#stop-the-sdk-but-upload-tracked-data) before stopping the SDK.
-
-#### Customer denies tracking consent
-
-It is recommended to ask the customer for tracking consent as soon as possible in your application. If the customer denies consent, please do not initialize the SDK at all.
-
-## Платежи
-
-SDK предоставляет удобный метод `trackPaymentEvent` для отслеживания информации о платеже за продукт или услугу в приложении.
-
-### Отслеживание события платежа
-
-Используйте метод `trackPaymentEvent()` для отслеживания платежей.
-
-#### Arguments
-
-| Name          | Type          | Description |
-| --------------| ------------- | ----------- |
-| purchasedItem | PurchasedItem | Dictionary of payment properties. |
-
-#### Examples
-
-First, create a `PurchasedItem` containing the basic information about the purchase:
-
-```kotlin
-val item = PurchasedItem(
-        value = 12.34,
-        currency = "EUR",
-        paymentSystem = "Virtual",
-        productId = "handbag",
-        productTitle = "Awesome leather handbag"
-)
-```
-
-Pass the `PurchasedItem` to `trackPaymentEvent` as follows:
-
-```kotlin
-Sendsay.trackPaymentEvent(purchasedItem = item)
-```
-
-If your app uses in-app purchases (for example, purchases with in-game gold, coins, etc.), you can track them with `trackPaymentEvent` using `Purchase` and `SkuDetails` objects used in [Google Play Billing Library](https://developer.android.com/google/play/billing/integrate):
-
-```kotlin
-val purchase: com.android.billingclient.api.Purchase = ...
-val skuDetails: com.android.billingclient.api.SkuDetails = ...
-val item = PurchasedItem(
-        value = sku.priceAmountMicros / 1000000.0,
-        currency = sku.priceCurrencyCode,
-        paymentSystem = "Google Play",
-        productId = sku.sku,
-        productTitle = sku.title,
-        receipt = purchase.signature
-)
-
-Sendsay.trackPaymentEvent(purchasedItem = item)
-```
 
 ## Свойства по умолчанию
 
