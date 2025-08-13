@@ -37,7 +37,7 @@ internal interface FetchManager {
 
     fun fetchInitConfig(
         sendsayProject: SendsayProject,
-        onSuccess: (Result<ConfigItem?>) -> Unit,
+        onSuccess: (Result<ArrayList<ConfigItem>?>) -> Unit,
         onFailure: (Result<FetchError>) -> Unit
     )
 

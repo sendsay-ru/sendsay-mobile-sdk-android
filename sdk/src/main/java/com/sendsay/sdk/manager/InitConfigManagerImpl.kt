@@ -8,6 +8,7 @@ import com.sendsay.sdk.models.FetchError
 import com.sendsay.sdk.services.SendsayProjectFactory
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.currentTimeSeconds
+import java.util.ArrayList
 import java.util.Date
 
 internal class InitConfigManagerImpl(
@@ -18,7 +19,7 @@ internal class InitConfigManagerImpl(
     private var sessionStartDate = Date()
 
     override fun fetchInitConfig(
-        onSuccess: (ConfigItem?) -> Unit,
+        onSuccess: (ArrayList<ConfigItem>?) -> Unit,
         onFailure: (FetchError) -> Unit
     ) {
         if (Sendsay.isStopped) {

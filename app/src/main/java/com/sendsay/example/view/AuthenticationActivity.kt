@@ -74,9 +74,9 @@ class AuthenticationActivity : AppCompatActivity() {
         configuration.projectToken = projectToken
         configuration.baseURL = apiUrl
         configuration.httpLoggingLevel = SendsayConfiguration.HttpLoggingLevel.BODY
-        configuration.defaultProperties["thisIsADefaultStringProperty"] =
-            "This is a default string value"
-        configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
+//        configuration.defaultProperties["thisIsADefaultStringProperty"] =
+//            "This is a default string value"
+//        configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
         configuration.automaticPushNotification = true
         configuration.tokenTrackFrequency = EVERY_LAUNCH
         configuration.pushChannelId = "Push channel (Sendsay)"

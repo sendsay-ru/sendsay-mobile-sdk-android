@@ -8,7 +8,7 @@ import com.sendsay.sdk.services.OnIntegrationStoppedCallback
 
 interface InitConfigManager : OnIntegrationStoppedCallback {
     fun fetchInitConfig(
-        onSuccess: (ConfigItem?) -> Unit,
+        onSuccess: (ArrayList<ConfigItem>?) -> Unit,
         onFailure: (FetchError) -> Unit
     )
 

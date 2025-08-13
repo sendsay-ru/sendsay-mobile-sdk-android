@@ -19,9 +19,12 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.sendsay.example.R
 import com.sendsay.example.databinding.ActivityMainBinding
+import com.sendsay.example.services.ExampleAppInboxProvider
 import com.sendsay.example.view.NavigationItem.Anonymize
 import com.sendsay.example.view.NavigationItem.Manual
 import com.sendsay.example.view.NavigationItem.Track
+import com.sendsay.example.view.NavigationItem.Fetch
+import com.sendsay.example.view.NavigationItem.InAppContentBlock
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.models.InAppMessage
@@ -38,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlin.collections.mutableSetOf
 
 class MainActivity : AppCompatActivity() {
 
@@ -139,9 +143,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // TODO: Check this, is it works?
 //        Uncomment this section, if you want to test in-app callback
-//        Sendsay.inAppMessageActionCallback = getInAppMessageCallback()
-//        Sendsay.appInboxProvider = ExampleAppInboxProvider()
+        Sendsay.inAppMessageActionCallback = getInAppMessageCallback()
+        Sendsay.appInboxProvider = ExampleAppInboxProvider()
 
         if (!Sendsay.isInitialized) {
             startActivity(Intent(this, AuthenticationActivity::class.java))
@@ -187,8 +192,8 @@ class MainActivity : AppCompatActivity() {
         fun String.toDeeplinkDestination() = when {
             this.contains("track") -> DeeplinkFlow.Track
             this.contains("flush") -> DeeplinkFlow.Manual
-//            this.contains("fetch") -> DeeplinkFlow.Fetch
-//            this.contains("inappcb") -> DeeplinkFlow.InAppCb
+            this.contains("fetch") -> if (Sendsay.isInAppMessagesEnabled) DeeplinkFlow.Fetch else DeeplinkFlow.Track
+            this.contains("inappcb") -> if (Sendsay.isInAppCBEnabled) DeeplinkFlow.InAppCb else DeeplinkFlow.Track
             this.contains("anonymize") -> DeeplinkFlow.Anonymize
             this.contains("stopAndContinue") -> DeeplinkFlow.StopAndContinue
             this.contains("stopAndRestart") -> DeeplinkFlow.StopAndRestart
@@ -206,10 +211,10 @@ class MainActivity : AppCompatActivity() {
     private fun handleDeeplinkDestination(deeplinkDestination: DeeplinkFlow) {
         when (deeplinkDestination) {
             DeeplinkFlow.Anonymize -> navigateToItem(Anonymize)
-//            DeeplinkFlow.Fetch -> navigateToItem(Fetch)
+            DeeplinkFlow.Fetch -> if (Sendsay.isInAppMessagesEnabled) navigateToItem(Fetch)
             DeeplinkFlow.Manual -> navigateToItem(Manual)
             DeeplinkFlow.Track -> navigateToItem(Track)
-//            DeeplinkFlow.InAppCb -> navigateToItem(InAppContentBlock)
+            DeeplinkFlow.InAppCb -> if (Sendsay.isInAppCBEnabled) navigateToItem(InAppContentBlock)
             DeeplinkFlow.StopAndContinue -> {
                 Sendsay.stopIntegration()
                 if (viewBinding.navigation.selectedItemId == 0) {
@@ -227,18 +232,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNavigation() {
         val navController = getNavController()
-        val topLevelDestinationIds = setOf(
-//            R.id.fetchFragment,
+        val topLevelDestinationIds = mutableSetOf<Int>(
             R.id.trackFragment,
             R.id.flushFragment,
             R.id.anonymizeFragment,
-            R.id.inAppContentBlocksFragment
-        )
+        ).also {
+            if (Sendsay.isInAppMessagesEnabled) it.add(R.id.fetchFragment)
+            if (Sendsay.isInAppCBEnabled) it.add(R.id.inAppContentBlocksFragment)
+        }
+
+
         val appBarConfiguration = AppBarConfiguration(
             topLevelDestinationIds = topLevelDestinationIds
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         viewBinding.navigation.setupWithNavController(navController)
+        viewBinding.navigation.menu.findItem(R.id.inAppContentBlocks)?.isVisible =
+            Sendsay.isInAppCBEnabled
+        viewBinding.navigation.menu.findItem(R.id.fetchFragment)?.isVisible =
+            Sendsay.isInAppMessagesEnabled
         onBackPressedDispatcher.addCallback {
             if (topLevelDestinationIds.contains(navController.currentDestination?.id)) {
                 finish()

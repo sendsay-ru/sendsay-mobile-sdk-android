@@ -27,7 +27,7 @@ class FetchFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         viewBinding = FragmentFetchBinding.inflate(inflater, container, false)
-        viewBinding.buttonsContainer.addView(
+        if (Sendsay.isAppInboxEnabled) viewBinding.buttonsContainer.addView(
             Sendsay.getAppInboxButton(requireActivity()),
             LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         )
@@ -67,7 +67,8 @@ class FetchFragment : BaseFragment() {
             val exposingCategory = "discovery"
             Sendsay.getSegments(exposingCategory = exposingCategory, force = false) { segments ->
                 runOnUiThread {
-                    viewBinding.resultTextView.text = "Segments for $exposingCategory category:\n$segments"
+                    viewBinding.resultTextView.text =
+                        "Segments for $exposingCategory category:\n$segments"
                 }
             }
         }
@@ -102,7 +103,7 @@ class FetchFragment : BaseFragment() {
         runOnUiThread {
             setProgressBarVisible(false)
             viewBinding.resultTextView.text = "Message: ${result.results.message}" +
-                "\nJson: ${result.results.jsonBody}"
+                    "\nJson: ${result.results.jsonBody}"
         }
     }
 

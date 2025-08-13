@@ -105,9 +105,9 @@ object Sendsay {
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     internal var isStopped = false
-    internal var isInAppMessagesEnabled = false
-    internal var isInAppCBEnabled = false
-    internal var isAppInboxEnabled = false
+    var isInAppMessagesEnabled = false
+    var isInAppCBEnabled = false
+    var isAppInboxEnabled = false
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -878,14 +878,20 @@ object Sendsay {
         deintegration.registerForIntegrationStopped(component.eventRepository)
         deintegration.registerForIntegrationStopped(component.serviceManager)
         deintegration.registerForIntegrationStopped(component.eventRepository)
-        deintegration.registerForIntegrationStopped(component.appInboxManager)
+        if (component.appInboxManager != null) deintegration.registerForIntegrationStopped(
+            component.appInboxManager!!
+        )
         deintegration.registerForIntegrationStopped(component.segmentsManager)
         deintegration.registerForIntegrationStopped(component.sessionManager)
         deintegration.registerForIntegrationStopped(component.pushTokenRepository)
         deintegration.registerForIntegrationStopped(component.campaignRepository)
         deintegration.registerForIntegrationStopped(component.deviceInitiatedRepository)
-        deintegration.registerForIntegrationStopped(component.inAppContentBlockManager)
-        deintegration.registerForIntegrationStopped(component.inAppMessageManager)
+        if (component.inAppContentBlockManager != null) deintegration.registerForIntegrationStopped(
+            component.inAppContentBlockManager!!
+        )
+        if (component.inAppMessageManager != null) deintegration.registerForIntegrationStopped(
+            component.inAppMessageManager!!
+        )
         deintegration.registerForIntegrationStopped(component.inAppMessagePresenter)
         deintegration.registerForIntegrationStopped(component.initConfigManager)
 
@@ -906,16 +912,16 @@ object Sendsay {
 
         startSessionTracking(configuration.automaticSessionTracking)
 
-        component.inAppContentBlockManager.loadInAppContentBlockPlaceholders()
+        component.inAppContentBlockManager?.loadInAppContentBlockPlaceholders()
 
         component.segmentsManager.onSdkInit()
 
         component.initConfigManager.fetchInitConfig(onSuccess = {
             Logger.i(this, "Init config fetched successfully")
             isInAppMessagesEnabled =
-                it?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
-            isInAppCBEnabled = it?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
-            isAppInboxEnabled = it?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
+                it?.first()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
+            isInAppCBEnabled = it?.first()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
+            isAppInboxEnabled = it?.first()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
@@ -1324,14 +1330,14 @@ object Sendsay {
 
     fun fetchAppInbox(callback: ((List<MessageItem>?) -> Unit)) = runCatching {
         initGate.waitForInitialize {
-            component.appInboxManager.fetchAppInbox(callback)
+            component.appInboxManager?.fetchAppInbox(callback)
             telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.TRACK_INBOX_FETCH)
         }
     }.logOnException()
 
     fun fetchAppInboxItem(messageId: String, callback: (MessageItem?) -> Unit) = runCatching {
         initGate.waitForInitialize {
-            component.appInboxManager.fetchAppInboxItem(messageId, callback)
+            component.appInboxManager?.fetchAppInboxItem(messageId, callback)
         }
     }.logOnException()
 
@@ -1366,7 +1372,7 @@ object Sendsay {
 
     fun markAppInboxAsRead(message: MessageItem, callback: ((Boolean) -> Unit)?) = runCatching {
         initGate.waitForInitialize {
-            component.appInboxManager.markMessageAsRead(message, callback)
+            component.appInboxManager?.markMessageAsRead(message, callback)
         }
     }.logOnException()
 
@@ -1390,7 +1396,7 @@ object Sendsay {
     ): InAppContentBlockPlaceholderView? = runCatching<InAppContentBlockPlaceholderView?> {
         requireInitialized<InAppContentBlockPlaceholderView>(
             initializedBlock = {
-                Sendsay.component.inAppContentBlockManager.getPlaceholderView(
+                Sendsay.component.inAppContentBlockManager!!.getPlaceholderView(
                     placeholderId,
                     context,
                     config ?: InAppContentBlockPlaceholderConfiguration()

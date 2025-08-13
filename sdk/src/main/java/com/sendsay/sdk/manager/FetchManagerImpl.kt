@@ -209,12 +209,12 @@ internal class FetchManagerImpl(
 
     override fun fetchInitConfig(
         sendsayProject: SendsayProject,
-        onSuccess: (Result<ConfigItem?>) -> Unit,
+        onSuccess: (Result<ArrayList<ConfigItem>?>) -> Unit,
         onFailure: (Result<FetchError>) -> Unit
     ) {
         api.fetchInitConfig(sendsayProject).enqueue(
             getStandardFetchCallback(
-                object : TypeToken<Result<ConfigItem?>>() {},
+                object : TypeToken<Result<ArrayList<ConfigItem>?>>() {},
                 onSuccess,
                 onFailure
             )
@@ -298,7 +298,8 @@ internal class FetchManagerImpl(
         }
         api.fetchSegments(sendsayProject, engagementCookieId).enqueue(
             getFetchRawCallback(
-                resultType = object : TypeToken<Map<String, ArrayList<Map<String, String>>>?>() {},
+//                resultType = object : TypeToken<Map<String, ArrayList<Map<String, String>>>?>() {},
+                resultType = object : TypeToken<Result<Map<String, ArrayList<Map<String, String>>>>?>() {},
                 onSuccess = { rawData ->
                     val segmentationsData = rawData.results
                     if (segmentationsData == null) {
@@ -307,7 +308,7 @@ internal class FetchManagerImpl(
                             FetchError(null, "Fetch of segments got NULL response")
                         ))
                     } else {
-                        val segmentations = SegmentationCategories(segmentationsData.mapValues { rawEntry ->
+                        val segmentations = SegmentationCategories(segmentationsData.results.mapValues { rawEntry ->
                             ArrayList(rawEntry.value.map { rawSegments -> Segment(rawSegments) })
                         })
                         val transformedData = Result(
