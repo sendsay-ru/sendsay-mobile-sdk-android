@@ -21,7 +21,7 @@ SDK [доступен как открытый исходный код на GitHu
   - [Отправка данных](docs/data-flushing.md)
 - [Отслеживание](docs/tracking.md)
 - [Android App Links](docs/app-links.md)
-- [Push-уведомления](hdocs/push-notifications.md)
+- [Push-уведомления](docs/push-notifications.md)
   - [Firebase Cloud Messaging](docs/firebase.md)
   - [Huawei Mobile Services](docs/huawei.md)
 - Получение данных (в разработке)
