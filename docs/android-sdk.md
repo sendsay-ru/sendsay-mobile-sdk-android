@@ -1,11 +1,3 @@
----
-title: Android SDK
-excerpt: Sendsay SDK для Android
-slug: android-sdk
-categorySlug: integrations
----
-
-
 ## Что такое Sendsay Android SDK?
 
 Sendsay Android SDK позволяет интегрировать ваше мобильное приложение с CDP Sendsay и отслеживать поведение ваших клиентов в приложении. Интеграция SDK в ваше приложение позволит вам отправлять push-уведомления и отслеживать события и свойства клиентов.
