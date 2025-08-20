@@ -2,31 +2,45 @@
 image: eclipse-temurin:17-jdk
 
 variables:
-  ANDROID_COMPILE_SDK: "34"
-  ANDROID_BUILD_TOOLS: "34.0.0"
+  ANDROID_COMPILE_SDK: "35"
+  ANDROID_BUILD_TOOLS: "35.0.0"
   ANDROID_SDK_TOOLS: "13114758"
   ANDROID_SDK_ROOT: "$CI_PROJECT_DIR/android-sdk"
   ANDROID_HOME: "$CI_PROJECT_DIR/android-sdk"
 
 before_script:
-  - apt-get -qq update && apt-get -qq install -y wget unzip lib32stdc++6 lib32z1
-  - mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+  # JDK 17 + утилиты
+  - apt-get -qq update && apt-get -qq install -y openjdk-17-jdk wget unzip lib32stdc++6 lib32z1
+  - java -version
+
+  # SDK базовая структура
+  - mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools" "$HOME/.android"
+  - touch "$HOME/.android/repositories.cfg"
+
+  # cmdline-tools -> latest
   - wget -q -O /tmp/cmdline-tools.zip "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip"
   - unzip -q /tmp/cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+
   # приводим к ожидаемой структуре <sdk>/cmdline-tools/latest/...
   - mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
-  - export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
-  # чтобы быстро понять, что именно валится
+
+  # выясняем версии нашего sdk
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list | grep "Build-Tools" | tac | head -n 15
+
+  # PATH
+  - export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
+
+  # Диагностика переменных (поймаем переопределения из GitLab UI)
+  - echo "COMPILE_SDK=$ANDROID_COMPILE_SDK"
+  - echo "BUILD_TOOLS=$ANDROID_BUILD_TOOLS"
+  - which sdkmanager && sdkmanager --version
+
   # ставим всё разом и явно указываем корень SDK
-  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
-    "platforms;android-${ANDROID_COMPILE_SDK}" \
-    "build-tools;${ANDROID_BUILD_TOOLS}" \
-    "platform-tools"
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools"
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
   - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
   - chmod +x ./gradlew
-
 stages:
 #  - test
   - build
