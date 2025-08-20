@@ -9,7 +9,7 @@ variables:
 before_script:
   - apt-get --quiet update --yes
   - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
+  - wget --quiet --output-document=android-sdk.zip "https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip"
   - unzip -d android-sdk-linux android-sdk.zip
   - echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
   - echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" >/dev/null
@@ -39,14 +39,17 @@ cache:
 assemble_release:
   stage: build
   script:
+    - echo "Building the project:"
+    - echo "Locate keystore."
     - export ANDROID_KEYSTORE_FILE_PATH=$(cat "$SECURE_FILES_DIR/Sendsay.jks") # Path provided by GitLab Secure Files
+    - echo "Starting gradlew."
     - ./gradlew assembleRelease
 #    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
   rules:
     - if: $CI_COMMIT_REF_NAME == "ci-release-test" # Trigger this job only on tags
       when: on_success # or 'never'
-    - when: manual # or 'always'
-      allow_failure: true
+#    - when: manual # or 'always'
+#      allow_failure: true
   artifacts:
     paths:
       - app/build/outputs/apk/*/release/*.apk
@@ -58,4 +61,5 @@ create_internal_publish_release:
   rules:
     - if: $CI_COMMIT_TAG # Trigger this job only on tags
   script:
+    - echo "Releasing by TAG:"
     - release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG --description "Release notes for $CI_COMMIT_TAG" --assets-link "{\"name\":\"*.apk\", \"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/*.apk\"}"
