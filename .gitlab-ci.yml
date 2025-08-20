@@ -37,9 +37,11 @@ before_script:
   - which sdkmanager && sdkmanager --version
 
   # ставим всё разом и явно указываем корень SDK
+  - set +o pipefail
   - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools"
   - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
   - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+  - set -o pipefail
   - chmod +x ./gradlew
 stages:
 #  - test
