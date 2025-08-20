@@ -24,12 +24,12 @@ before_script:
   # приводим к ожидаемой структуре <sdk>/cmdline-tools/latest/...
   - mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
 
+  # PATH
+  - export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
+  
   # выясняем версии нашего sdk
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list | grep "Build-Tools" | tac | head -n 15
-
-  # PATH
-  - export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
 
   # Диагностика переменных (поймаем переопределения из GitLab UI)
   - echo "COMPILE_SDK=$ANDROID_COMPILE_SDK"
