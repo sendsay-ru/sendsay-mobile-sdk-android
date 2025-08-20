@@ -20,10 +20,10 @@ before_script:
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
   - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list | grep "Build-Tools" | tac | head -n 15
   # ставим всё разом и явно указываем корень SDK
-  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT"
-  - yes | sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}"
-  - yes | sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
-  - yes | sdkmanager "platform-tools"
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+    "platforms;android-${ANDROID_COMPILE_SDK}" \
+    "build-tools;${ANDROID_BUILD_TOOLS}" \
+    "platform-tools"
   - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
   - chmod +x ./gradlew
 
