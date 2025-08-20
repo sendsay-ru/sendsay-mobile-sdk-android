@@ -20,11 +20,11 @@ parentDocSlug: android-sdk-setup
 * `authorization` **(обязательный)**
    * Формат `"Token <token>"`, где `<token>` - это API ключ Engagement.
    * Токен должен быть **публичным** ключом Engagement. Подробности см. в [Управление доступом API мобильных SDK](mobile-sdks-api-access-management).
-   * Для получения дополнительной информации обратитесь к [документации Sendsay API](https://docs.exponea.com/reference#access-keys).
+   * Для получения дополнительной информации обратитесь к [документации Sendsay API](https://documentation.bloomreach.com/engagement/reference/welcome#access-keys).
 
 * `baseURL`
   * Базовый URL вашего API, который можно найти в веб-приложении Engagement в разделе `Project settings` > `Access management` > `API`.
-  * Значение по умолчанию `https://api.exponea.com`.
+  * Значение по умолчанию `https://mobi.sendsay.ru/mobi/api/v100`.
   * Если у вас есть пользовательский базовый URL, вы должны установить это свойство.
 
 * `projectRouteMap`
@@ -34,7 +34,7 @@ parentDocSlug: android-sdk-setup
     var projectRouteMap = mapOf<EventType, List<SendsayProject>> (
         EventType.TRACK_CUSTOMER to listOf(
             SendsayProject(
-                "https://api.exponea.com",
+                "https://mobi.sendsay.ru/mobi/api/v100",
                 "YOUR_PROJECT_TOKEN",
                 "Token YOUR_API_KEY"
             )

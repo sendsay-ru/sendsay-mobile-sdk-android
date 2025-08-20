@@ -36,13 +36,65 @@ parentDocSlug: android-sdk
 Обратитесь к документации [События модуля "Продажи"](https://docs.sendsay.ru/ecom/how-to-configure-data-transfer).
 
 ```kotlin
-тут пример ssec-события
+private fun trackBasket() {
+    // Получение текущего времени с использованием SimpleDateFormat
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    val currentDateTime = dateFormat.format(Date())
+    val jsonString = """{
+        "ssec":{"dt":"$currentDateTime", 
+               "transaction_id": "$randomTransactionId", 
+               "transaction_dt": "$currentDateTime", 
+               "transaction_sum": 100.9, 
+               "update_per_item": 0, 
+               "items": [
+                 {
+                   "id": "product1", 
+                   "available": 1,
+                   "name": "name",
+                   "qnt": 1, 
+                   "price": 7.88, 
+                   "old_price": 5.99,
+                   "picture": [], 
+                   "url": "url", 
+                   "model": "model", 
+                   "vendor": "vendor", 
+                   "category_id": 777, 
+                   "category": "category name"
+                   
+                 }
+               ]
+            }
+        }""".trimIndent()
+
+    val gson = Gson()
+    val productBasket = gson.fromJson(jsonString, Map::class.java)
+    val properties = HashMap<String, Any>(productBasket as Map<String, Any>)
+
+    // Создание экземпляра PropertiesList из HashMap
+    val propertiesList = PropertiesList(properties)
+    Sendsay.trackEvent(
+        properties = propertiesList,
+        timestamp = null,
+        eventType = "ssec_basket"
+    )
+}
 ```
 
 #### CCE (Пользовательские события)
 
 ```kotlin
-тут пример cce-события
+    jsonString = """{
+        "cce": "test_cce",
+    }""".trimIndent()
+    
+/// ......
+
+    val propertiesList = PropertiesList(properties)
+    Sendsay.trackEvent(
+        properties = propertiesList,
+        timestamp = null,
+        eventType = "custom_event_name"
+    )
 ```
 
 #### Примеры

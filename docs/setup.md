@@ -12,13 +12,13 @@ Sendsay Android SDK можно установить или обновить с �
 
 > 📘
 >
-> Обратитесь к https://github.com/exponea/exponea-android-sdk/releases для получения последней версии Sendsay Android SDK.
+> Обратитесь к https://github.com/prosky/sendsay-android-sdk/releases для получения последней версии Sendsay Android SDK.
 
 ### Gradle (Kotlin)
 
 1. В файле `build.gradle.kts` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```kotlin
-   implementation("com.sendsay.sdk:sdk:4.5.0")
+   implementation("com.sendsay.sdk:sdk:0.1.0")
    ```
 2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
 
@@ -26,7 +26,7 @@ Sendsay Android SDK можно установить или обновить с �
 
 1. В файле `build.gradle` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```groovy
-   implementation 'com.sendsay.sdk:sdk:4.5.0'
+   implementation 'com.sendsay.sdk:sdk:0.1.0'
    ```
 2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
 
@@ -37,7 +37,7 @@ Sendsay Android SDK можно установить или обновить с �
    <dependency>
       <groupId>com.sendsay.sdk</groupId>
       <artifactId>sdk</artifactId>
-      <version>4.5.0</version>
+      <version>0.1.0</version>
    </dependency>   
    ```
 2. Пересоберите ваше приложение с помощью Maven.
@@ -101,7 +101,7 @@ SDK прочитает параметры конфигурации из файл
 
 > 📘
 >
-> Обратитесь к [`sendsay_configuration.json`](https://github.com/exponea/exponea-android-sdk/blob/main/app/src/main/assets/exponea_configuration.json) в [примере приложения](https://documentation.bloomreach.com/engagement/docs/android-sdk-example-app) для примера файла конфигурации.
+> Обратитесь к [`sendsay_configuration.json`](https://github.com/prosky/sendsay-android-sdk/blob/main/app/src/main/assets/sendsay_configuration.json) в [примере приложения](https://documentation.bloomreach.com/engagement/docs/android-sdk-example-app) для примера файла конфигурации.
 
 ### Где разместить код инициализации SDK
 
@@ -192,7 +192,7 @@ Sendsay.loggerLevel = Logger.Level.VERBOSE
 
 ```
 Manifest merger failed : Attribute application@fullBackupContent value=(@xml/backup_rules) from AndroidManifest.xml:8:9-54
-	is also present at [com.sendsay.sdk:sdk:4.5.0] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
+	is also present at [com.sendsay.sdk:sdk:0.1.0] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
 ```
 
 SDK и новое приложение, созданное Android Studio, оба включают [функцию автоматического резервного копирования](https://developer.android.com/guide/topics/data/autobackup) в `AndroidManifest.xml`, но каждое со своими правилами резервного копирования. Вам как разработчику необходимо [управлять файлами манифеста](https://developer.android.com/build/manage-manifests) и обеспечить их правильное слияние.
