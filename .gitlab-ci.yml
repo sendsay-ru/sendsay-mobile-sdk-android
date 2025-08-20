@@ -47,8 +47,8 @@ assemble_release:
   script:
     - echo "Building the project:"
     - echo "Locate keystore."
-    - export ANDROID_KEYSTORE_FILE_PATH=$(cat "$SECURE_FILES_DIR/Sendsay.jks") # Path provided by GitLab Secure Files
-    - echo "Starting gradlew."
+    - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
+    - ./gradlew --version
     - ./gradlew assembleRelease
 #    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
   rules:
