@@ -7,6 +7,8 @@ variables:
   ANDROID_SDK_TOOLS: "13114758"
   ANDROID_SDK_ROOT: "$CI_PROJECT_DIR/android-sdk"
   ANDROID_HOME: "$CI_PROJECT_DIR/android-sdk"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  SECURE_FILES_DIR: ".secure_files"
 
 before_script:
   # JDK 17 + утилиты
@@ -48,6 +50,8 @@ stages:
   - build
   - release
 cache:
+  key: "gradle-${ANDROID_COMPILE_SDK}-${ANDROID_BUILD_TOOLS}"
+  policy: pull-push
   paths:
     - .gradle/wrapper
     - .gradle/caches
@@ -63,6 +67,7 @@ assemble_release:
   script:
     - echo "Building the project:"
     - echo "Locate keystore."
+    - curl -sSf https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
     - ./gradlew --version
     - ./gradlew assembleRelease
