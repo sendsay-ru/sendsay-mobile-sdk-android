@@ -47,9 +47,9 @@ assemble_release:
 #    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
   rules:
     - if: $CI_COMMIT_REF_NAME == "ci-release-test" # Trigger this job only on tags
-      when: on_success # or 'never'
-#    - when: manual # or 'always'
-#      allow_failure: true
+      when: always # or on_success # or 'never'
+    - when: manual # or 'always'
+      allow_failure: true
   artifacts:
     paths:
       - app/build/outputs/apk/*/release/*.apk
