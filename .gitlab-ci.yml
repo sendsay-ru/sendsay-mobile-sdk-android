@@ -9,7 +9,7 @@ variables:
   ANDROID_HOME: "$CI_PROJECT_DIR/android-sdk"
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   SECURE_FILES_DIR: ".secure_files"
-  SECURE_FILES_DOWNLOAD_PATH: '/builds/prosky/sendsay-android-sdk/app/$SECURE_FILES_DIR/Sendsay.jks'
+  SECURE_FILES_DOWNLOAD_PATH: '/builds/prosky/sendsay-android-sdk/app/$SECURE_FILES_DIR/'
 
 before_script:
   # JDK 17 + утилиты
@@ -71,7 +71,7 @@ assemble_release:
     # - curl -sSf https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
-    - ls -lR .secure_files
+    - ls -lR SECURE_FILES_DIR
     - ls -lR SECURE_FILES_DOWNLOAD_PATH
     - ls -lR ANDROID_KEYSTORE_FILE_PATH
     - ./gradlew --version
