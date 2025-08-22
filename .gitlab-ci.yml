@@ -8,8 +8,9 @@ variables:
   ANDROID_SDK_ROOT: "$CI_PROJECT_DIR/android-sdk"
   ANDROID_HOME: "$CI_PROJECT_DIR/android-sdk"
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
-  SECURE_FILES_DIR: ".secure_files"
-  SECURE_FILES_DOWNLOAD_PATH: '/builds/prosky/sendsay-android-sdk/app/$SECURE_FILES_DIR/'
+  SECURE_FILES_DIR: "$CI_PROJECT_DIR/.secure_files"
+  # SECURE_FILES_DIR: ".secure_files"
+  # SECURE_FILES_DOWNLOAD_PATH: '/builds/prosky/sendsay-android-sdk/app/$SECURE_FILES_DIR/'
 
 before_script:
   # JDK 17 + утилиты
@@ -68,12 +69,20 @@ assemble_release:
   script:
     - echo "Building the project:"
     - echo "Locate keystore."
+    # - export SECURE_FILES_DIR="$CI_PROJECT_DIR/.secure_files"
+    - mkdir -p "$SECURE_FILES_DIR"
     - curl -sSf https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     # - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
-    - ls -lR "$SECURE_FILES_DOWNLOAD_PATH"
-    - chmod 755 "$SECURE_FILES_DOWNLOAD_PATH"
-    # - ls -lR "$SECURE_FILES_DIR"
+    # - ls -lR "$SECURE_FILES_DOWNLOAD_PATH"
+    # - chmod 755 "$SECURE_FILES_DOWNLOAD_PATH"
+    # - ls -lR "$SECURE_FILES_DIR"- download-secure-files
+    # - download-secure-files
+    - echo "Check the location."
+    - echo "SECURE_FILES_DIR=$SECURE_FILES_DIR"
+    - ls -al "$SECURE_FILES_DIR"
     - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
+    - test -f "$ANDROID_KEYSTORE_FILE_PATH" || (echo "Keystore not found at $ANDROID_KEYSTORE_FILE_PATH"; exit 1)
+    - chmod 600 "$ANDROID_KEYSTORE_FILE_PATH"
     - ./gradlew --version
     - ./gradlew assembleRelease
 #    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
