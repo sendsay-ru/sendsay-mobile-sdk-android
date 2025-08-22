@@ -71,9 +71,9 @@ assemble_release:
     # - curl -sSf https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
-    - ls -lR SECURE_FILES_DIR
-    - ls -lR SECURE_FILES_DOWNLOAD_PATH
-    - ls -lR ANDROID_KEYSTORE_FILE_PATH
+    - ls -lR "$SECURE_FILES_DOWNLOAD_PATH"
+    - ls -lR "$ANDROID_KEYSTORE_FILE_PATH"
+    - ls -lR "$SECURE_FILES_DIR"
     - ./gradlew --version
     - ./gradlew assembleRelease
 #    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
