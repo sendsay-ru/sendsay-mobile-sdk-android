@@ -96,13 +96,20 @@ assemble_release:
       - app/build/outputs/apk/*/release/*.apk
 #      - app-release.apk
 
+
 create_internal_publish_release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs: ["assemble_release"]
+  before_script: []
   rules:
-    - if: $CI_COMMIT_TAG # Trigger this job only on tags
+    - if: $CI_COMMIT_TAG
   script:
-    - echo "Releasing by TAG:"
-    - release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
-      --description "Release notes for $CI_COMMIT_TAG" \
-      --assets-link "{\"name\":\"*.apk\", \"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/*.apk\"}"
+    - echo "Releasing by TAG - $CI_COMMIT_TAG"
+    - >
+      release-cli create
+      --name "Release $CI_COMMIT_TAG"
+      --tag-name "$CI_COMMIT_TAG"
+      --description "Release notes for $CI_COMMIT_TAG"
+      --assets-link
+      "{\"name\":\"APK artifacts\",\"url\":\"${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/browse/app/build/outputs/apk?job=assemble_release\"}"
