@@ -7,6 +7,8 @@ import com.sendsay.sdk.models.MessageItem
 import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationData
+import com.sendsay.sdk.models.TrackSSECData
+import com.sendsay.sdk.models.TrackingSSECType
 
 internal interface TrackingConsentManager {
     fun trackClickedPush(data: NotificationData?, actionData: NotificationAction?, timestamp: Double?, mode: MODE)
@@ -33,6 +35,8 @@ internal interface TrackingConsentManager {
     )
     fun trackInAppContentBlockClose(placeholderId: String, contentBlock: InAppContentBlock, mode: MODE)
     fun trackInAppContentBlockError(placeholderId: String, contentBlock: InAppContentBlock, error: String, mode: MODE)
+
+    fun trackSSEC(type: TrackingSSECType, data: TrackSSECData)
 
     enum class MODE {
         CONSIDER_CONSENT, IGNORE_CONSENT

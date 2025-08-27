@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import kotlin.reflect.full.memberProperties
 
 internal fun Call.enqueue(
     onResponse: (Call, Response) -> Unit,
@@ -202,6 +203,18 @@ fun <T> Result<T>.logOnExceptionWithResult(): Result<T> {
 
 val JsonElement.asOptionalString: String?
     get() = if (this.isJsonNull) null else this.asString
+
+fun <T : Any> toMap(obj: T): Map<String, Any?> {
+    return (obj::class as KClass<T>).memberProperties.associate { prop ->
+        prop.name to prop.get(obj)?.let { value ->
+            if (value::class.isData) {
+                toMap(value)
+            } else {
+                value
+            }
+        }
+    }
+}
 
 @Suppress("DEPRECATION")
 fun View.setBackgroundColor(@DrawableRes backgroundId: Int, color: Int) {

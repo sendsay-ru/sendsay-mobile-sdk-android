@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
@@ -61,6 +62,8 @@ import com.sendsay.sdk.models.PushOpenedData
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentationDataCallback
+import com.sendsay.sdk.models.TrackSSECData
+import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
 import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
 import com.sendsay.sdk.repository.SendsayConfigRepository
@@ -89,11 +92,18 @@ import com.sendsay.sdk.util.logOnException
 import com.sendsay.sdk.util.logOnExceptionWithResult
 import com.sendsay.sdk.util.returnOnException
 import com.sendsay.sdk.util.runOnMainThread
+import com.sendsay.sdk.util.toMap
 import com.sendsay.sdk.view.ContentBlockCarouselView
 import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
 import com.sendsay.sdk.view.InAppMessagePresenter
 import com.sendsay.sdk.view.InAppMessageView
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 //@SuppressLint("StaticFieldLeak")
 object Sendsay {
@@ -495,7 +505,7 @@ object Sendsay {
                 properties = properties.properties,
                 timestamp = timestamp,
                 eventType = eventType,
-                type = EventType.TRACK_EVENT
+                type = EventType.TRACK_EVENT,
             )
         }
     }.logOnException()
@@ -740,6 +750,27 @@ object Sendsay {
         if (messageData == null) return false
         return messageData["source"] == Constants.PushNotif.source
     }
+
+    /**
+     * Tracks payment manually
+     * @param timestamp - Time in timestamp format where the event was created. ( in seconds )
+     * @param purchasedItem - represents payment details.
+     */
+    fun trackSSECEvent(
+        type: TrackingSSECType,
+        data: TrackSSECData
+    ) = runCatching {
+        val trackingConsentManager = getTrackingConsentManager()
+        if (trackingConsentManager == null) {
+            Logger.w(this, "Unable to start tracking flow, waiting for SDK init")
+
+            initGate.waitForInitialize {
+                component.trackingConsentManager.trackSSEC(type, data)
+            }
+            return@runCatching
+        }
+        component.trackingConsentManager.trackSSEC(type, data)
+    }.logOnException()
 
     /**
      * Handles Sendsay notification payload.

@@ -1,6 +1,9 @@
 package com.sendsay.sdk.manager
 
 import android.content.Context
+import android.util.Log
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.Sendsay.initGate
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
 import com.sendsay.sdk.manager.TrackingConsentManager.MODE
 import com.sendsay.sdk.manager.TrackingConsentManager.MODE.CONSIDER_CONSENT
@@ -16,8 +19,10 @@ import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.PropertiesList
-import com.sendsay.sdk.network.SendsayServiceImpl
+import com.sendsay.sdk.models.TrackSSECData
+import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.network.NetworkHandlerImpl
+import com.sendsay.sdk.network.SendsayServiceImpl
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
 import com.sendsay.sdk.repository.CampaignRepository
 import com.sendsay.sdk.repository.CampaignRepositoryImpl
@@ -26,10 +31,17 @@ import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.UniqueIdentifierRepositoryImpl
 import com.sendsay.sdk.services.SendsayProjectFactory
 import com.sendsay.sdk.services.inappcontentblock.InAppContentBlockTrackingDelegateImpl
-import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.GdprTracking
 import com.sendsay.sdk.util.Logger
+import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.currentTimeSeconds
+import com.sendsay.sdk.util.toMap
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.Date
+import java.util.Locale
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 internal class TrackingConsentManagerImpl(
     private val eventManager: EventManager,
@@ -46,8 +58,10 @@ internal class TrackingConsentManagerImpl(
     ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && data?.hasTrackingConsent == false && actionData?.isTrackingForced != true) {
-            Logger.e(this,
-                "Event for clicked notification is not tracked because consent is not given nor forced")
+            Logger.e(
+                this,
+                "Event for clicked notification is not tracked because consent is not given nor forced"
+            )
             trackingAllowed = false
         }
         val properties = PropertiesList(
@@ -92,7 +106,10 @@ internal class TrackingConsentManagerImpl(
     ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && data?.hasTrackingConsent == false) {
-            Logger.e(this, "Event for delivered notification is not tracked because consent is not given")
+            Logger.e(
+                this,
+                "Event for delivered notification is not tracked because consent is not given"
+            )
             trackingAllowed = false
         }
         val properties = PropertiesList(
@@ -123,16 +140,30 @@ internal class TrackingConsentManagerImpl(
     override fun trackInAppMessageShown(message: InAppMessage, mode: MODE) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-            Logger.e(this, "Event for shown inAppMessage is not tracked because consent is not given")
+            Logger.e(
+                this,
+                "Event for shown inAppMessage is not tracked because consent is not given"
+            )
             trackingAllowed = false
         }
         inappMessageTrackingDelegate.track(message, "show", false, trackingAllowed)
     }
 
-    override fun trackInAppMessageClick(message: InAppMessage, buttonText: String?, buttonLink: String?, mode: MODE) {
+    override fun trackInAppMessageClick(
+        message: InAppMessage,
+        buttonText: String?,
+        buttonLink: String?,
+        mode: MODE
+    ) {
         var trackingAllowed = true
-        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(buttonLink)) {
-            Logger.e(this, "Event for clicked inAppMessage is not tracked because consent is not given")
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(
+                buttonLink
+            )
+        ) {
+            Logger.e(
+                this,
+                "Event for clicked inAppMessage is not tracked because consent is not given"
+            )
             trackingAllowed = false
         }
         inappMessageTrackingDelegate.track(
@@ -153,7 +184,10 @@ internal class TrackingConsentManagerImpl(
     ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-            Logger.e(this, "Event for closed inAppMessage is not tracked because consent is not given")
+            Logger.e(
+                this,
+                "Event for closed inAppMessage is not tracked because consent is not given"
+            )
             trackingAllowed = false
         }
         inappMessageTrackingDelegate.track(
@@ -168,7 +202,10 @@ internal class TrackingConsentManagerImpl(
     override fun trackInAppMessageError(message: InAppMessage, error: String, mode: MODE) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent) {
-            Logger.e(this, "Event for error of inAppMessage showing is not tracked because consent is not given")
+            Logger.e(
+                this,
+                "Event for error of inAppMessage showing is not tracked because consent is not given"
+            )
             trackingAllowed = false
         }
         inappMessageTrackingDelegate.track(message, "error", false, trackingAllowed, error = error)
@@ -208,14 +245,22 @@ internal class TrackingConsentManagerImpl(
         )
     }
 
-    override fun trackAppInboxClicked(message: MessageItem, buttonText: String?, buttonLink: String?, mode: MODE) {
+    override fun trackAppInboxClicked(
+        message: MessageItem,
+        buttonText: String?,
+        buttonLink: String?,
+        mode: MODE
+    ) {
         val customerIds = message.customerIds
         if (customerIds.isEmpty()) {
             Logger.e(this, "AppInbox message contains empty customerIds")
             return
         }
         var trackingAllowed = true
-        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(buttonLink)) {
+        if (mode == CONSIDER_CONSENT && !message.hasTrackingConsent && !GdprTracking.isTrackForced(
+                buttonLink
+            )
+        ) {
             Logger.e(this, "Event for clicked AppInbox is not tracked because consent is not given")
             trackingAllowed = false
         }
@@ -250,15 +295,26 @@ internal class TrackingConsentManagerImpl(
         )
     }
 
-    override fun trackInAppContentBlockShown(placeholderId: String, contentBlock: InAppContentBlock, mode: MODE) {
+    override fun trackInAppContentBlockShown(
+        placeholderId: String,
+        contentBlock: InAppContentBlock,
+        mode: MODE
+    ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !contentBlock.hasTrackingConsent) {
-            Logger.e(this,
+            Logger.e(
+                this,
                 "Event for shown InApp Content Block is not tracked because consent is not given"
             )
             trackingAllowed = false
         }
-        inAppContentBlockTrackingDelegate.track(placeholderId, contentBlock, "show", false, trackingAllowed)
+        inAppContentBlockTrackingDelegate.track(
+            placeholderId,
+            contentBlock,
+            "show",
+            false,
+            trackingAllowed
+        )
     }
 
     override fun trackInAppContentBlockClick(
@@ -269,8 +325,12 @@ internal class TrackingConsentManagerImpl(
         mode: MODE
     ) {
         var trackingAllowed = true
-        if (mode == CONSIDER_CONSENT && !contentBlock.hasTrackingConsent && !GdprTracking.isTrackForced(buttonLink)) {
-            Logger.e(this,
+        if (mode == CONSIDER_CONSENT && !contentBlock.hasTrackingConsent && !GdprTracking.isTrackForced(
+                buttonLink
+            )
+        ) {
+            Logger.e(
+                this,
                 "Event for clicked InApp Content Block is not tracked because consent is not given"
             )
             trackingAllowed = false
@@ -286,10 +346,15 @@ internal class TrackingConsentManagerImpl(
         )
     }
 
-    override fun trackInAppContentBlockClose(placeholderId: String, contentBlock: InAppContentBlock, mode: MODE) {
+    override fun trackInAppContentBlockClose(
+        placeholderId: String,
+        contentBlock: InAppContentBlock,
+        mode: MODE
+    ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !contentBlock.hasTrackingConsent) {
-            Logger.e(this,
+            Logger.e(
+                this,
                 "Event for closed InApp Content Block is not tracked because consent is not given"
             )
             trackingAllowed = false
@@ -311,7 +376,8 @@ internal class TrackingConsentManagerImpl(
     ) {
         var trackingAllowed = true
         if (mode == CONSIDER_CONSENT && !contentBlock.hasTrackingConsent) {
-            Logger.e(this,
+            Logger.e(
+                this,
                 "Event for error of InApp Content Block showing is not tracked because consent is not given"
             )
             trackingAllowed = false
@@ -324,6 +390,20 @@ internal class TrackingConsentManagerImpl(
             trackingAllowed,
             error = error
         )
+    }
+
+    override fun trackSSEC(type: TrackingSSECType, data: TrackSSECData) {
+        initGate.waitForInitialize {
+            val mappedData = toMap(mapOf("ssec" to data))
+
+            val properties = HashMap<String, Any>(mappedData as Map<String, Any>)
+            val propertiesList = PropertiesList(properties)
+            Sendsay.trackEvent(
+                properties = propertiesList,
+                timestamp = null,
+                eventType = type.value
+            )
+        }
     }
 
     companion object {

@@ -100,6 +100,10 @@ dependencies {
     implementationEmbed 'io.coil-kt:coil-svg:1.4.0'
     // Custom Tabs
     implementation 'androidx.browser:browser:1.5.0'
+    // Kotlin reflection
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    // Kotlin DateTime
+    implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.7.1"
 
     // Base Test
     testImplementation 'junit:junit:4.13.2'
@@ -115,7 +119,6 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4'
     // Mockk
     testImplementation "io.mockk:mockk:1.12.8"
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     // WorkManager testing
     testImplementation 'androidx.work:work-testing:2.4.0'
 }

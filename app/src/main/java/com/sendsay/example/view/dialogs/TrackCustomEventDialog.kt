@@ -23,7 +23,10 @@ import com.sendsay.sdk.models.PropertiesList
 class TrackCustomEventDialog : DialogFragment() {
 
     private lateinit var onConfirmed: (eventName: String, properties: PropertiesList) -> Unit
-    private val propsMap = hashMapOf("property" to "some value" as Any, "cce" to "test-CCE" as Any)
+    private val propsMap = hashMapOf(
+        "property" to "some value" as Any,
+        "cce" to """{ "cce-key": "test-value-CCE" }""".trimIndent() as Any
+    )
     private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
 
