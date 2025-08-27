@@ -166,16 +166,20 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 
     private fun trackClearBasket() {
-        val currentDateTime = LocalDateTime.now()
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         val currentDateTime2 = dateFormat.format(Date())
 
         val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
-            .setProduct(dateTime = currentDateTime)
+            .setProduct(dateTime = currentDateTime2)
             .setItems(listOf(OrderItem(id = "-1")))
             .build()
-        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
 //        val jsonString = """
 //        {
@@ -195,14 +199,14 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 
     private fun trackProductView() {
-        val currentDateTime = LocalDateTime.now()
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         val currentDateTime2 = dateFormat.format(Date())
 
         val productData = TrackSSECDataBuilder(TrackingSSECType.VIEW_PRODUCT)
             .setProduct(
-                dateTime = currentDateTime,
+                dateTime = currentDateTime2,
                 id = "product1",
                 price = 7.88,
                 available = 1,
@@ -216,7 +220,11 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 category = "category_name",
             )
             .build()
-        Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, productData)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, productData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
 //        val jsonString = """
 //        {
@@ -253,7 +261,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         Log.d("fasdfasdfsd3", currentDateTime2.toString())
 
         val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
             .setItems(
                 listOf(
                     OrderItem(
@@ -273,7 +281,11 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 )
             )
             .build()
-        Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
 //        val jsonString = """
 //       {
@@ -306,13 +318,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     }
 
     private fun trackBasket() {
-        val currentDateTime = LocalDateTime.now()
+        // Генерация случайного transaction_id без отрицательных чисел
+        val randomTransactionId = Random.nextLong().absoluteValue.toString()
+
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         val currentDateTime2 = dateFormat.format(Date())
 
         val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
-            .setTransaction(dt = currentDateTime, sum = 100.9)
+            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
             .setItems(
                 listOf(
                     OrderItem(
@@ -332,7 +347,11 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 )
             )
             .build()
-        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
 //        val jsonString = """
 //           {

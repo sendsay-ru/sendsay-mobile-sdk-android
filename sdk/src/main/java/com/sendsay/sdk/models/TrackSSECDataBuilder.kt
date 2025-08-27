@@ -3,14 +3,14 @@ package com.sendsay.sdk.models
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import kotlinx.datetime.format.DateTimeComponents
-import java.time.LocalDateTime
+//import java.time.LocalDateTime
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 
 class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var productId: String? = null
     private var productName: String? = null
-    private var productDateTime: LocalDateTime? = null
+    private var productDateTime: String? = null
     private var productPicture: List<String>? = null
     private var productUrl: String? = null
     private var productAvailable: Int? = null
@@ -26,12 +26,12 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var updatePerItem: Int? = null
     private var update: Int? = null
     private var transactionId: String? = null
-    private var transactionDt: LocalDateTime? = null
+    private var transactionDt: String? = null
     private var transactionSum: Double? = null
     private var transactionDiscount: Double? = null
-    private var deliveryDt: LocalDateTime? = null
+    private var deliveryDt: String? = null
     private var deliveryPrice: Double? = null
-    private var paymentDt: LocalDateTime? = null
+    private var paymentDt: String? = null
     private var items: List<OrderItem>? = null
     private var cpMap: Map<String, Any>? = null
 
@@ -39,7 +39,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     fun setProduct(
         id: String? = null,
         name: String? = null,
-        dateTime: LocalDateTime? = null,
+        dateTime: String? = null,
         picture: List<String>? = null,
         url: String? = null,
         available: Int? = null,
@@ -72,7 +72,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
 
     fun setTransaction(
         id: String? = null,
-        dt: LocalDateTime? = null,
+        dt: String? = null,
         sum: Double? = null,
         discount: Double? = null
     ) = apply {
@@ -83,14 +83,14 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     }
 
     fun setDelivery(
-        dt: LocalDateTime? = null,
+        dt: String? = null,
         deliveryPrice: Double? = null
     ) = apply {
         this.deliveryDt = dt
         this.deliveryPrice = deliveryPrice
     }
 
-    fun setPayment(dt: LocalDateTime) = apply {
+    fun setPayment(dt: String) = apply {
         this.paymentDt = dt
     }
 
@@ -112,13 +112,13 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
                 requireNotNull(transactionId) { "transaction.id is required for type BASKET_ADD" }
                 requireNotNull(transactionDt) { "transaction.dt is required for type BASKET_ADD" }
                 require(!items.isNullOrEmpty()) { "items must be provided for type BASKET_ADD" }
-                items?.any { it.id.isEmpty() || it.price != null || it.qnt != null }
+                items?.any { it.id.isEmpty() || it.price == null || it.qnt == null }
                     ?.let { require(!(it)) { "items must content id, price & qnt for type BASKET_ADD" } }
                 updatePerItem = 0
             }
 
             TrackingSSECType.BASKET_CLEAR -> {
-                requireNotNull(productId) { "transaction.id is required for type BASKET_CLEAR" }
+                requireNotNull(productDateTime) { "product.id is required for type BASKET_CLEAR" }
                 require(!items.isNullOrEmpty()) { "items must be provided for type BASKET_CLEAR" }
                 items?.any { it.id.isEmpty() }
                     ?.let { require(!(it)) { "items must content id for type BASKET_CLEAR" } }
@@ -129,10 +129,14 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             }
         }
 
-        val formattedProductDateTime = getFormatDT(productDateTime)
-        val formattedTransactionDt = getFormatDT(transactionDt)
-        val formattedDeliveryDt = getFormatDT(deliveryDt)
-        val formattedPaymentDt = getFormatDT(paymentDt)
+//        val formattedProductDateTime = getFormatDT(productDateTime)
+//        val formattedTransactionDt = getFormatDT(transactionDt)
+//        val formattedDeliveryDt = getFormatDT(deliveryDt)
+//        val formattedPaymentDt = getFormatDT(paymentDt)
+        val formattedProductDateTime = productDateTime
+        val formattedTransactionDt = transactionDt
+        val formattedDeliveryDt = deliveryDt
+        val formattedPaymentDt = paymentDt
 
         return TrackSSECData(
             productId = productId,
@@ -163,15 +167,15 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
         )
     }
 
-    private fun getFormatDT(dt: LocalDateTime?): String? {
-        @OptIn(FormatStringsInDatetimeFormats::class)
-        val customFormat =
-            DateTimeComponents.Format {
-                byUnicodePattern("yyyy-MM-dd HH:mm:ss")
-            }
-        return if (dt != null) customFormat.parse(dt.toString())
-            .toString() else null
-    }
+//    private fun getFormatDT(dt: LocalDateTime?): String? {
+//        @OptIn(FormatStringsInDatetimeFormats::class)
+//        val customFormat =
+//            DateTimeComponents.Format {
+//                byUnicodePattern("yyyy-MM-dd HH:mm:ss")
+//            }
+//        return if (dt != null) customFormat.parse(dt.toString())
+//            .toString() else null
+//    }
 
     companion object {
         val gsonAdapter = GsonBuilder()

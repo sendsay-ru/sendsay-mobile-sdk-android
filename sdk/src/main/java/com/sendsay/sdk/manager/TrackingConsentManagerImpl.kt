@@ -394,7 +394,7 @@ internal class TrackingConsentManagerImpl(
 
     override fun trackSSEC(type: TrackingSSECType, data: TrackSSECData) {
         initGate.waitForInitialize {
-            val mappedData = toMap(mapOf("ssec" to data))
+            val mappedData = mapOf("ssec" to data)
 
             val properties = HashMap<String, Any>(mappedData as Map<String, Any>)
             val propertiesList = PropertiesList(properties)
