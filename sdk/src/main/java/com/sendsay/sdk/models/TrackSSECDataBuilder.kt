@@ -1,11 +1,6 @@
 package com.sendsay.sdk.models
 
-import com.google.gson.GsonBuilder
-import com.google.gson.annotations.SerializedName
-import kotlinx.datetime.format.DateTimeComponents
 //import java.time.LocalDateTime
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
 
 class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var productId: String? = null
@@ -13,7 +8,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var productDateTime: String? = null
     private var productPicture: List<String>? = null
     private var productUrl: String? = null
-    private var productAvailable: Int? = null
+    private var productAvailable: Long? = null
     private var productCategoryPaths: List<String>? = null
     private var productCategoryId: Long? = null
     private var productCategory: String? = null
@@ -23,12 +18,13 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var productType: String? = null
     private var productPrice: Double? = null
     private var productOldPrice: Double? = null
-    private var updatePerItem: Int? = null
-    private var update: Int? = null
+    private var updatePerItem: Long? = null
+    private var update: Long? = null
     private var transactionId: String? = null
     private var transactionDt: String? = null
     private var transactionSum: Double? = null
     private var transactionDiscount: Double? = null
+    private var transactionStatus: Long? = null
     private var deliveryDt: String? = null
     private var deliveryPrice: Double? = null
     private var paymentDt: String? = null
@@ -42,7 +38,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
         dateTime: String? = null,
         picture: List<String>? = null,
         url: String? = null,
-        available: Int? = null,
+        available: Long? = null,
         categoryPaths: List<String>? = null,
         categoryId: Long? = null,
         category: String? = null,
@@ -74,12 +70,14 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
         id: String? = null,
         dt: String? = null,
         sum: Double? = null,
-        discount: Double? = null
+        discount: Double? = null,
+        status: Long? = null
     ) = apply {
         this.transactionId = id
         this.transactionDt = dt
         this.transactionSum = sum
         this.transactionDiscount = discount
+        this.transactionStatus = status
     }
 
     fun setDelivery(
@@ -105,7 +103,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             TrackingSSECType.ORDER -> {
                 requireNotNull(transactionId) { "transaction.id is required for type ORDER" }
                 requireNotNull(transactionDt) { "transaction.dt is required for type ORDER" }
-                if (update == 1) require(!items.isNullOrEmpty()) { "items must be provided for type ORDER and 'update' == 1" }
+                if (update == 1L) require(!items.isNullOrEmpty()) { "items must be provided for type ORDER and 'update' == 1" }
             }
 
             TrackingSSECType.BASKET_ADD -> {
@@ -144,23 +142,23 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             dateTime = formattedProductDateTime,
             picture = productPicture,
             url = productUrl,
-            available = productAvailable,
+            available = productAvailable.toString(),
             categoryPaths = productCategoryPaths,
-            categoryId = productCategoryId,
+            categoryId = productCategoryId.toString(),
             category = productCategory,
             description = productDescription,
             vendor = productVendor,
             model = productModel,
             type = productType,
-            price = null,
-            oldPrice = null,
+            price = productPrice,
+            oldPrice = productOldPrice,
             transactionId = transactionId,
             transactionDt = formattedTransactionDt,
-            transactionStatus = null,
-            transactionDiscount = null,
-            transactionSum = null,
+            transactionSum = transactionSum,
+            transactionDiscount = transactionDiscount,
+            transactionStatus = transactionStatus.toString(),
             deliveryDt = formattedDeliveryDt,
-            deliveryPrice = null,
+            deliveryPrice = deliveryPrice,
             paymentDt = formattedPaymentDt,
             items = items,
             cp = cpMap
@@ -177,9 +175,10 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
 //            .toString() else null
 //    }
 
-    companion object {
-        val gsonAdapter = GsonBuilder()
-            .registerTypeAdapter(TrackSSECData::class.java, SsecPayloadDeserializer())
-            .create()
-    }
+//    companion object {
+//        val gsonAdapter = GsonBuilder()
+//            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+//            .registerTypeAdapter(object: TypeToken<TrackSSECData>(){}.type, SsecPayloadDeserializer())
+//            .create()
+//    }
 }

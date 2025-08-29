@@ -28,7 +28,6 @@ import com.sendsay.sdk.models.TrackSSECDataBuilder
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
@@ -105,10 +104,10 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     /**
      * Method to handle custom event tracking obtained by TrackCustomEventDialog
      */
-    private fun trackCustomEvent(eventName: String, propertiesList: PropertiesList) {
+    private fun trackCustomEvent(eventName: String, properties: HashMap<String, Any>) {
         Sendsay.trackEvent(
             eventType = eventName,
-            properties = propertiesList
+            properties = PropertiesList(properties = properties).toHashMap()
         )
     }
 
@@ -124,8 +123,8 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     /**
      * Method to handle updating customer properties
      */
-    private fun trackUpdateCustomerProperties(propertiesList: PropertiesList) {
-        val registeredIdUpdate = propertiesList.properties.remove("registered") as? String
+    private fun trackUpdateCustomerProperties(propertiesList: HashMap<String, Any>) {
+        val registeredIdUpdate = propertiesList.remove("registered") as? String
         if (registeredIdUpdate != null) {
             App.instance.registeredIdManager.registeredID = registeredIdUpdate
         }
@@ -182,18 +181,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         }
 
 //        val jsonString = """
-//        {
-//          "ssec": {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime2",
 //            "items": [
 //              {
 //                "id": -1
 //              }
 //            ]
 //          }
-//        }
 //        """.trimIndent()
 //        val jsonToSsecExample: TrackSSECData =
-//            TrackSSECDataBuilder.gsonAdapter.fromJson(jsonString, TrackSSECData::class.java)
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
 //        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
     }
 
@@ -227,8 +224,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         }
 
 //        val jsonString = """
-//        {
-//          "ssec": {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime2",
 //            "id": "product1",
 //            "available": 1,
 //            "name": "name",
@@ -240,11 +236,10 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //            "vendor": "vendor",
 //            "category_id": 777,
 //            "category": "category name"
-//          }
 //        }""".trimIndent()
 //
 //        val jsonToSsecExample: TrackSSECData =
-//            TrackSSECDataBuilder.gsonAdapter.fromJson(jsonString, TrackSSECData::class.java)
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
 //        Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, jsonToSsecExample)
     }
 
@@ -252,13 +247,13 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         // Генерация случайного transaction_id без отрицательных чисел
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
-        val currentDateTime = LocalDateTime.now()
+//        val currentDateTime = LocalDateTime.now()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         val currentDateTime2 = dateFormat.format(Date())
 
-        Log.d("fasdfasdfsd1", currentDateTime.toString())
-        Log.d("fasdfasdfsd2", currentDateTime2)
-        Log.d("fasdfasdfsd3", currentDateTime2.toString())
+//        Log.d("fasdfasdfsd1", currentDateTime.toString())
+//        Log.d("fasdfasdfsd2", currentDateTime2)
+//        Log.d("fasdfasdfsd3", currentDateTime2.toString())
 
         val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
             .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
@@ -266,16 +261,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 listOf(
                     OrderItem(
                         id = "product1",
-                        qnt = 1,
+                        qnt = "1",
                         price = 7.88,
-                        available = 1,
+                        available = "1",
                         name = "name",
                         oldPrice = 5.99,
                         picture = listOf(),
                         url = "url",
                         model = "model",
                         vendor = "vendor",
-                        categoryId = 777,
+                        categoryId = "777",
                         category = "category_name",
                     )
                 )
@@ -288,8 +283,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         }
 
 //        val jsonString = """
-//       {
-//        "ssec":{"dt":"$currentDateTime2",
+//       {"dt":"$currentDateTime2",
 //               "transaction_id": "$randomTransactionId",
 //               "transaction_dt": "$currentDateTime2",
 //               "transaction_sum": 100.9,
@@ -311,9 +305,9 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //                 }
 //               ]
 //            }
-//        }""".trimIndent()
+//            """.trimIndent()
 //        val jsonToSsecExample: TrackSSECData =
-//            TrackSSECDataBuilder.gsonAdapter.fromJson(jsonString, TrackSSECData::class.java)
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
 //        Sendsay.trackSSECEvent(TrackingSSECType.ORDER, jsonToSsecExample)
     }
 
@@ -332,16 +326,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 listOf(
                     OrderItem(
                         id = "product1",
-                        qnt = 1,
+                        qnt = "1",
                         price = 7.88,
-                        available = 1,
+                        available = "1",
                         name = "name",
                         oldPrice = 5.99,
                         picture = listOf(),
                         url = "url",
                         model = "model",
                         vendor = "vendor",
-                        categoryId = 777,
+                        categoryId = "777",
                         category = "category_name",
                     )
                 )
@@ -355,7 +349,6 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 //        val jsonString = """
 //           {
-//            "ssec":{
 //                   "dt":"$currentDateTime",
 //                   "transaction_sum": 100.9,
 //                   "update_per_item": 0,
@@ -376,10 +369,9 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //
 //                     }
 //                   ]
-//                }
 //            }""".trimIndent()
 //        val jsonToSsecExample: TrackSSECData =
-//            TrackSSECDataBuilder.gsonAdapter.fromJson(jsonString, TrackSSECData::class.java)
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
 //        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, jsonToSsecExample)
     }
 

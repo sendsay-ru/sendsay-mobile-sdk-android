@@ -1,7 +1,6 @@
 package com.sendsay.sdk.manager
 
 import android.content.Context
-import android.util.Log
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.Sendsay.initGate
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
@@ -20,6 +19,7 @@ import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.TrackSSECData
+import com.sendsay.sdk.models.TrackSSECDataBuilder
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.network.NetworkHandlerImpl
 import com.sendsay.sdk.network.SendsayServiceImpl
@@ -35,13 +35,6 @@ import com.sendsay.sdk.util.GdprTracking
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.currentTimeSeconds
-import com.sendsay.sdk.util.toMap
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Date
-import java.util.Locale
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 internal class TrackingConsentManagerImpl(
     private val eventManager: EventManager,
@@ -394,12 +387,12 @@ internal class TrackingConsentManagerImpl(
 
     override fun trackSSEC(type: TrackingSSECType, data: TrackSSECData) {
         initGate.waitForInitialize {
-            val mappedData = mapOf("ssec" to data)
+            val properties = hashMapOf<String, TrackSSECData>("ssec" to data)
 
-            val properties = HashMap<String, Any>(mappedData as Map<String, Any>)
-            val propertiesList = PropertiesList(properties)
+//            val jsonData = SendsayGson.instance.toJson(properties)
+
             Sendsay.trackEvent(
-                properties = propertiesList,
+                properties = properties as HashMap<String, Any>,
                 timestamp = null,
                 eventType = type.value
             )

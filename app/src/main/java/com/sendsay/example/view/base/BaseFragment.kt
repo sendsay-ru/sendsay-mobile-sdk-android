@@ -15,7 +15,7 @@ open class BaseFragment : androidx.fragment.app.Fragment() {
 
         Sendsay.trackEvent(
             eventType = "page_view",
-            properties = properties
+            properties = properties.toHashMap()
         )
     }
 }

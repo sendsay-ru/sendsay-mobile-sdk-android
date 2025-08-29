@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import java.lang.reflect.Type
+import com.google.gson.reflect.TypeToken
 
 
 data class TrackSSECData(
@@ -25,13 +26,13 @@ data class TrackSSECData(
     val url: String? = null,
 
     @SerializedName("product.available")
-    val available: Int? = null,
+    val available: String? = null,
 
     @SerializedName("product.category_paths")
     val categoryPaths: List<String>? = null,
 
     @SerializedName("product.category_id")
-    val categoryId: Long? = null,
+    val categoryId: String? = null,
 
     @SerializedName("product.category")
     val category: String? = null,
@@ -59,10 +60,10 @@ data class TrackSSECData(
     val email: String? = null,
 
     @SerializedName("update_per_item")
-    val updatePerItem: Int? = null,
+    val updatePerItem: String? = null,
 
     @SerializedName("update")
-    val update: Int? = null,
+    val update: String? = null,
 
 
     // Платёжные и транзакционные данные
@@ -73,7 +74,7 @@ data class TrackSSECData(
     val transactionDt: String? = null,
 
     @SerializedName("transaction.status")
-    val transactionStatus: Long? = null,
+    val transactionStatus: String? = null,
 
     @SerializedName("transaction.discount")
     val transactionDiscount: Double? = null,
@@ -103,7 +104,7 @@ data class OrderItem(
     @SerializedName("id")
     val id: String,
     @SerializedName("qnt")
-    val qnt: Int? = null,
+    val qnt: String? = null,
     @SerializedName("price")
     val price: Double? = null,
 
@@ -114,7 +115,7 @@ data class OrderItem(
     @SerializedName("uniq")
     val uniq: String? = null,
     @SerializedName("available")
-    val available: Int? = null,
+    val available: String? = null,
     @SerializedName("old_price")
     val oldPrice: Double? = null,
     @SerializedName("picture")
@@ -126,10 +127,76 @@ data class OrderItem(
     @SerializedName("vendor")
     val vendor: String? = null,
     @SerializedName("category_id")
-    val categoryId: Long? = null,
+    val categoryId: String? = null,
     @SerializedName("category")
     val category: String? = null
 )
+
+// Кастомный сериализатор для чисел (чтобы JSON не менял все Num примитивы в Double)
+class StrictNumberDeserializer : JsonDeserializer<Any> {
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): Any {
+        return when {
+            json.isJsonNull -> null as Any
+
+            json.isJsonPrimitive -> {
+                val prim = json.asJsonPrimitive
+                when {
+                    prim.isBoolean -> prim.asBoolean
+                    prim.isString -> prim.asString
+                    prim.isNumber -> {
+                        val numStr = prim.asString
+                        when {
+                            numStr.contains(".") -> prim.asDouble
+                            else -> {
+                                try {
+                                    val longVal = numStr.toLong()
+                                    if (longVal in Int.MIN_VALUE..Int.MAX_VALUE) longVal.toInt()
+                                    else longVal
+                                } catch (e: NumberFormatException) {
+                                    prim.asDouble
+                                }
+                            }
+                        }
+                    }
+                    else -> prim.asString
+                }
+            }
+
+            json.isJsonObject -> {
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                context.deserialize<Map<String, Any>>(json, type)
+            }
+
+            json.isJsonArray -> {
+                val type = object : TypeToken<List<Any>>() {}.type
+                context.deserialize<List<Any>>(json, type)
+            }
+
+            else -> json.toString()
+        }
+    }
+}
+
+class NumberPreserveAdapter : JsonDeserializer<Any> {
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Any {
+        return when {
+            json.isJsonPrimitive && json.asJsonPrimitive.isNumber -> {
+                val num = json.asJsonPrimitive.asNumber
+                if (num.toString().contains(".")) num.toDouble()
+                else {
+                    try { num.toInt() } catch (e: Exception) { num.toLong() }
+                }
+            }
+            json.isJsonObject -> context.deserialize<Map<String, Any>>(json, object : TypeToken<Map<String, Any>>(){}.type)
+            json.isJsonArray -> context.deserialize<List<Any>>(json, object : TypeToken<List<Any>>(){}.type)
+            else -> json.toString()
+        }
+    }
+}
 
 // Кастомный сериализатор для cp1..cp20
 class SsecPayloadDeserializer : JsonDeserializer<TrackSSECData> {

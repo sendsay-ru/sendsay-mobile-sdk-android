@@ -55,7 +55,6 @@ import com.sendsay.sdk.models.MessageItemAction
 import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.NotificationPayload
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.PushNotificationDelegate
 import com.sendsay.sdk.models.PushOpenedData
@@ -479,11 +478,11 @@ object Sendsay {
      * flushed (send it to api).
      */
 
-    fun identifyCustomer(customerIds: CustomerIds, properties: PropertiesList) = runCatching {
+    fun identifyCustomer(customerIds: CustomerIds, properties: HashMap<String, Any>) = runCatching {
         initGate.waitForInitialize {
             component.customerIdsRepository.set(customerIds)
             component.eventManager.track(
-                properties = properties.properties,
+                properties = properties,
                 type = EventType.TRACK_CUSTOMER
             )
         }
@@ -496,13 +495,13 @@ object Sendsay {
      */
 
     fun trackEvent(
-        properties: PropertiesList,
+        properties: HashMap<String, Any>,
         timestamp: Double? = currentTimeSeconds(),
         eventType: String?
     ) = runCatching {
         initGate.waitForInitialize {
             component.eventManager.track(
-                properties = properties.properties,
+                properties = properties,
                 timestamp = timestamp,
                 eventType = eventType,
                 type = EventType.TRACK_EVENT,

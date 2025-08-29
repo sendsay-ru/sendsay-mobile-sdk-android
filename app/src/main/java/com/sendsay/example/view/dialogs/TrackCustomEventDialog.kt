@@ -17,12 +17,11 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.sendsay.example.R
 import com.sendsay.example.utils.asJson
-import com.sendsay.sdk.models.PropertiesList
 
 
 class TrackCustomEventDialog : DialogFragment() {
 
-    private lateinit var onConfirmed: (eventName: String, properties: PropertiesList) -> Unit
+    private lateinit var onConfirmed: (eventName: String, properties: HashMap<String, Any>) -> Unit
     private val propsMap = hashMapOf(
         "property" to "some value" as Any,
         "cce" to """{ "cce-key": "test-value-CCE" }""".trimIndent() as Any
@@ -48,7 +47,7 @@ class TrackCustomEventDialog : DialogFragment() {
 
         fun show(
             fragmentManager: FragmentManager,
-            callback: (eventName: String, properties: PropertiesList) -> (Unit)
+            callback: (eventName: String, properties: HashMap<String, Any>) -> (Unit)
         ) {
             val fragment = fragmentManager.findFragmentByTag(TAG)
                     as? TrackCustomEventDialog
@@ -115,7 +114,7 @@ class TrackCustomEventDialog : DialogFragment() {
 
         buttonTrack.setOnClickListener {
             val name = eventName.text.toString()
-            val properties = PropertiesList(propsMap)
+            val properties = propsMap
             onConfirmed(name, properties)
             dismiss()
         }

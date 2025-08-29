@@ -56,12 +56,12 @@ internal class StressTest : SendsaySDKTest() {
     }
 
     private lateinit var repo: EventRepository
-    private lateinit var properties: PropertiesList
+    private lateinit var properties: HashMap<String, Any>
 
     @Before
     fun prepareForTest() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        properties = PropertiesList(properties = DeviceProperties(context).toHashMap())
+        properties = DeviceProperties(context).toHashMap()
         skipInstallEvent()
         Sendsay.flushMode = FlushMode.MANUAL
         Sendsay.init(context, configuration)
@@ -85,7 +85,7 @@ internal class StressTest : SendsaySDKTest() {
             Sendsay.trackEvent(
                 eventType = eventType,
                 timestamp = currentTimeSeconds(),
-                properties = properties
+                properties = PropertiesList(properties = properties).toHashMap()
             )
         }
         idleThreads()
@@ -127,7 +127,7 @@ internal class StressTest : SendsaySDKTest() {
         for (i in 0 until stressCount) {
             Sendsay.identifyCustomer(
                 customerIds = CustomerIds().withId("registered", "john@doe.com"),
-                properties = PropertiesList(hashMapOf("first_name" to "NewName"))
+                properties = hashMapOf("first_name" to "NewName")
             )
         }
         idleThreads()
@@ -164,7 +164,7 @@ internal class StressTest : SendsaySDKTest() {
 
     private suspend fun addEvent(
         coroutineContext: CoroutineContext,
-        properties: PropertiesList,
+        properties: HashMap<String, Any>,
         timestamp: Double? = currentTimeSeconds(),
         eventType: String?
     ) {

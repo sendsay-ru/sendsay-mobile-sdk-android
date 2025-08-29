@@ -22,7 +22,6 @@ import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationPayload
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
 import com.sendsay.sdk.repository.PushTokenRepository
 import com.sendsay.sdk.services.SendsayPushTrackingActivity
@@ -91,12 +90,12 @@ internal open class FcmManagerImpl(
                 permissionGranted
             )
             val tokenToTrack = if (permissionMismatched) { "" } else { token }
-            val properties = PropertiesList(hashMapOf(
-                tokenType.apiProperty to tokenToTrack
-            ))
+            val properties = hashMapOf(
+                tokenType.apiProperty to tokenToTrack as Any
+            )
             eventManager.track(
                 eventType = Constants.EventTypes.push,
-                properties = properties.properties,
+                properties = properties,
                 type = EventType.PUSH_TOKEN
             )
             return

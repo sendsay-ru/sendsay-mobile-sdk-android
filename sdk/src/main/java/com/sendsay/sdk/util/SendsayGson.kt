@@ -11,7 +11,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializer
+import com.google.gson.ToNumberPolicy
 import com.google.gson.reflect.TypeToken
+import com.sendsay.sdk.models.NumberPreserveAdapter
+import com.sendsay.sdk.models.SsecPayloadDeserializer
+import com.sendsay.sdk.models.StrictNumberDeserializer
+import com.sendsay.sdk.models.TrackSSECData
 
 class SendsayGson {
     companion object {
@@ -38,6 +43,13 @@ class SendsayGson {
                     JsonPrimitive(src)
                 }
             })
+            // Seems to be found some variant of solution.
+//            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+//            .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            // ssec event
+//            .registerTypeAdapter(Any::class.java, NumberPreserveAdapter())
+            .registerTypeAdapter(Any::class.java, StrictNumberDeserializer())
+            .registerTypeAdapter(object: TypeToken<TrackSSECData>(){}.type, SsecPayloadDeserializer())
             // customer recommendation
             .registerTypeAdapter(CustomerRecommendation::class.java, CustomerRecommendationDeserializer())
             // event filter

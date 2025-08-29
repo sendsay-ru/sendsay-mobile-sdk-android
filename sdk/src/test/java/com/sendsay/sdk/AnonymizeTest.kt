@@ -9,7 +9,6 @@ import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.ExportedEvent
 import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentTest
@@ -62,7 +61,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
 
         Sendsay.trackEvent(
                 eventType = "test",
-                properties = PropertiesList(hashMapOf("name" to "test")),
+                properties = hashMapOf("name" to "test"),
                 timestamp = currentTimeSeconds()
         )
         Sendsay.trackPushToken(testFirebaseToken)
@@ -71,7 +70,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
         Sendsay.anonymize(sendsayProject = newProject)
         Sendsay.trackEvent(
             eventType = "test",
-            properties = PropertiesList(hashMapOf("name" to "test")),
+            properties = hashMapOf("name" to "test"),
             timestamp = currentTimeSeconds()
         )
         idleThreads()
@@ -115,7 +114,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
             val userId = Sendsay.componentForTesting.customerIdsRepository.get().cookie
             Sendsay.trackEvent(
                 eventType = "test",
-                properties = PropertiesList(hashMapOf("name" to "test")),
+                properties = hashMapOf("name" to "test"),
                 timestamp = currentTimeSeconds()
             )
             val newProject = SendsayProject("https://other-base-url.com", "new_project_token", "Token other-auth")
@@ -123,7 +122,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
             val newUserId = Sendsay.componentForTesting.customerIdsRepository.get().cookie
             Sendsay.trackEvent(
                 eventType = "test",
-                properties = PropertiesList(hashMapOf("name" to "test")),
+                properties = hashMapOf("name" to "test"),
                 timestamp = currentTimeSeconds()
             )
             idleThreads()
@@ -158,7 +157,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
             val userId = Sendsay.componentForTesting.customerIdsRepository.get().cookie
             Sendsay.trackEvent(
                 eventType = "test",
-                properties = PropertiesList(hashMapOf("name" to "test")),
+                properties = hashMapOf("name" to "test"),
                 timestamp = currentTimeSeconds()
             )
             val newProject = SendsayProject("https://other-base-url.com", "new_project_token", "Token other-auth")
@@ -166,7 +165,7 @@ internal class AnonymizeTest : SendsaySDKTest() {
             val newUserId = Sendsay.componentForTesting.customerIdsRepository.get().cookie
             Sendsay.trackEvent(
                 eventType = "test",
-                properties = PropertiesList(hashMapOf("name" to "test")),
+                properties = hashMapOf("name" to "test"),
                 timestamp = currentTimeSeconds()
             )
             idleThreads()

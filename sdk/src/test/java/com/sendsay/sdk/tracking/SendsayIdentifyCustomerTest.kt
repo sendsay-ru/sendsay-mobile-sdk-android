@@ -10,7 +10,6 @@ import com.sendsay.sdk.models.Event
 import com.sendsay.sdk.models.EventType
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.telemetry.TelemetryManager
 import com.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.Runs
@@ -49,7 +48,7 @@ internal class SendsayIdentifyCustomerTest : SendsaySDKTest() {
         } just Runs
         Sendsay.identifyCustomer(
             CustomerIds().withId("registered", "john@doe.com"),
-            PropertiesList(hashMapOf("first_name" to "NewName"))
+            hashMapOf("first_name" to "NewName")
         )
         verify(exactly = 1) {
             anyConstructed<EventManagerImpl>().addEventToQueue(any(), any(), any())
@@ -83,7 +82,7 @@ internal class SendsayIdentifyCustomerTest : SendsaySDKTest() {
         } just Runs
         Sendsay.identifyCustomer(
             CustomerIds().withId("registered", "john@doe.com"),
-            PropertiesList(hashMapOf("first_name" to "NewName"))
+            hashMapOf("first_name" to "NewName")
         )
         verify(exactly = 1) {
             anyConstructed<EventManagerImpl>().addEventToQueue(any(), any(), any())
@@ -121,7 +120,7 @@ internal class SendsayIdentifyCustomerTest : SendsaySDKTest() {
         } just Runs
         Sendsay.identifyCustomer(
             CustomerIds().withId("registered", "john@doe.com"),
-            PropertiesList(hashMapOf("first_name" to "NewName"))
+            hashMapOf("first_name" to "NewName")
         )
         verify(exactly = 1) {
             anyConstructed<EventManagerImpl>().addEventToQueue(any(), any(), any())
@@ -225,7 +224,7 @@ internal class SendsayIdentifyCustomerTest : SendsaySDKTest() {
         } just Runs
         Sendsay.identifyCustomer(
             CustomerIds().withId("registered", "john@doe.com"),
-            PropertiesList(hashMapOf("first_name" to "NewName"))
+            hashMapOf("first_name" to "NewName")
         )
         verify(exactly = 1) {
             anyConstructed<EventManagerImpl>().addEventToQueue(any(), any(), any())
