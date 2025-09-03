@@ -34,57 +34,105 @@ parentDocSlug: android-sdk
 #### SSEC (События модуля "Продажи")
 
 Обратитесь к документации [События модуля "Продажи"](https://docs.sendsay.ru/ecom/how-to-configure-data-transfer).
+Там указаны требования к обязательным полям [TrackSSECDataBuilder](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECDataBuilder.kt) для заполнения к каждому типу [TrackingSSECType](../sdk/src/main/java/com/sendsay/sdk/models/TrackingSSECType.kt)
 
+## Пример с помощью TrackSSECDataBuilder(рекомендуется, чтобы избежать ошибок):
 ```kotlin
-private fun trackBasket() {
+fun trackClearBasket() {
     // Получение текущего времени с использованием SimpleDateFormat
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     val currentDateTime = dateFormat.format(Date())
-    val jsonString = """{
-        "ssec":{"dt":"$currentDateTime", 
-               "transaction_id": "$randomTransactionId", 
-               "transaction_dt": "$currentDateTime", 
-               "transaction_sum": 100.9, 
-               "update_per_item": 0, 
-               "items": [
-                 {
-                   "id": "product1", 
-                   "available": 1,
-                   "name": "name",
-                   "qnt": 1, 
-                   "price": 7.88, 
-                   "old_price": 5.99,
-                   "picture": [], 
-                   "url": "url", 
-                   "model": "model", 
-                   "vendor": "vendor", 
-                   "category_id": 777, 
-                   "category": "category name"
-                   
-                 }
-               ]
-            }
-        }""".trimIndent()
 
-    val gson = Gson()
-    val productBasket = gson.fromJson(jsonString, Map::class.java)
-    val properties = HashMap<String, Any>(productBasket as Map<String, Any>)
-
-    // Создание экземпляра PropertiesList из HashMap
-    val propertiesList = PropertiesList(properties)
-    Sendsay.trackEvent(
-        properties = propertiesList,
-        timestamp = null,
-        eventType = "ssec_basket"
-    )
+    // Создание объекта трекинга SSEC с помощью TrackSSECDataBuilder
+    val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
+        .setProduct(dateTime = currentDateTime)
+        .setItems(listOf(OrderItem(id = "-1")))
+        .build()
+    try {
+    // Отправка события SSEC
+        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
+    } catch (e: IllegalArgumentException) {
+        Log.e(TrackingSSECType.BASKET_CLEAR.name, e.stackTrace.toString())
+    }
 }
 ```
 
-#### CCE (Пользовательские события)
+## Пример с помощью JSON конвертера в TrackSSECData:
+```kotlin
+fun trackClearBasketJson() {
+    // Получение текущего времени с использованием SimpleDateFormat
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    val currentDateTime = dateFormat.format(Date())
+
+    // Пример JSON, который можем отправить в качестве SSEC
+    val jsonString = """
+    {"dt":"$currentDateTime",
+        "items": [
+          {
+            "id": -1
+          }
+        ]
+      }
+    """.trimIndent()
+
+    // Создание объекта трекинга SSEC через конвертер в TrackSSECData
+    val jsonToSsecExample: TrackSSECData =
+        SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
+    try {
+    // Отправка события SSEC
+        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
+    } catch (e: IllegalArgumentException) {
+        Log.e(TrackingSSECType.BASKET_CLEAR.name, e.stackTrace.toString())
+    }
+}
+```
+
+## Еще пример с передачей "списка заказа", объекта [OrderItem](../sdk/src/main/java/com/sendsay/sdk/models/OrderItem.kt)
+```kotlin
+fun trackBasket() {
+    // Генерация случайного transaction_id без отрицательных чисел
+    val randomTransactionId = Random.nextLong().absoluteValue.toString()
+
+    // Получение текущего времени с использованием SimpleDateFormat
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    val currentDateTime = dateFormat.format(Date())
+    
+    // Описание "списка заказов"
+
+    val orderN = OrderItem(
+        id = "product1",
+        qnt = 1,
+        price = 7.88,
+        available = 1,
+        name = "name",
+        oldPrice = 5.99,
+        picture = listOf(),
+        url = "url",
+        model = "model",
+        vendor = "vendor",
+        categoryId = 777,
+        category = "category_name",
+    )
+    val orders = listOf(orderN, orderN, orderN,)
+
+    // Создание объекта трекинга SSEC с помощью TrackSSECDataBuilder
+    val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
+        .setTransaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+        .setItems(orders)
+        .build()
+    try {
+        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
+    } catch (e: IllegalArgumentException) {
+        Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+    }
+}
+```
+
+#### CCE (Пользовательские события) (в разработке)
 
 ```kotlin
     jsonString = """{
-        "cce": "test_cce",
+        "cce": {"any-key": "test-value"},
     }""".trimIndent()
     
 /// ......
@@ -194,7 +242,8 @@ val properties = PropertiesList(
     hashMapOf(
         Pair("first_name", "Jane"),
         Pair("last_name", "Doe"),
-        Pair("age", 32)
+        Pair("age", 32),
+        Pair("phone", "+79991112233")
     )
 )
 ```

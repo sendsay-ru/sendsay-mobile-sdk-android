@@ -14,7 +14,7 @@ import com.sendsay.sdk.models.Constants
 import com.sendsay.sdk.models.DeviceProperties
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.models.PropertiesAdapter
+import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.repository.EventRepository
 import com.sendsay.sdk.repository.EventRepositoryImpl
 import com.sendsay.sdk.repository.PushTokenRepositoryImpl
@@ -67,7 +67,7 @@ internal class FlushStressTest : SendsaySDKTest() {
         }
     }
 
-    private lateinit var properties: PropertiesAdapter
+    private lateinit var properties: PropertiesList
     private lateinit var manager: FlushManager
     private lateinit var repo: EventRepository
     private lateinit var service: SendsayMockService
@@ -98,7 +98,7 @@ internal class FlushStressTest : SendsaySDKTest() {
             anyConstructed<PushTokenRepositoryImpl>().get()
         } returns null
         val context = ApplicationProvider.getApplicationContext<Context>()
-        properties = PropertiesAdapter(properties = DeviceProperties(context).toHashMap())
+        properties = PropertiesList(properties = DeviceProperties(context).toHashMap())
         val connectedManager = mockk<ConnectionManager>()
         every { connectedManager.isConnectedToInternet() } returns true
         Sendsay.reset()

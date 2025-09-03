@@ -17,7 +17,7 @@ import com.sendsay.sdk.models.InAppContentBlockPersonalizedData
 import com.sendsay.sdk.models.InAppMessage
 import com.sendsay.sdk.models.InAppMessageTest
 import com.sendsay.sdk.models.MessageItem
-import com.sendsay.sdk.models.PropertiesAdapter
+import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.models.SegmentationCategories
 import com.sendsay.sdk.models.eventfilter.EventFilter
@@ -474,7 +474,7 @@ internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
         }
         Sendsay.identifyCustomer(
             customerIds = customerIds,
-            properties = PropertiesAdapter(properties)
+            properties = PropertiesList(properties)
         )
     }
 

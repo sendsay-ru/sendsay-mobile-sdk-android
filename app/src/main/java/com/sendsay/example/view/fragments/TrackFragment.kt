@@ -22,7 +22,7 @@ import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.OrderItem
-import com.sendsay.sdk.models.PropertiesAdapter
+import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSECDataBuilder
 import com.sendsay.sdk.models.TrackingSSECType
@@ -107,7 +107,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun trackCustomEvent(eventName: String, properties: HashMap<String, Any>) {
         Sendsay.trackEvent(
             eventType = eventName,
-            properties = PropertiesAdapter(properties = properties).toHashMap()
+            properties = PropertiesList(properties = properties).toHashMap()
         )
     }
 
@@ -177,7 +177,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         try {
             Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
         } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+            Log.e(TrackingSSECType.BASKET_CLEAR.name, e.stackTrace.toString())
         }
 
 //        val jsonString = """
@@ -191,7 +191,11 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //        """.trimIndent()
 //        val jsonToSsecExample: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
-//        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
+//        try {
+//            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
+//        } catch (e: IllegalArgumentException) {
+//            Log.e(TrackingSSECType.BASKET_CLEAR.name, e.stackTrace.toString())
+//        }
     }
 
 
@@ -280,7 +284,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         try {
             Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
         } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+            Log.e(TrackingSSECType.ORDER.name, e.stackTrace.toString())
         }
 
 //        val jsonString = """

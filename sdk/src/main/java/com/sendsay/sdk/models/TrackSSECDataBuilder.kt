@@ -186,11 +186,4 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
 //        return if (dt != null) customFormat.parse(dt.toString())
 //            .toString() else null
 //    }
-
-//    companion object {
-//        val gsonAdapter = GsonBuilder()
-//            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-//            .registerTypeAdapter(object: TypeToken<TrackSSECData>(){}.type, SsecPayloadDeserializer())
-//            .create()
-//    }
 }
