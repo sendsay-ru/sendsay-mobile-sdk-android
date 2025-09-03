@@ -197,8 +197,8 @@ The last but not least: `onReceiveMethod`
 Final one allows you to update customer properties.
 It will also show a dialog, where you can specify attributes you want save or update
 ```
-val props = PropertiesList(hashMapOf("first_name" to "newName", "email" to "another@email.com"))
-      Sendsay.updateCustomerProperties(
+val props = hashMapOf("first_name" to "newName", "email" to "another@email.com")
+      Sendsay.identifyCustomer(
               properties = props
       )
 ```

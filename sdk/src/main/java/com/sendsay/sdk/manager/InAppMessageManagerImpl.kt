@@ -45,6 +45,7 @@ internal data class InAppMessageShowRequest(
     val requestedAt: Long,
     val customerIds: HashMap<String, String?>
 )
+
 internal class InAppMessageManagerImpl(
     private val customerIdsRepository: CustomerIdsRepository,
     private val inAppMessagesCache: InAppMessagesCache,
@@ -57,8 +58,10 @@ internal class InAppMessageManagerImpl(
     private val projectFactory: SendsayProjectFactory
 ) : InAppMessageManager {
     companion object {
-        const val REFRESH_CACHE_AFTER = 1000 * 60 * 30 // when session is started and cache is older than this, refresh
-        const val MAX_PENDING_MESSAGE_AGE = 1000 * 3 // time window to show pending message after preloading
+        const val REFRESH_CACHE_AFTER =
+            1000 * 60 * 30 // when session is started and cache is older than this, refresh
+        const val MAX_PENDING_MESSAGE_AGE =
+            1000 * 3 // time window to show pending message after preloading
         const val MAX_RETRY_COUNT = 3 // message fetch retry count for failure
     }
 
@@ -148,7 +151,10 @@ internal class InAppMessageManagerImpl(
                     Logger.w(this, "[InApp] Preloading in-app messages failed, going to retry")
                     reload(customerIds, callback, retryCount + 1)
                 } else if (areCustomerIdsActual(customerIds)) {
-                    Logger.e(this, "[InApp] Preloading in-app messages failed. ${it.results.message}")
+                    Logger.e(
+                        this,
+                        "[InApp] Preloading in-app messages failed. ${it.results.message}"
+                    )
                     preloadFinished()
                     callback?.invoke(Result.failure(Exception("Preloading in-app messages failed.")))
                 } else {
@@ -190,7 +196,10 @@ internal class InAppMessageManagerImpl(
             return ReloadMode.STOP
         }
         if (Sendsay.isStopped) {
-            Logger.d(this, "[InApp] Skipping messages fetch for type $eventType because SDK is stopping")
+            Logger.d(
+                this,
+                "[InApp] Skipping messages fetch for type $eventType because SDK is stopping"
+            )
             return ReloadMode.STOP
         }
         if (eventType == EventType.PUSH_DELIVERED ||
@@ -289,63 +298,67 @@ internal class InAppMessageManagerImpl(
         synchronized(this) {
             // collect messages by pending requests
             val currentCustomerIds = customerIdsRepository.get().toHashMap()
-            val pendingMessages: List<Pair<InAppMessageShowRequest, InAppMessage>> = pendingShowRequests
-                // if any In-app is shown, pick is meaningless
-                .filter {
-                    val isOtherMsgPresenting = !presenter.isPresenting()
-                    if (!isOtherMsgPresenting) {
-                        Logger.d(
-                            this,
-                            "[InApp] Show request ${it.eventType} skipped, another In-app message is shown"
-                        )
+            val pendingMessages: List<Pair<InAppMessageShowRequest, InAppMessage>> =
+                pendingShowRequests
+                    // if any In-app is shown, pick is meaningless
+                    .filter {
+                        val isOtherMsgPresenting = !presenter.isPresenting()
+                        if (!isOtherMsgPresenting) {
+                            Logger.d(
+                                this,
+                                "[InApp] Show request ${it.eventType} skipped, another In-app message is shown"
+                            )
+                        }
+                        return@filter isOtherMsgPresenting
                     }
-                    return@filter isOtherMsgPresenting
-                }
-                // show request lifetime
-                .filter {
-                    val requestTimeStillValid = it.requestedAt + MAX_PENDING_MESSAGE_AGE > System.currentTimeMillis()
-                    if (!requestTimeStillValid) {
-                        Logger.d(
-                            this,
-                            "[InApp] Show request ${it.eventType} has time-outed"
-                        )
+                    // show request lifetime
+                    .filter {
+                        val requestTimeStillValid =
+                            it.requestedAt + MAX_PENDING_MESSAGE_AGE > System.currentTimeMillis()
+                        if (!requestTimeStillValid) {
+                            Logger.d(
+                                this,
+                                "[InApp] Show request ${it.eventType} has time-outed"
+                            )
+                        }
+                        return@filter requestTimeStillValid
                     }
-                    return@filter requestTimeStillValid
-                }
-                // show request meant for current customer
-                .filter {
-                    val customerStillValid = it.customerIds == currentCustomerIds
-                    if (!customerStillValid) {
-                        Logger.d(
-                            this,
-                            "[InApp] Show request ${it.eventType} has been created for different customer"
-                        )
+                    // show request meant for current customer
+                    .filter {
+                        val customerStillValid = it.customerIds == currentCustomerIds
+                        if (!customerStillValid) {
+                            Logger.d(
+                                this,
+                                "[InApp] Show request ${it.eventType} has been created for different customer"
+                            )
+                        }
+                        return@filter customerStillValid
                     }
-                    return@filter customerStillValid
-                }
-                // message filter
-                .mapNotNull { request ->
-                    val topMessageForRequest = findMessagesByFilter(
-                        request.eventType,
-                        request.properties,
-                        request.eventTimestamp
-                    ).randomOrNull()
-                    Logger.i(
-                        this, "[InApp] Picking top message '${topMessageForRequest?.name ?: "none"}'" +
-                        " for eventType ${request.eventType}"
-                    )
-                    return@mapNotNull topMessageForRequest?.let { Pair(request, it) }
-                }
+                    // message filter
+                    .mapNotNull { request ->
+                        val topMessageForRequest = findMessagesByFilter(
+                            request.eventType,
+                            request.properties,
+                            request.eventTimestamp
+                        ).randomOrNull()
+                        Logger.i(
+                            this,
+                            "[InApp] Picking top message '${topMessageForRequest?.name ?: "none"}'" +
+                                    " for eventType ${request.eventType}"
+                        )
+                        return@mapNotNull topMessageForRequest?.let { Pair(request, it) }
+                    }
             Logger.d(this, "[InApp] Clearing all show requests because messages has been selected")
             clearPendingShowRequests()
             // find messages with highest priority
             Logger.i(
                 this,
                 "[InApp] Got ${pendingMessages.size} messages available to show." +
-                    " ${pendingMessages.map { it.second.name }}"
+                        " ${pendingMessages.map { it.second.name }}"
             )
             val highestPriorityFound = pendingMessages.maxOfOrNull { it.second.priority ?: 0 } ?: 0
-            val prioritizedMessages = pendingMessages.filter { (it.second.priority ?: 0) >= highestPriorityFound }
+            val prioritizedMessages =
+                pendingMessages.filter { (it.second.priority ?: 0) >= highestPriorityFound }
             // return random from priority messages or top priority message for single
             val topMessage = prioritizedMessages.randomOrNull()
             Logger.i(
@@ -365,23 +378,24 @@ internal class InAppMessageManagerImpl(
         Logger.i(
             this,
             "[InApp] Picking in-app message for eventType $eventType. " +
-                "${messages.size} messages available: ${messages.map { it.name } }."
+                    "${messages.size} messages available: ${messages.map { it.name }}."
         )
         messages = messages.filter {
-                it.applyDateFilter(System.currentTimeMillis() / 1000) &&
-                it.applyEventFilter(eventType, properties, timestamp) &&
-                it.applyFrequencyFilter(displayStateRepository.get(it), sessionStartDate)
+            it.applyDateFilter(System.currentTimeMillis() / 1000) &&
+                    it.applyEventFilter(eventType, properties, timestamp) &&
+                    it.applyFrequencyFilter(displayStateRepository.get(it), sessionStartDate)
         }
-        Logger.i(this,
+        Logger.i(
+            this,
             "[InApp] ${messages.size} messages available after filtering." +
-                " Going to pick the highest priority messages."
+                    " Going to pick the highest priority messages."
         )
         val highestPriority = messages.mapNotNull { it.priority }.maxOrNull() ?: 0
         messages = messages.filter { (it.priority ?: 0) >= highestPriority }
         Logger.i(
             this,
             "[InApp] Got ${messages.size} messages with highest priority for eventType $eventType." +
-                " ${messages.map { it.name } }"
+                    " ${messages.map { it.name }}"
         )
         return messages
     }
@@ -392,7 +406,10 @@ internal class InAppMessageManagerImpl(
             return
         }
         if (message.variantId == -1 && !message.hasPayload()) {
-            Logger.i(this, "[InApp] Only logging in-app message for control group '${message.name}'")
+            Logger.i(
+                this,
+                "[InApp] Only logging in-app message for control group '${message.name}'"
+            )
             trackShowEvent(message)
             ensureOnMainThread {
                 Sendsay.inAppMessageActionCallback.inAppMessageShown(message, presenter.context)
@@ -412,12 +429,12 @@ internal class InAppMessageManagerImpl(
                 Logger.e(this, "In-app UI is unavailable, SDK is stopping")
                 return@runOnBackgroundThread
             }
-            val htmlPayload: HtmlNormalizer.NormalizedResult?
-            if (message.messageType == InAppMessageType.FREEFORM && !message.payloadHtml.isNullOrEmpty()) {
-                htmlPayload = HtmlNormalizer(drawableCache, fontCache, message.payloadHtml).normalize()
-            } else {
-                htmlPayload = null
-            }
+            val htmlPayload: HtmlNormalizer.NormalizedResult? =
+                if (message.messageType == InAppMessageType.FREEFORM && !message.payloadHtml.isNullOrEmpty()) {
+                    HtmlNormalizer(drawableCache, fontCache, message.payloadHtml).normalize()
+                } else {
+                    null
+                }
             val uiPayload = message.payload?.let {
                 if (message.isRichStyled) {
                     inAppUiPayloadBuilder.build(it)
@@ -480,7 +497,11 @@ internal class InAppMessageManagerImpl(
                 failedCallback = { error ->
                     trackError(message, error)
                     ensureOnMainThread {
-                        Sendsay.inAppMessageActionCallback.inAppMessageError(message, error, presenter.context)
+                        Sendsay.inAppMessageActionCallback.inAppMessageError(
+                            message,
+                            error,
+                            presenter.context
+                        )
                     }
                 }
             )
@@ -594,17 +615,22 @@ internal class InAppMessageManagerImpl(
                                     "[InApp] Messages fetch failed: ${result.exceptionOrNull()?.localizedMessage}"
                                 )
                             } else {
-                                Logger.i(this, "[InApp] In-app message data preloaded. Picking a message to display")
+                                Logger.i(
+                                    this,
+                                    "[InApp] In-app message data preloaded. Picking a message to display"
+                                )
                                 pickAndShowMessage()
                             }
                         })
                     }
+
                     ReloadMode.SHOW -> {
                         Logger.d(this, "[InApp] Picking a message to display")
                         runOnBackgroundThread {
                             pickAndShowMessage()
                         }
                     }
+
                     ReloadMode.STOP -> {
                         Logger.w(
                             this,
@@ -633,7 +659,11 @@ internal class InAppMessageManagerImpl(
                 "Another customer login while resource load".let {
                     trackError(message, it)
                     ensureOnMainThread {
-                        Sendsay.inAppMessageActionCallback.inAppMessageError(message, it, presenter.context)
+                        Sendsay.inAppMessageActionCallback.inAppMessageError(
+                            message,
+                            it,
+                            presenter.context
+                        )
                     }
                 }
             } else if (resourcesLoaded) {
@@ -642,7 +672,11 @@ internal class InAppMessageManagerImpl(
                 "Resources has not been preloaded".let {
                     trackError(message, it)
                     ensureOnMainThread {
-                        Sendsay.inAppMessageActionCallback.inAppMessageError(message, it, presenter.context)
+                        Sendsay.inAppMessageActionCallback.inAppMessageError(
+                            message,
+                            it,
+                            presenter.context
+                        )
                     }
                 }
             }
@@ -755,17 +789,18 @@ internal class EventManagerInAppMessageTrackingDelegate(
         val properties = HashMap<String, Any>()
         properties.putAll(
             hashMapOf(
-            "action" to action,
-            "banner_id" to message.id,
-            "banner_name" to message.name,
-            "banner_type" to message.messageType.value,
-            "interaction" to interaction,
-            "os" to "Android",
-            "platform" to "Android",
-            "type" to "in-app message",
-            "variant_id" to message.variantId,
-            "variant_name" to message.variantName
-        ))
+                "action" to action,
+                "banner_id" to message.id,
+                "banner_name" to message.name,
+                "banner_type" to message.messageType.value,
+                "interaction" to interaction,
+                "os" to "Android",
+                "platform" to "Android",
+                "type" to "in-app message",
+                "variant_id" to message.variantId,
+                "variant_name" to message.variantName
+            )
+        )
         properties.putAll(deviceProperties.toHashMap())
         if (text != null) {
             properties["text"] = text

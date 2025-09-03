@@ -15,7 +15,6 @@ import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.InAppContentBlock
 import com.sendsay.sdk.models.InAppContentBlockPersonalizedData
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.repository.CustomerIdsRepositoryImpl
 import com.sendsay.sdk.testutil.SendsaySDKTest
@@ -140,7 +139,7 @@ internal class SendsayTrackInAppContentBlockTest : SendsaySDKTest() {
         assertEquals(firstCustomerIds.toHashMap(), eventSlot.captured.customerIds)
         val secondCustomerIds = CustomerIds("brownie2").withId("registered", "test2")
         every { anyConstructed<CustomerIdsRepositoryImpl>().get() } returns secondCustomerIds
-        Sendsay.identifyCustomer(secondCustomerIds, PropertiesList(hashMapOf()))
+        Sendsay.identifyCustomer(secondCustomerIds, hashMapOf())
         // validate that customerIDs not changed
         controller.onUrlClick("https://sendsay.com")
         assertEquals("banner", eventSlot.captured.type)

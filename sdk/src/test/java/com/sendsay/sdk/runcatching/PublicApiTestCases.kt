@@ -16,7 +16,6 @@ import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.InAppMessageTest
 import com.sendsay.sdk.models.MessageItemAction
 import com.sendsay.sdk.models.MessageItemAction.Type.BROWSER
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentationDataCallback
@@ -70,7 +69,7 @@ internal object PublicApiTestCases {
         ) { Sendsay.anonymize() },
         Pair(
             Sendsay::identifyCustomer
-        ) { Sendsay.identifyCustomer(CustomerIds(), PropertiesList(hashMapOf())) },
+        ) { Sendsay.identifyCustomer(CustomerIds(), hashMapOf()) },
         Pair(
             Sendsay::flushData
         ) { Sendsay.flushData() },
@@ -122,7 +121,7 @@ internal object PublicApiTestCases {
         ) { Sendsay.trackDeliveredPushWithoutTrackingConsent() },
         Pair(
             Sendsay::trackEvent
-        ) { Sendsay.trackEvent(PropertiesList(hashMapOf()), null, null) },
+        ) { Sendsay.trackEvent(hashMapOf(), null, null) },
         Pair(
             Sendsay::trackPaymentEvent
         ) {

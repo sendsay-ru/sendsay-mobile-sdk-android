@@ -1,6 +1,7 @@
 package com.sendsay.sdk
 
 import android.content.Context
+import android.util.Log
 import com.sendsay.sdk.repository.FontCache
 import com.sendsay.sdk.manager.AppInboxManager
 import com.sendsay.sdk.manager.AppInboxManagerImpl

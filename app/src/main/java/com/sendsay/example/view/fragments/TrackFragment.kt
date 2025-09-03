@@ -2,6 +2,7 @@ package com.sendsay.example.view.fragments
 
 import TokenTracker
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,14 +21,15 @@ import com.sendsay.example.view.dialogs.TrackCustomEventDialog
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
-import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.OrderItem
+import com.sendsay.sdk.models.PropertiesAdapter
 import com.sendsay.sdk.models.PurchasedItem
+import com.sendsay.sdk.models.TrackSSECDataBuilder
+import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
-import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.collections.HashMap
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -88,7 +90,8 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
         viewBinding.buttonCustomEvent.setOnClickListener {
             TrackCustomEventDialog.show(childFragmentManager) { eventName, properties ->
-                trackCustomEvent(eventName, properties) }
+                trackCustomEvent(eventName, properties)
+            }
         }
     }
 
@@ -101,10 +104,10 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     /**
      * Method to handle custom event tracking obtained by TrackCustomEventDialog
      */
-    private fun trackCustomEvent(eventName: String, propertiesList: PropertiesList) {
+    private fun trackCustomEvent(eventName: String, properties: HashMap<String, Any>) {
         Sendsay.trackEvent(
-                eventType = eventName,
-                properties = propertiesList
+            eventType = eventName,
+            properties = PropertiesAdapter(properties = properties).toHashMap()
         )
     }
 
@@ -113,15 +116,15 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
      */
     private fun trackPushClicked() {
         Sendsay.trackClickedPush(
-                NotificationData(hashMapOf("campaign_id" to "id"))
+            NotificationData(hashMapOf("campaign_id" to "id"))
         )
     }
 
     /**
      * Method to handle updating customer properties
      */
-    private fun trackUpdateCustomerProperties(propertiesList: PropertiesList) {
-        val registeredIdUpdate = propertiesList.properties.remove("registered") as? String
+    private fun trackUpdateCustomerProperties(propertiesList: HashMap<String, Any>) {
+        val registeredIdUpdate = propertiesList.remove("registered") as? String
         if (registeredIdUpdate != null) {
             App.instance.registeredIdManager.registeredID = registeredIdUpdate
         }
@@ -135,12 +138,12 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         )
 
         // Логируем customerIds в Logcat
-        Logger.d(this,  "customerIds: $customerIds")
+        Logger.d(this, "customerIds: $customerIds")
         //Logger.d(this, "[CTS] Conf loaded $confJson")
 
         Sendsay.identifyCustomer(
-                customerIds = customerIds,
-                properties = propertiesList
+            customerIds = customerIds,
+            properties = propertiesList
         )
     }
 
@@ -149,7 +152,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
      */
     private fun trackPushDelivered() {
         Sendsay.trackDeliveredPush(
-                data = NotificationData(hashMapOf("campaign_id" to "id"))
+            data = NotificationData(hashMapOf("campaign_id" to "id"))
         )
     }
 
@@ -162,219 +165,216 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 
     private fun trackClearBasket() {
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime = dateFormat.format(Date())
-        // Создание JSON в виде строки
-        val jsonString = """
-        {
-          "ssec": {"dt":"$currentDateTime",
-            "items": [
-              {
-                "id": -1
-              }
-            ]
-          }
+        val currentDateTime2 = dateFormat.format(Date())
+
+        val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
+            .setProduct(dateTime = currentDateTime2)
+            .setItems(listOf(OrderItem(id = "-1")))
+            .build()
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
         }
-        """.trimIndent()
 
-        // Десериализация JSON в объект PropertiesList
-        val gson = Gson()
-        val clearBasketInfo = gson.fromJson(jsonString, Map::class.java)
-
-        val properties = HashMap<String, Any>(clearBasketInfo as Map<String, Any>)
-
-        // Создание экземпляра PropertiesList из HashMap
-        val propertiesList = PropertiesList(properties)
-
-        // Вызов функции трекинга события
-        Sendsay.trackEvent(
-            properties = propertiesList,
-            timestamp = null,
-            eventType = "ssec_basket_clear"
-        )
+//        val jsonString = """
+//        {"dt":"$currentDateTime2",
+//            "items": [
+//              {
+//                "id": -1
+//              }
+//            ]
+//          }
+//        """.trimIndent()
+//        val jsonToSsecExample: TrackSSECData =
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
+//        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
     }
 
 
-
-
-    private fun trackProductView(){
+    private fun trackProductView() {
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime = dateFormat.format(Date())
-        val jsonString = """
-        {
-          "ssec": {"dt":"$currentDateTime",
-            "id": "product1",
-            "available": 1,
-            "name": "name",
-            "price": 7.88,
-            "old_price": 5.99,
-            "picture": [],
-            "url": "url",
-            "model": "model",
-            "vendor": "vendor",
-            "category_id": 777,
-            "category": "category name"
-          }
-        }""".trimIndent()
+        val currentDateTime2 = dateFormat.format(Date())
 
-        val gson = Gson()
-        val productViewInfo = gson.fromJson(jsonString, Map::class.java)
+        val productData = TrackSSECDataBuilder(TrackingSSECType.VIEW_PRODUCT)
+            .setProduct(
+                dateTime = currentDateTime2,
+                id = "product1",
+                price = 7.88,
+                available = 1,
+                name = "name",
+                oldPrice = 5.99,
+                picture = listOf(),
+                url = "url",
+                model = "model",
+                vendor = "vendor",
+                categoryId = 777,
+                category = "category_name",
+            )
+            .build()
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, productData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
-        val properties = HashMap<String, Any>(productViewInfo as Map<String, Any>)
-
-        // Создание экземпляра PropertiesList из HashMap
-        val propertiesList = PropertiesList(properties)
-
-        Sendsay.trackEvent(
-            properties = propertiesList,
-            timestamp = null,
-            eventType = "ssec_product_view"
-        )
+//        val jsonString = """
+//        {"dt":"$currentDateTime2",
+//            "id": "product1",
+//            "available": 1,
+//            "name": "name",
+//            "price": 7.88,
+//            "old_price": 5.99,
+//            "picture": [],
+//            "url": "url",
+//            "model": "model",
+//            "vendor": "vendor",
+//            "category_id": 777,
+//            "category": "category name"
+//        }""".trimIndent()
+//
+//        val jsonToSsecExample: TrackSSECData =
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
+//        Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, jsonToSsecExample)
     }
 
     private fun trackOrder() {
-
         // Генерация случайного transaction_id без отрицательных чисел
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
-        // Получение текущего времени с использованием SimpleDateFormat
+//        val currentDateTime = LocalDateTime.now()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime = dateFormat.format(Date())
+        val currentDateTime2 = dateFormat.format(Date())
 
-        val jsonString = """
-       {
-        "ssec":{"dt":"$currentDateTime", 
-               "transaction_id": "$randomTransactionId", 
-               "transaction_dt": "$currentDateTime", 
-               "transaction_sum": 100.9, 
-               "update_per_item": 0, 
-               "items": [
-                 {
-                   "id": "product1", 
-                   "available": 1,
-                   "name": "name",
-                   "qnt": 1, 
-                   "price": 7.88, 
-                   "old_price": 5.99,
-                   "picture": [], 
-                   "url": "url", 
-                   "model": "model", 
-                   "vendor": "vendor", 
-                   "category_id": 777, 
-                   "category": "category name"
-                   
-                 }
-               ]
-            }
-        }""".trimIndent()
+//        Log.d("fasdfasdfsd1", currentDateTime.toString())
+//        Log.d("fasdfasdfsd2", currentDateTime2)
+//        Log.d("fasdfasdfsd3", currentDateTime2.toString())
 
-        val gson = Gson()
-        val productOrder = gson.fromJson(jsonString, Map::class.java)
+        val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
+            .setUpdate(isUpdatePerItem = false)
+            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9, status = 1)
+            .setItems(
+                listOf(
+                    OrderItem(
+                        id = "product1",
+                        qnt = 1,
+                        price = 7.88,
+                        available = 1,
+                        name = "name",
+                        oldPrice = 5.99,
+                        picture = listOf(),
+                        url = "url",
+                        model = "model",
+                        vendor = "vendor",
+                        categoryId = 777,
+                        category = "category_name",
+                    )
+                )
+            )
+            .build()
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
 
-        val properties = HashMap<String, Any>(productOrder as Map<String, Any>)
-
-        // Создание экземпляра PropertiesList из HashMap
-        val propertiesList = PropertiesList(properties)
-
-        Sendsay.trackEvent(
-            properties = propertiesList,
-            timestamp = null,
-            eventType = "ssec_order"
-        )
+//        val jsonString = """
+//       {"dt":"$currentDateTime2",
+//               "transaction_id": "$randomTransactionId",
+//               "transaction_dt": "$currentDateTime2",
+//               "transaction_sum": 100.9,
+//               "transaction_status": 1,
+//               "update_per_item": 0,
+//               "items": [
+//                 {
+//                   "id": "product1",
+//                   "available": 1,
+//                   "name": "name",
+//                   "qnt": 1,
+//                   "price": 7.88,
+//                   "old_price": 5.99,
+//                   "picture": [],
+//                   "url": "url",
+//                   "model": "model",
+//                   "vendor": "vendor",
+//                   "category_id": 777,
+//                   "category": "category name"
+//                 }
+//               ]
+//            }
+//            """.trimIndent()
+//        val jsonToSsecExample: TrackSSECData =
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
+//        Sendsay.trackSSECEvent(TrackingSSECType.ORDER, jsonToSsecExample)
     }
 
     private fun trackBasket() {
+        // Генерация случайного transaction_id без отрицательных чисел
+        val randomTransactionId = Random.nextLong().absoluteValue.toString()
+
+//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime = dateFormat.format(Date())
-        val jsonString = """
-           {
-            "ssec":{
-                   "dt":"$currentDateTime",
-                   "transaction_sum": 100.9, 
-                   "update_per_item": 0, 
-                   "items": [
-                     {
-                       "id": "product1", 
-                       "available": 1,
-                       "name": "name",
-                       "qnt": 1, 
-                       "price": 7.88, 
-                       "old_price": 5.99,
-                       "picture": [], 
-                       "url": "url", 
-                       "model": "model", 
-                       "vendor": "vendor", 
-                       "category_id": 777, 
-                       "category": "category name"
-                       
-                     }
-                   ]
-                }
+        val currentDateTime2 = dateFormat.format(Date())
+
+        val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
+            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
+            .setItems(
+                listOf(
+                    OrderItem(
+                        id = "product1",
+                        qnt = 1,
+                        price = 7.88,
+                        available = 1,
+                        name = "name",
+                        oldPrice = 5.99,
+                        picture = listOf(),
+                        url = "url",
+                        model = "model",
+                        vendor = "vendor",
+                        categoryId = 777,
+                        category = "category_name",
+                    )
+                )
+            )
+            .build()
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
+
+//        val jsonString = """
 //           {
-//            "ssec":{
 //                   "dt":"$currentDateTime",
-//        "transaction_id": "2968",
-//        "transaction_sum": 8570,
-//        "items": [
-//            {
-//                "id": 101626,
-//                "qnt": 1,
-//                "price": 4490,
-//                "model": "506-066 139249",
-//                "name": "Кеды",
-//                "picture": [
-//                    "https://m.media-amazon.com/images/I/71UiJ6CG9ZL._AC_UL320_.jpg"
-//                ],
-//                "url": "https://sendsay.ru/catalog/kedy/kedy_290/",
-//                "category_id": 1117
-//            },
-//            {
-//                "id": 101115,
-//                "qnt": 1,
-//                "price": 2590,
-//                "description": "",
-//                "model": "210-045 138761",
-//                "name": "Рюкзак",
-//                "picture": [
-//                    "https://m.media-amazon.com/images/I/91fkUMA5K1L._AC_UL320_.jpg"
-//                ],
-//                "url": "https://sendsay.ru/catalog/ryukzaki/ryukzak_745/",
-//                "category_id": 1153
-//            },
-//            {
-//                "id": 101695,
-//                "qnt": 1,
-//                "price": 1490,
-//                "description": "",
-//                "model": "1110-001 139276",
-//                "name": "Сумка",
-//                "picture": [
-//                    "https://m.media-amazon.com/images/I/81h0fWxyp9S._AC_UL320_.jpg"
-//                ],
-//                "url": "https://sendsay.ru/catalog/sumki_1/sumka_468/",
-//                "category_id": 1154
-//            }
-//        ]
-//                }
-//            }
-            }""".trimIndent()
-
-        val gson = Gson()
-        val productBasket = gson.fromJson(jsonString, Map::class.java)
-
-        val properties = HashMap<String, Any>(productBasket as Map<String, Any>)
-
-        // Создание экземпляра PropertiesList из HashMap
-        val propertiesList = PropertiesList(properties)
-
-        Sendsay.trackEvent(
-            properties = propertiesList,
-            timestamp = null,
-            eventType = "ssec_basket"
-        )
+//                   "transaction_sum": 100.9,
+//                   "update_per_item": 0,
+//                   "items": [
+//                     {
+//                       "id": "product1",
+//                       "available": 1,
+//                       "name": "name",
+//                       "qnt": 1,
+//                       "price": 7.88,
+//                       "old_price": 5.99,
+//                       "picture": [],
+//                       "url": "url",
+//                       "model": "model",
+//                       "vendor": "vendor",
+//                       "category_id": 777,
+//                       "category": "category name"
+//
+//                     }
+//                   ]
+//            }""".trimIndent()
+//        val jsonToSsecExample: TrackSSECData =
+//            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
+//        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, jsonToSsecExample)
     }
 
 
@@ -383,14 +383,15 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
      */
     private fun trackPayment(position: Int) {
         val purchasedItem = PurchasedItem(
-                value = 2011.1,
-                currency = "USD",
-                paymentSystem = "System",
-                productId = id.toString(),
-                productTitle = mockItems()[position]
+            value = 2011.1,
+            currency = "USD",
+            paymentSystem = "System",
+            productId = id.toString(),
+            productTitle = mockItems()[position]
         )
         Sendsay.trackPaymentEvent(
-                purchasedItem = purchasedItem)
+            purchasedItem = purchasedItem
+        )
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

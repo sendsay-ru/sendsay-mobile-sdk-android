@@ -15,15 +15,13 @@ import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import com.sendsay.example.App
 import com.sendsay.example.R
 import com.sendsay.example.utils.asJson
-import com.sendsay.sdk.models.PropertiesList
 
 class TrackCustomAttributesDialog : DialogFragment() {
 
-    private lateinit var onUpdate: (PropertiesList) -> Unit
-    private val attributes = hashMapOf<String, Any>("cce" to "test-CCE" as Any)
+    private lateinit var onUpdate: (HashMap<String, Any>) -> Unit
+    private val attributes = hashMapOf<String, Any>("cce" to """{test: test-CCE}""" as Any)
     private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
 
@@ -42,7 +40,7 @@ class TrackCustomAttributesDialog : DialogFragment() {
     companion object {
         const val TAG = "TrackCustomAttributesDialog"
 
-        fun show(fragmentManager: FragmentManager, onUpdate: (PropertiesList) -> Unit) {
+        fun show(fragmentManager: FragmentManager, onUpdate: (HashMap<String, Any>) -> Unit) {
             val fragment = fragmentManager.findFragmentByTag(TAG)
                     as? TrackCustomAttributesDialog ?: TrackCustomAttributesDialog()
 
@@ -117,7 +115,7 @@ class TrackCustomAttributesDialog : DialogFragment() {
 
         buttonUpdate.setOnClickListener {
             if (!idsRegisteredView.text.isEmpty() && !valTextView.text.isEmpty()) {
-                val properties = PropertiesList(attributes)
+                val properties = attributes
                 onUpdate(properties)
                 dismiss()
             }

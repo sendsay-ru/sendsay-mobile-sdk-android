@@ -32,7 +32,6 @@ import com.sendsay.sdk.models.InAppMessageButton
 import com.sendsay.sdk.models.InAppMessageCallback
 import com.sendsay.sdk.models.PushNotificationDelegate
 import com.sendsay.sdk.models.Segment
-import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.SegmentationDataCallback
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.isResumedActivity
@@ -326,11 +325,10 @@ class MainActivity : AppCompatActivity() {
                     "https://bloomreach.com/tracking/allow" -> {
                         Sendsay.trackEvent(
                             eventType = "gdpr",
-                            properties = PropertiesList(
+                            properties =
                                 hashMapOf(
                                     "status" to "allowed"
                                 )
-                            )
                         )
                     }
 
