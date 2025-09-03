@@ -1,6 +1,7 @@
 package com.sendsay.sdk.manager
 
 import android.content.Context
+import android.util.Log
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.Sendsay.initGate
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
@@ -17,9 +18,8 @@ import com.sendsay.sdk.models.MessageItem
 import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationData
-import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.PropertiesAdapter
 import com.sendsay.sdk.models.TrackSSECData
-import com.sendsay.sdk.models.TrackSSECDataBuilder
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.network.NetworkHandlerImpl
 import com.sendsay.sdk.network.SendsayServiceImpl
@@ -35,6 +35,7 @@ import com.sendsay.sdk.util.GdprTracking
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.currentTimeSeconds
+import java.util.HashMap
 
 internal class TrackingConsentManagerImpl(
     private val eventManager: EventManager,
@@ -57,7 +58,7 @@ internal class TrackingConsentManagerImpl(
             )
             trackingAllowed = false
         }
-        val properties = PropertiesList(
+        val properties = PropertiesAdapter(
             hashMapOf(
                 "status" to "clicked",
                 "platform" to "android",
@@ -105,7 +106,7 @@ internal class TrackingConsentManagerImpl(
             )
             trackingAllowed = false
         }
-        val properties = PropertiesList(
+        val properties = PropertiesAdapter(
             hashMapOf(
                 "status" to "delivered",
                 "platform" to "android",
@@ -215,7 +216,7 @@ internal class TrackingConsentManagerImpl(
             Logger.e(this, "Event for AppInbox showing is not tracked because consent is not given")
             trackingAllowed = false
         }
-        val properties = PropertiesList(
+        val properties = PropertiesAdapter(
             hashMapOf("status" to "opened", "platform" to "android")
         )
         item.content?.trackingData?.let { trackingData ->
@@ -257,7 +258,7 @@ internal class TrackingConsentManagerImpl(
             Logger.e(this, "Event for clicked AppInbox is not tracked because consent is not given")
             trackingAllowed = false
         }
-        val properties = PropertiesList(
+        val properties = PropertiesAdapter(
             hashMapOf(
                 "status" to "clicked",
                 "platform" to "android",
@@ -387,12 +388,10 @@ internal class TrackingConsentManagerImpl(
 
     override fun trackSSEC(type: TrackingSSECType, data: TrackSSECData) {
         initGate.waitForInitialize {
-            val properties = hashMapOf<String, TrackSSECData>("ssec" to data)
-
-//            val jsonData = SendsayGson.instance.toJson(properties)
+            val properties = data.toHashmap()
 
             Sendsay.trackEvent(
-                properties = properties as HashMap<String, Any>,
+                properties = properties,
                 timestamp = null,
                 eventType = type.value
             )

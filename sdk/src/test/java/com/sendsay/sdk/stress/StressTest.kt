@@ -9,7 +9,7 @@ import com.sendsay.sdk.models.DeviceProperties
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.ExportedEvent
 import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.PropertiesAdapter
 import com.sendsay.sdk.repository.EventRepository
 import com.sendsay.sdk.testutil.SendsayMockServer
 import com.sendsay.sdk.testutil.SendsaySDKTest
@@ -85,7 +85,7 @@ internal class StressTest : SendsaySDKTest() {
             Sendsay.trackEvent(
                 eventType = eventType,
                 timestamp = currentTimeSeconds(),
-                properties = PropertiesList(properties = properties).toHashMap()
+                properties = PropertiesAdapter(properties = properties).toHashMap()
             )
         }
         idleThreads()

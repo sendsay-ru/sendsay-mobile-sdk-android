@@ -22,7 +22,7 @@ import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.OrderItem
-import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.PropertiesAdapter
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSECDataBuilder
 import com.sendsay.sdk.models.TrackingSSECType
@@ -107,7 +107,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun trackCustomEvent(eventName: String, properties: HashMap<String, Any>) {
         Sendsay.trackEvent(
             eventType = eventName,
-            properties = PropertiesList(properties = properties).toHashMap()
+            properties = PropertiesAdapter(properties = properties).toHashMap()
         )
     }
 
@@ -256,21 +256,22 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //        Log.d("fasdfasdfsd3", currentDateTime2.toString())
 
         val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
+            .setUpdate(isUpdatePerItem = false)
+            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9, status = 1)
             .setItems(
                 listOf(
                     OrderItem(
                         id = "product1",
-                        qnt = "1",
+                        qnt = 1,
                         price = 7.88,
-                        available = "1",
+                        available = 1,
                         name = "name",
                         oldPrice = 5.99,
                         picture = listOf(),
                         url = "url",
                         model = "model",
                         vendor = "vendor",
-                        categoryId = "777",
+                        categoryId = 777,
                         category = "category_name",
                     )
                 )
@@ -287,6 +288,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //               "transaction_id": "$randomTransactionId",
 //               "transaction_dt": "$currentDateTime2",
 //               "transaction_sum": 100.9,
+//               "transaction_status": 1,
 //               "update_per_item": 0,
 //               "items": [
 //                 {
@@ -326,16 +328,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 listOf(
                     OrderItem(
                         id = "product1",
-                        qnt = "1",
+                        qnt = 1,
                         price = 7.88,
-                        available = "1",
+                        available = 1,
                         name = "name",
                         oldPrice = 5.99,
                         picture = listOf(),
                         url = "url",
                         model = "model",
                         vendor = "vendor",
-                        categoryId = "777",
+                        categoryId = 777,
                         category = "category_name",
                     )
                 )

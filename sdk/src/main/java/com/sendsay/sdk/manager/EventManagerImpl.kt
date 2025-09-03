@@ -1,5 +1,6 @@
 package com.sendsay.sdk.manager
 
+import android.util.Log
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.Event
 import com.sendsay.sdk.models.EventType
@@ -34,6 +35,7 @@ internal open class EventManagerImpl(
 
         val projects = arrayListOf(projectFactory.mainSendsayProject)
         projects.addAll(configuration.projectRouteMap[eventType] ?: arrayListOf())
+
         ensureOnBackgroundThread {
             for (project in projects.distinct()) {
                 val exportedEvent = ExportedEvent(
@@ -50,9 +52,16 @@ internal open class EventManagerImpl(
                 if (trackingAllowed) {
                     Logger.d(this, "Added Event To Queue: ${exportedEvent.id}")
                     eventRepository.add(exportedEvent)
+                    Log.d(
+                        "exportedEventProperties",
+                        "PreEventProperties: ${exportedEvent.properties?.map { "${it.key}: ${it.value}" }?.joinToString(", ")
+                            ?: "null"}"
+                    )
                 } else {
-                    Logger.d(this, "Event has not been added to Queue: ${exportedEvent.id}" +
-                        "because real tracking is not allowed")
+                    Logger.d(
+                        this, "Event has not been added to Queue: ${exportedEvent.id}" +
+                                "because real tracking is not allowed"
+                    )
                 }
             }
 

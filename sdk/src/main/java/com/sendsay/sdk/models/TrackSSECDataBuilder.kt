@@ -18,6 +18,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     private var productType: String? = null
     private var productPrice: Double? = null
     private var productOldPrice: Double? = null
+    private var email: String? = null
     private var updatePerItem: Long? = null
     private var update: Long? = null
     private var transactionId: String? = null
@@ -81,7 +82,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
     }
 
     fun setDelivery(
-        dt: String? = null,
+        dt: String,
         deliveryPrice: Double? = null
     ) = apply {
         this.deliveryDt = dt
@@ -90,6 +91,15 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
 
     fun setPayment(dt: String) = apply {
         this.paymentDt = dt
+    }
+
+    fun setEmail(email: String) = apply {
+        this.email = email
+    }
+
+    fun setUpdate(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
+        isUpdate?.let { this.update = if (it) 1 else 0 }
+        isUpdatePerItem?.let { this.updatePerItem = if (it) 1 else 0 }
     }
 
     fun setItems(items: List<OrderItem>) = apply { this.items = items }
@@ -103,6 +113,8 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             TrackingSSECType.ORDER -> {
                 requireNotNull(transactionId) { "transaction.id is required for type ORDER" }
                 requireNotNull(transactionDt) { "transaction.dt is required for type ORDER" }
+                requireNotNull(transactionSum) { "transaction.sum is required for type ORDER" }
+                requireNotNull(transactionStatus) { "transaction.status is required for type ORDER" }
                 if (update == 1L) require(!items.isNullOrEmpty()) { "items must be provided for type ORDER and 'update' == 1" }
             }
 
@@ -142,9 +154,9 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             dateTime = formattedProductDateTime,
             picture = productPicture,
             url = productUrl,
-            available = productAvailable.toString(),
+            available = productAvailable,
             categoryPaths = productCategoryPaths,
-            categoryId = productCategoryId.toString(),
+            categoryId = productCategoryId,
             category = productCategory,
             description = productDescription,
             vendor = productVendor,
@@ -156,7 +168,7 @@ class TrackSSECDataBuilder(private val type: TrackingSSECType) {
             transactionDt = formattedTransactionDt,
             transactionSum = transactionSum,
             transactionDiscount = transactionDiscount,
-            transactionStatus = transactionStatus.toString(),
+            transactionStatus = transactionStatus,
             deliveryDt = formattedDeliveryDt,
             deliveryPrice = deliveryPrice,
             paymentDt = formattedPaymentDt,

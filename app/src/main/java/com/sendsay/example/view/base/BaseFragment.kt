@@ -1,8 +1,7 @@
 package com.sendsay.example.view.base
 
-import androidx.fragment.app.Fragment
 import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.PropertiesAdapter
 
 open class BaseFragment : androidx.fragment.app.Fragment() {
 
@@ -11,7 +10,7 @@ open class BaseFragment : androidx.fragment.app.Fragment() {
      * @param pageName - Name of the screen
      */
     fun trackPage(pageName: String) {
-        val properties = PropertiesList(hashMapOf("name" to pageName))
+        val properties = PropertiesAdapter(hashMapOf("name" to pageName))
 
         Sendsay.trackEvent(
             eventType = "page_view",

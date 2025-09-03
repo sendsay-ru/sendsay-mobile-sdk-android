@@ -26,13 +26,13 @@ data class TrackSSECData(
     val url: String? = null,
 
     @SerializedName("product.available")
-    val available: String? = null,
+    val available: Long? = null,
 
     @SerializedName("product.category_paths")
     val categoryPaths: List<String>? = null,
 
     @SerializedName("product.category_id")
-    val categoryId: String? = null,
+    val categoryId: Long? = null,
 
     @SerializedName("product.category")
     val category: String? = null,
@@ -60,10 +60,10 @@ data class TrackSSECData(
     val email: String? = null,
 
     @SerializedName("update_per_item")
-    val updatePerItem: String? = null,
+    val updatePerItem: Long? = null,
 
     @SerializedName("update")
-    val update: String? = null,
+    val update: Long? = null,
 
 
     // Платёжные и транзакционные данные
@@ -74,7 +74,7 @@ data class TrackSSECData(
     val transactionDt: String? = null,
 
     @SerializedName("transaction.status")
-    val transactionStatus: String? = null,
+    val transactionStatus: Long? = null,
 
     @SerializedName("transaction.discount")
     val transactionDiscount: Double? = null,
@@ -98,13 +98,17 @@ data class TrackSSECData(
 
     // cp1..cp20
     val cp: Map<String, Any>? = null
-)
+) {
+    fun toHashmap(): HashMap<String, Any> {
+        return hashMapOf("ssec" to this)
+    }
+}
 
 data class OrderItem(
     @SerializedName("id")
     val id: String,
     @SerializedName("qnt")
-    val qnt: String? = null,
+    val qnt: Long? = null,
     @SerializedName("price")
     val price: Double? = null,
 
@@ -115,7 +119,7 @@ data class OrderItem(
     @SerializedName("uniq")
     val uniq: String? = null,
     @SerializedName("available")
-    val available: String? = null,
+    val available: Long? = null,
     @SerializedName("old_price")
     val oldPrice: Double? = null,
     @SerializedName("picture")
@@ -127,7 +131,7 @@ data class OrderItem(
     @SerializedName("vendor")
     val vendor: String? = null,
     @SerializedName("category_id")
-    val categoryId: String? = null,
+    val categoryId: Long? = null,
     @SerializedName("category")
     val category: String? = null
 )
@@ -141,24 +145,20 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
     ): Any {
         return when {
             json.isJsonNull -> null as Any
-
             json.isJsonPrimitive -> {
                 val prim = json.asJsonPrimitive
                 when {
                     prim.isBoolean -> prim.asBoolean
-                    prim.isString -> prim.asString
-                    prim.isNumber -> {
-                        val numStr = prim.asString
-                        when {
-                            numStr.contains(".") -> prim.asDouble
-                            else -> {
-                                try {
-                                    val longVal = numStr.toLong()
-                                    if (longVal in Int.MIN_VALUE..Int.MAX_VALUE) longVal.toInt()
-                                    else longVal
-                                } catch (e: NumberFormatException) {
-                                    prim.asDouble
-                                }
+                    prim.isString  -> prim.asString
+                    prim.isNumber  -> {
+                        val str = prim.asString
+                        if (str.contains('.')) prim.asDouble
+                        else {
+                            try {
+                                val long = str.toLong()
+                                if (long in Int.MIN_VALUE..Int.MAX_VALUE) long.toInt() else long
+                            } catch (_: NumberFormatException) {
+                                prim.asDouble
                             }
                         }
                     }
@@ -167,13 +167,13 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
             }
 
             json.isJsonObject -> {
-                val type = object : TypeToken<Map<String, Any>>() {}.type
-                context.deserialize<Map<String, Any>>(json, type)
+                val type = object : TypeToken<Map<String, Any?>>() {}.type
+                context.deserialize<Map<String, Any?>>(json, type)
             }
 
             json.isJsonArray -> {
-                val type = object : TypeToken<List<Any>>() {}.type
-                context.deserialize<List<Any>>(json, type)
+                val type = object : TypeToken<List<Any?>>() {}.type
+                context.deserialize<List<Any?>>(json, type)
             }
 
             else -> json.toString()

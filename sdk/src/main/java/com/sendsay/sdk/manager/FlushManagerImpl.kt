@@ -1,5 +1,6 @@
 package com.sendsay.sdk.manager
 
+import android.util.Log
 import androidx.annotation.WorkerThread
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.Constants
@@ -124,11 +125,13 @@ internal open class FlushManagerImpl(
                 // campaign event needs to recalculate 'age' property from 'timestamp' before posting
                 exportedEvent.properties?.let { properties ->
                     if (properties.containsKey("timestamp")) {
-                        properties["age"] = currentTimeSeconds() - (properties["timestamp"] as Double)
+                        properties["age"] =
+                            currentTimeSeconds() - (properties["timestamp"] as Double)
                         properties.remove("timestamp")
                     }
                 }
             }
+
             Route.TRACK_EVENTS -> {
                 if (exportedEvent.type != Constants.EventTypes.push) {
                     // do not use age for push notifications
@@ -139,7 +142,9 @@ internal open class FlushManagerImpl(
                     }
                 }
             }
-            else -> { /* do nothing */ }
+
+            else -> { /* do nothing */
+            }
         }
     }
 
@@ -183,6 +188,7 @@ internal open class FlushManagerImpl(
                             exportedEvent.shouldBeSkipped = true
                             eventRepository.update(exportedEvent)
                         }
+
                         else -> onEventSentFailed(exportedEvent)
                     }
                     response.close()
@@ -198,16 +204,23 @@ internal open class FlushManagerImpl(
         @Suppress("DEPRECATION")
         val sendsayProject = exportedEvent.sendsayProject ?: SendsayProject(
             configuration.baseURL,
-                exportedEvent.projectId,
+            exportedEvent.projectId,
             configuration.authorization,
             configuration.inAppContentBlockPlaceholdersAutoLoad
         )
         val simpleEvent = Event(
-                type = exportedEvent.type,
-                timestamp = exportedEvent.timestamp,
-                age = exportedEvent.age,
-                customerIds = exportedEvent.customerIds,
-                properties = exportedEvent.properties
+            type = exportedEvent.type,
+            timestamp = exportedEvent.timestamp,
+            age = exportedEvent.age,
+            customerIds = exportedEvent.customerIds,
+            properties = exportedEvent.properties
+        )
+        Log.d(
+            "postEventProperties",
+            "PostEventProperties: ${
+                exportedEvent.properties?.map { "${it.key}: ${it.value}" }
+                    ?.joinToString(", ") ?: "null2a"
+            }"
         )
         return sendsayService.let {
             when (exportedEvent.route) {
