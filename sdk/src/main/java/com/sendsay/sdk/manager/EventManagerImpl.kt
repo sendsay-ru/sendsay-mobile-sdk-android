@@ -54,8 +54,11 @@ internal open class EventManagerImpl(
                     eventRepository.add(exportedEvent)
                     Log.d(
                         "exportedEventProperties",
-                        "PreEventProperties: ${exportedEvent.properties?.map { "${it.key}: ${it.value}" }?.joinToString(", ")
-                            ?: "null"}"
+                        "PreEventProperties: ${
+                            exportedEvent.properties?.map { "${it.key}: ${it.value}" }
+                                ?.joinToString(", ")
+                                ?: "null"
+                        }"
                     )
                 } else {
                     Logger.d(
@@ -96,6 +99,16 @@ internal open class EventManagerImpl(
                 "Event ${type.name}${eventType?.let { "($it)" } ?: ""} has not been tracked, SDK is stopping"
             )
             return
+        }
+        eventType?.length?.let { length ->
+            val eventTpeLengthLimit = 16
+            if (length > eventTpeLengthLimit) {
+                Logger.e(
+                    this,
+                    "Event ${type.name}${eventType.let { "($it)" }} has not been tracked, eventType must be up to 16 characters MAX"
+                )
+                return
+            }
         }
         val trackedProperties: HashMap<String, Any> = hashMapOf()
         if (canUseDefaultProperties(type)) {
