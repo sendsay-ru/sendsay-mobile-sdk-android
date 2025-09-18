@@ -15,6 +15,7 @@ import ru.sendsay.example.App
 import ru.sendsay.example.databinding.FragmentTrackBinding
 import ru.sendsay.example.managers.CustomerTokenStorage
 import ru.sendsay.example.models.Constants
+import ru.sendsay.example.utils.asJson
 import ru.sendsay.example.view.base.BaseFragment
 import ru.sendsay.example.view.dialogs.TrackCustomAttributesDialog
 import ru.sendsay.example.view.dialogs.TrackCustomEventDialog
@@ -24,7 +25,8 @@ import ru.sendsay.sdk.models.NotificationData
 import ru.sendsay.sdk.models.OrderItem
 import ru.sendsay.sdk.models.PropertiesList
 import ru.sendsay.sdk.models.PurchasedItem
-import ru.sendsay.sdk.models.TrackSSECDataBuilder
+import ru.sendsay.sdk.models.TrackSSEC
+import ru.sendsay.sdk.models.TrackSSECDataCore
 import ru.sendsay.sdk.models.TrackingSSECType
 import ru.sendsay.sdk.util.Logger
 import java.text.SimpleDateFormat
@@ -167,15 +169,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun trackClearBasket() {
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
-            .setProduct(dateTime = currentDateTime2)
-            .setItems(listOf(OrderItem(id = "-1")))
-            .build()
+        val data = TrackSSEC
+            .basketClear()
+            .dateTime(dt = currentDateTime)
+            .items(listOf(OrderItem(id = "-1")))
+            .buildData()
 
 //        val jsonString = """
-//        {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime",
 //            "items": [
 //              {
 //                "id": -1
@@ -194,15 +197,15 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 
     private fun trackProductView() {
-//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val productData = TrackSSECDataBuilder(TrackingSSECType.VIEW_PRODUCT)
-            .setProduct(
-                dateTime = currentDateTime2,
+        val productData = TrackSSEC
+            .viewProduct()
+            .product(
                 id = "product1",
+                dateTime = currentDateTime,
                 price = 7.88,
                 available = 1,
                 name = "name",
@@ -212,12 +215,12 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 model = "model",
                 vendor = "vendor",
                 categoryId = 777,
-                category = "category_name",
+                category = "category_name"
             )
-            .build()
+            .buildData()
 
 //        val jsonString = """
-//        {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime",
 //            "id": "product1",
 //            "available": 1,
 //            "name": "name",
@@ -245,12 +248,18 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
-            .setUpdate(isUpdatePerItem = false)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9, status = 1)
-            .setItems(
+        val orderData = TrackSSEC
+            .order()
+            .update(isUpdatePerItem = false)
+            .transaction(
+                id = randomTransactionId,
+                dt = currentDateTime,
+                sum = 100.9,
+                status = 1
+            )
+            .items(
                 listOf(
                     OrderItem(
                         id = "product1",
@@ -265,15 +274,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                         vendor = "vendor",
                         categoryId = 777,
                         category = "category_name",
-                    )
-                )
+                    ),
+                ),
             )
-            .build()
+            .cp(mapOf("cp1" to "promo-2025"))
+            .buildData()
 
 //        val jsonString = """
-//       {"dt":"$currentDateTime2",
+//       {"dt":"$currentDateTime",
 //               "transaction_id": "$randomTransactionId",
-//               "transaction_dt": "$currentDateTime2",
+//               "transaction_dt": "$currentDateTime",
 //               "transaction_sum": 100.9,
 //               "transaction_status": 1,
 //               "update_per_item": 0,
@@ -308,14 +318,14 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         // Генерация случайного transaction_id без отрицательных чисел
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
-//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
-            .setItems(
+        val orderData = TrackSSEC
+            .basketAdd()
+            .transaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+            .items(
                 listOf(
                     OrderItem(
                         id = "product1",
@@ -331,9 +341,9 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                         categoryId = 777,
                         category = "category_name",
                     )
-                )
-            )
-            .build()
+                ),
+            ).buildData()
+        Log.d("orderData:orderData", orderData.toProperties(TrackingSSECType.BASKET_ADD).asJson())
 
 //        val jsonString = """
 //           {

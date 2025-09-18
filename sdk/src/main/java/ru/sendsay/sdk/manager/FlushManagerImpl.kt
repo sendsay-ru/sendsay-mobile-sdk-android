@@ -214,6 +214,7 @@ internal open class FlushManagerImpl(
             age = exportedEvent.age,
             customerIds = exportedEvent.customerIds,
             properties = exportedEvent.properties
+//            properties = propertiesKeyFieldConvert(properties = exportedEvent.properties)
         )
         Log.d(
             "postEventProperties",
@@ -252,5 +253,34 @@ internal open class FlushManagerImpl(
         } else {
             eventRepository.update(exportedEvent)
         }
+    }
+
+    @Deprecated("Костыль, даже не проверял работает ли")
+    private fun propertiesKeyFieldConvert(properties: HashMap<String, Any>?) : HashMap<String, Any> {
+        val result = hashMapOf<String, Any>()
+        properties?.forEach {
+            if (it.key.contains("product_")) {
+                val newKey = it.key.replace("product_", "")
+                result[newKey] = it.value
+                return@forEach
+            }
+            if (it.key.contains("transaction_")) {
+                val newKey = it.key.replace("transaction_", "")
+                result[newKey] = it.value
+                return@forEach
+            }
+            if (it.key.contains("delivery_")) {
+                val newKey = it.key.replace("transaction_", "")
+                result[newKey] = it.value
+                return@forEach
+            }
+            if (it.key.contains("payment_")) {
+                val newKey = it.key.replace("transaction_", "")
+                result[newKey] = it.value
+                return@forEach
+            }
+            result[it.key] = it.value
+        }
+        return result
     }
 }

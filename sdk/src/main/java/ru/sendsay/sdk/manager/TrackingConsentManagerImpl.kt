@@ -18,7 +18,9 @@ import ru.sendsay.sdk.models.NotificationAction
 import ru.sendsay.sdk.models.NotificationChannelImportance
 import ru.sendsay.sdk.models.NotificationData
 import ru.sendsay.sdk.models.PropertiesList
+import ru.sendsay.sdk.models.TrackSSECBuilder
 import ru.sendsay.sdk.models.TrackSSECData
+import ru.sendsay.sdk.models.TrackSSECDataCore
 import ru.sendsay.sdk.models.TrackingSSECType
 import ru.sendsay.sdk.network.NetworkHandlerImpl
 import ru.sendsay.sdk.network.SendsayServiceImpl
@@ -386,7 +388,7 @@ internal class TrackingConsentManagerImpl(
 
     override fun trackSSEC(type: TrackingSSECType, data: TrackSSECData) {
         initGate.waitForInitialize {
-            val properties = data.toHashmap()
+            val properties = data.toProperties(type)
 
             Sendsay.trackEvent(
                 properties = properties,
