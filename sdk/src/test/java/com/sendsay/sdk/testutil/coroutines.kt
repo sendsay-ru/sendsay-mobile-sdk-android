@@ -1,7 +1,7 @@
-package com.sendsay.sdk.testutil
+package ru.sendsay.sdk.testutil
 
-import com.sendsay.sdk.util.backgroundThreadDispatcher
-import com.sendsay.sdk.util.mainThreadDispatcher
+import ru.sendsay.sdk.util.backgroundThreadDispatcher
+import ru.sendsay.sdk.util.mainThreadDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.robolectric.shadows.ShadowLooper

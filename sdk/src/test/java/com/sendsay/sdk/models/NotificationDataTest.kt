@@ -1,7 +1,7 @@
-package com.sendsay.sdk.models
+package ru.sendsay.sdk.models
 
 import android.os.Parcel
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue

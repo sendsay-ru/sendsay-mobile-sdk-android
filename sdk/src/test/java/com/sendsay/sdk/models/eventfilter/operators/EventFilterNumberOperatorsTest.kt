@@ -1,11 +1,11 @@
-package com.sendsay.sdk.models.eventfilter.operators
+package ru.sendsay.sdk.models.eventfilter.operators
 
-import com.sendsay.sdk.models.eventfilter.EventFilterAttribute
-import com.sendsay.sdk.models.eventfilter.EventFilterEvent
-import com.sendsay.sdk.models.eventfilter.EventFilterOperand
-import com.sendsay.sdk.models.eventfilter.EventFilterOperator
-import com.sendsay.sdk.models.eventfilter.PropertyAttribute
-import com.sendsay.sdk.models.eventfilter.TimestampAttribute
+import ru.sendsay.sdk.models.eventfilter.EventFilterAttribute
+import ru.sendsay.sdk.models.eventfilter.EventFilterEvent
+import ru.sendsay.sdk.models.eventfilter.EventFilterOperand
+import ru.sendsay.sdk.models.eventfilter.EventFilterOperator
+import ru.sendsay.sdk.models.eventfilter.PropertyAttribute
+import ru.sendsay.sdk.models.eventfilter.TimestampAttribute
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Test

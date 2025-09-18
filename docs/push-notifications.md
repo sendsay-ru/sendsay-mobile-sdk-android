@@ -69,7 +69,7 @@ Sendsay.requestPushAuthorization(requireContext()) { granted ->
 
 #### Открыть приложение
 
-Действие "Открыть приложение" генерирует intent с действием `com.sendsay.sdk.action.PUSH_CLICKED`. SDK автоматически реагирует на него, открывая ваше приложение.
+Действие "Открыть приложение" генерирует intent с действием `ru.sendsay.sdk.action.PUSH_CLICKED`. SDK автоматически реагирует на него, открывая ваше приложение.
 
 #### Deep Link
 
@@ -123,7 +123,7 @@ Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
 
 ### Пользовательская обработка действий уведомлений
 
-Когда пользователь нажимает на уведомление или его кнопки, SDK автоматически выполняет настроенное действие (открыть приложение, браузер и т.д.). Если вам требуется дополнительная обработка при возникновении этого события, вы можете создать receiver для этой цели. SDK транслирует действия `com.sendsay.sdk.action.PUSH_CLICKED`, `com.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED` и `com.sendsay.sdk.action.PUSH_URL_CLICKED`, и вы можете указать их в intent filter для реагирования на них.
+Когда пользователь нажимает на уведомление или его кнопки, SDK автоматически выполняет настроенное действие (открыть приложение, браузер и т.д.). Если вам требуется дополнительная обработка при возникновении этого события, вы можете создать receiver для этой цели. SDK транслирует действия `ru.sendsay.sdk.action.PUSH_CLICKED`, `ru.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED` и `ru.sendsay.sdk.action.PUSH_URL_CLICKED`, и вы можете указать их в intent filter для реагирования на них.
 
 Регистрация в `AndroidManifest.xml`:
 
@@ -133,9 +133,9 @@ Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
     android:enabled="true"
     android:exported="true">
     <intent-filter>
-        <action android:name="com.sendsay.sdk.action.PUSH_CLICKED" />
-        <action android:name="com.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />  
-        <action android:name="com.sendsay.sdk.action.PUSH_URL_CLICKED" />
+        <action android:name="ru.sendsay.sdk.action.PUSH_CLICKED" />
+        <action android:name="ru.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />  
+        <action android:name="ru.sendsay.sdk.action.PUSH_URL_CLICKED" />
     </intent-filter>
 </receiver>
 ```

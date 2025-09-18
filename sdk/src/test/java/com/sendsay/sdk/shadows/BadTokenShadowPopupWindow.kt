@@ -1,4 +1,4 @@
-package com.sendsay.sdk.shadows
+package ru.sendsay.sdk.shadows
 
 import android.view.WindowManager
 import android.view.WindowManager.BadTokenException

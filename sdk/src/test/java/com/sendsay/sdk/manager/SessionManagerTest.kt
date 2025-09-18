@@ -1,17 +1,17 @@
-package com.sendsay.sdk.manager
+package ru.sendsay.sdk.manager
 
 import android.app.Activity
 import android.content.Context
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.models.EventType
-import com.sendsay.sdk.preferences.SendsayPreferencesImpl
-import com.sendsay.sdk.repository.CampaignRepository
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.mocks.MockApplication
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.models.EventType
+import ru.sendsay.sdk.preferences.SendsayPreferencesImpl
+import ru.sendsay.sdk.repository.CampaignRepository
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.mocks.MockApplication
 import io.mockk.Runs
 import io.mockk.confirmVerified
 import io.mockk.every

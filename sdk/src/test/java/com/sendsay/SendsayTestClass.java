@@ -1,4 +1,4 @@
-package com.sendsay;
+package ru.sendsay;
 
 public class SendsayTestClass {
     // This class is here for no other purpose than to enable the check,

@@ -1,17 +1,17 @@
-package com.sendsay.sdk.tracking
+package ru.sendsay.sdk.tracking
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.manager.FlushManagerImpl
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.testutil.SendsayMockServer
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.reset
-import com.sendsay.sdk.testutil.shutdown
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.manager.FlushManagerImpl
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.models.FlushMode
+import ru.sendsay.sdk.testutil.SendsayMockServer
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.reset
+import ru.sendsay.sdk.testutil.shutdown
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

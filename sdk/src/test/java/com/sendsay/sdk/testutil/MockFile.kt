@@ -1,4 +1,4 @@
-package com.sendsay.sdk.testutil
+package ru.sendsay.sdk.testutil
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider

@@ -1,7 +1,7 @@
-package com.sendsay.sdk.database
+package ru.sendsay.sdk.database
 
-import com.sendsay.sdk.models.SendsayProject
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads
+import ru.sendsay.sdk.models.SendsayProject
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads
 import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

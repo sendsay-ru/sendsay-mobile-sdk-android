@@ -8,7 +8,7 @@ apply plugin: 'androidx.room'
 
 android {
 
-    namespace 'com.sendsay.sdk'
+    namespace 'ru.sendsay.sdk'
     compileSdk 35
 
     buildFeatures {
@@ -125,7 +125,7 @@ dependencies {
 }
 
 shadowAar {
-    transformR = "com.sendsay.sdk.R"
+    transformR = "ru.sendsay.sdk.R"
     repackages.put("coil", "freeze.coil")
 }
 

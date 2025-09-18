@@ -1,7 +1,7 @@
 import android.content.Context
 import android.text.TextUtils
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.util.Logger
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.util.Logger
 import com.huawei.hms.aaid.HmsInstanceId
 import com.huawei.hms.common.ApiException
 

@@ -9,11 +9,11 @@ if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().c
 }
 
 android {
-    namespace 'com.sendsay.example'
+    namespace 'ru.sendsay.example'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.sendsay.example"
+        applicationId "ru.sendsay.example"
         minSdkVersion 21
         targetSdk 35
         versionCode 1

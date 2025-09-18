@@ -1,4 +1,4 @@
-package com.sendsay.sdk.testutil
+package ru.sendsay.sdk.testutil
 
 import java.util.concurrent.TimeoutException
 import kotlin.concurrent.thread

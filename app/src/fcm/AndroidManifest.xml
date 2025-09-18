@@ -3,7 +3,7 @@
 
     <application>
         <service
-            android:name="com.sendsay.example.services.SendsayFirebaseMessageService"
+            android:name="ru.sendsay.example.services.SendsayFirebaseMessageService"
             android:exported="false"
             android:foregroundServiceType="remoteMessaging">
             <intent-filter>

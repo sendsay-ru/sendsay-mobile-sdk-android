@@ -1,0 +1,95 @@
+package ru.sendsay.sdk.repository
+
+import ru.sendsay.sdk.models.PushOpenedData
+import ru.sendsay.sdk.preferences.SendsayPreferences
+import ru.sendsay.sdk.util.Logger
+import ru.sendsay.sdk.util.fromJson
+import com.google.gson.Gson
+
+internal class PushNotificationRepositoryImpl(
+    private val preferences: SendsayPreferences
+) : PushNotificationRepository {
+
+    private val KEY_EXTRA_DATA = "SendsayPushNotificationExtraData"
+    private val KEY_DELIVERED_DATA = "SendsayDeliveredPushNotificationData"
+    private val KEY_CLICKED_DATA = "SendsayClickedPushNotificationData"
+
+    override fun getExtraData(): Map<String, Any>? {
+        val dataString = preferences.getString(KEY_EXTRA_DATA, "")
+        if (dataString.isEmpty()) {
+            return null
+        }
+        return Gson().fromJson<HashMap<String, Any>>(dataString)
+    }
+
+    override fun setExtraData(data: Map<String, Any>) {
+        val dataString = Gson().toJson(data)
+        preferences.setString(KEY_EXTRA_DATA, dataString)
+    }
+
+    override fun appendDeliveredNotification(data: Map<String, String>) {
+        val storedDeliveredNotifications = getDeliveredNotifications()
+        val newDeliveredNotifications = storedDeliveredNotifications + data
+        val dataString = Gson().toJson(newDeliveredNotifications)
+        preferences.setString(KEY_DELIVERED_DATA, dataString)
+    }
+
+    override fun popDeliveredPushData(): List<Map<String, Any>> {
+        val storedDeliveredNotifications = getDeliveredNotifications()
+        clearDeliveredData()
+        return storedDeliveredNotifications
+    }
+
+    private fun clearDeliveredData() {
+        preferences.remove(KEY_DELIVERED_DATA)
+    }
+
+    private fun getDeliveredNotifications(): List<Map<String, String>> = runCatching {
+        val dataString = preferences.getString(KEY_DELIVERED_DATA, "")
+        if (dataString.isEmpty()) {
+            return emptyList()
+        }
+        return Gson().fromJson<List<Map<String, String>>>(dataString)
+    }.getOrElse {
+        Logger.e(this, "Unable to read delivered notifications stored locally", it)
+        return@getOrElse emptyList()
+    }
+
+    override fun appendClickedNotification(data: PushOpenedData) {
+        val storedClickedNotifications = getClickedNotifications()
+        val newClickedNotifications = storedClickedNotifications + data
+        val dataString = Gson().toJson(newClickedNotifications)
+        preferences.setString(KEY_CLICKED_DATA, dataString)
+    }
+
+    override fun popClickedPushData(): List<PushOpenedData> {
+        val storedClickedNotifications = getClickedNotifications()
+        clearClickedData()
+        return storedClickedNotifications
+    }
+
+    private fun clearClickedData() {
+        preferences.remove(KEY_CLICKED_DATA)
+    }
+
+    private fun getClickedNotifications(): List<PushOpenedData> = runCatching {
+        val dataString = preferences.getString(KEY_CLICKED_DATA, "")
+        if (dataString.isEmpty()) {
+            return emptyList()
+        }
+        return Gson().fromJson<List<PushOpenedData>>(dataString)
+    }.getOrElse {
+        Logger.e(this, "Unable to read clicked notifications stored locally", it)
+        return@getOrElse emptyList()
+    }
+
+    override fun clearExtraData() {
+        preferences.remove(KEY_EXTRA_DATA)
+    }
+
+    override fun clearAll() {
+        clearExtraData()
+        clearDeliveredData()
+        clearClickedData()
+    }
+}

@@ -1,13 +1,13 @@
-package com.sendsay.sdk.runcatching
+package ru.sendsay.sdk.runcatching
 
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.manager.EventManagerImpl
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.models.EventType
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.repository.SendsayConfigRepository
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.manager.EventManagerImpl
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.models.EventType
+import ru.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.repository.SendsayConfigRepository
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

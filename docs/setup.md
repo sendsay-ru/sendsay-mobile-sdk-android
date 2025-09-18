@@ -16,26 +16,26 @@ Sendsay Android SDK можно установить или обновить с �
 
 ### Gradle (Kotlin)
 
-1. В файле `build.gradle.kts` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
+1. В файле `build.gradle.kts` вашего приложения добавьте `ru.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```kotlin
-   implementation("com.sendsay.sdk:sdk:0.1.0")
+   implementation("ru.sendsay.sdk:sdk:0.1.0")
    ```
 2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
 
 ### Gradle (Groovy)
 
-1. В файле `build.gradle` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
+1. В файле `build.gradle` вашего приложения добавьте `ru.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```groovy
-   implementation 'com.sendsay.sdk:sdk:0.1.0'
+   implementation 'ru.sendsay.sdk:sdk:0.1.0'
    ```
 2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
 
 ### Maven
 
-1. В файле `pom.xml` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `<dependencies> </dependencies>`:
+1. В файле `pom.xml` вашего приложения добавьте `ru.sendsay.sdk:sdk` внутри секции `<dependencies> </dependencies>`:
    ```xml
    <dependency>
-      <groupId>com.sendsay.sdk</groupId>
+      <groupId>ru.sendsay.sdk</groupId>
       <artifactId>sdk</artifactId>
       <version>0.1.0</version>
    </dependency>   
@@ -55,8 +55,8 @@ Sendsay Android SDK можно установить или обновить с �
 Импортируйте SDK:
 
 ```kotlin
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.models.SendsayConfiguration
 
 ```
 
@@ -87,7 +87,7 @@ Sendsay.init(this, configuration)
 Импортируйте SDK в ваш код:
 
 ```kotlin
-import com.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.Sendsay
 
 ```
 
@@ -165,7 +165,7 @@ SDK можно дополнительно настроить, установив
 
 ### Уровень логирования
 
-SDK поддерживает следующие уровни логирования, определенные в `com.sendsay.sdk.util.Logger.Level`:
+SDK поддерживает следующие уровни логирования, определенные в `ru.sendsay.sdk.util.Logger.Level`:
 
 | Уровень логирования  | Описание |
 | -----------| ----------- |
@@ -192,7 +192,7 @@ Sendsay.loggerLevel = Logger.Level.VERBOSE
 
 ```
 Manifest merger failed : Attribute application@fullBackupContent value=(@xml/backup_rules) from AndroidManifest.xml:8:9-54
-	is also present at [com.sendsay.sdk:sdk:0.1.0] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
+	is also present at [ru.sendsay.sdk:sdk:0.1.0] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
 ```
 
 SDK и новое приложение, созданное Android Studio, оба включают [функцию автоматического резервного копирования](https://developer.android.com/guide/topics/data/autobackup) в `AndroidManifest.xml`, но каждое со своими правилами резервного копирования. Вам как разработчику необходимо [управлять файлами манифеста](https://developer.android.com/build/manage-manifests) и обеспечить их правильное слияние.

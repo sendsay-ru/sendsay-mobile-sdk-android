@@ -1,12 +1,12 @@
-package com.sendsay.sdk.database
+package ru.sendsay.sdk.database
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.models.SendsayProject
-import com.sendsay.sdk.models.ExportedEvent
-import com.sendsay.sdk.models.Route
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.waitForIt
+import ru.sendsay.sdk.models.SendsayProject
+import ru.sendsay.sdk.models.ExportedEvent
+import ru.sendsay.sdk.models.Route
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.waitForIt
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

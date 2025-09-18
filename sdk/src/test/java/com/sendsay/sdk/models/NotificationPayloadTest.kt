@@ -1,14 +1,14 @@
-package com.sendsay.sdk.models
+package ru.sendsay.sdk.models
 
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.ACTIONS_NOTIFICATION
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.BASIC_NOTIFICATION
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.BROWSER_NOTIFICATION
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.DEEPLINK_NOTIFICATION
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.NOTIFICATION_WITH_NESTED_ATTRIBUTES
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.PRODUCTION_NOTIFICATION
-import com.sendsay.sdk.testutil.data.NotificationTestPayloads.SILENT_NOTIFICATION
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.ACTIONS_NOTIFICATION
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.BASIC_NOTIFICATION
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.BROWSER_NOTIFICATION
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.DEEPLINK_NOTIFICATION
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.NOTIFICATION_WITH_NESTED_ATTRIBUTES
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.PRODUCTION_NOTIFICATION
+import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.SILENT_NOTIFICATION
 import io.mockk.every
 import java.util.Date
 import kotlin.test.assertEquals

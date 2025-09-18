@@ -14,7 +14,7 @@ task androidSourcesJar(type: Jar) {
 }
 
 nexusStaging {
-    packageGroup = 'com.sendsay'
+    packageGroup = 'ru.sendsay'
     username = ossrhUsername
     password = ossrhPassword
 }
@@ -24,7 +24,7 @@ project.afterEvaluate {
         publications {
             sdk(MavenPublication) {
                 from components.release
-                groupId 'com.sendsay.sdk'
+                groupId 'ru.sendsay.sdk'
                 artifactId 'sdk'
                 version android.defaultConfig.buildConfigFields['SENDSAY_VERSION_NAME'].value.replace('"', '')
 
@@ -34,7 +34,7 @@ project.afterEvaluate {
                     name = 'Sendsay Sdk Library'
                     packaging 'aar'
                     description = 'Sendsay Sdk Library'
-                    url = 'https://github.com/sendsay/sendsay-android-sdk'
+                    url = 'https://github.com/sendsay-ru/sendsay-sdk-android'
                     licenses {
                         license {
                             name = 'MIT'
@@ -45,16 +45,16 @@ project.afterEvaluate {
                         developer {
                             id = 'sendsay'
                             name = 'Sendsay'
-                            email = 'contact@sendsay.com'
+                            email = 'moscow@sendsay.ru'
                         }
                     }
                     scm {
-                        url = 'https://github.com/sendsay/sendsay-android-sdk/tree/master'
-                        connection = 'scm:https://github.com/sendsay/sendsay-android-sdk.git'
+                        url = 'https://github.com/sendsay-ru/sendsay-sdk-android/tree/main'
+                        connection = 'scm:https://github.com/sendsay-ru/sendsay-sdk-android.git'
                     }
                     issueManagement {
                         system = 'GitHub issues'
-                        url = 'https://github.com/sendsay/sendsay-android-sdk/issues'
+                        url = 'https://github.com/sendsay-ru/sendsay-sdk-android/issues'
                     }
                 }
             }

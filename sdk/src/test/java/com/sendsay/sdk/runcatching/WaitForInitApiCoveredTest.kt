@@ -1,10 +1,10 @@
-package com.sendsay.sdk.runcatching
+package ru.sendsay.sdk.runcatching
 
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.util.backgroundThreadDispatcher
-import com.sendsay.sdk.util.mainThreadDispatcher
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.models.FlushMode
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.util.backgroundThreadDispatcher
+import ru.sendsay.sdk.util.mainThreadDispatcher
 import java.util.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

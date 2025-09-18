@@ -13,7 +13,7 @@
         android:padding="10dp"
         >
 
-        <com.sendsay.sdk.view.InAppMessageSlideInImageView
+        <ru.sendsay.sdk.view.InAppMessageSlideInImageView
             android:id="@+id/imageViewImage"
             android:layout_width="75dp"
             android:layout_height="75dp"

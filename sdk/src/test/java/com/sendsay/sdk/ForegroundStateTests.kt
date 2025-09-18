@@ -1,11 +1,11 @@
-package com.sendsay.sdk
+package ru.sendsay.sdk
 
 import android.content.Context
 import android.content.pm.ProviderInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.services.SendsayContextProvider
-import com.sendsay.sdk.testutil.mocks.MockApplication
+import ru.sendsay.sdk.services.SendsayContextProvider
+import ru.sendsay.sdk.testutil.mocks.MockApplication
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Before

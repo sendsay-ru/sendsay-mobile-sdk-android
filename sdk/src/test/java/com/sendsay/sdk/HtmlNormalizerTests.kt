@@ -1,14 +1,14 @@
-package com.sendsay.sdk
+package ru.sendsay.sdk
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.models.HtmlActionType
-import com.sendsay.sdk.repository.FontCacheImpl
-import com.sendsay.sdk.repository.InAppMessageBitmapCacheImpl
-import com.sendsay.sdk.testutil.SendsayMockServer
-import com.sendsay.sdk.testutil.waitForIt
-import com.sendsay.sdk.util.HtmlNormalizer
-import com.sendsay.sdk.util.HtmlNormalizer.HtmlNormalizerConfig
+import ru.sendsay.sdk.models.HtmlActionType
+import ru.sendsay.sdk.repository.FontCacheImpl
+import ru.sendsay.sdk.repository.InAppMessageBitmapCacheImpl
+import ru.sendsay.sdk.testutil.SendsayMockServer
+import ru.sendsay.sdk.testutil.waitForIt
+import ru.sendsay.sdk.util.HtmlNormalizer
+import ru.sendsay.sdk.util.HtmlNormalizer.HtmlNormalizerConfig
 import io.mockk.mockk
 import java.io.File
 import kotlin.test.assertEquals

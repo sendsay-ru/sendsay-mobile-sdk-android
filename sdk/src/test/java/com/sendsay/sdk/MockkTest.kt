@@ -1,4 +1,4 @@
-package com.sendsay.sdk
+package ru.sendsay.sdk
 
 import io.mockk.MockKAdditionalAnswerScope
 import io.mockk.every

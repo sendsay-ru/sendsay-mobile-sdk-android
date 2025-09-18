@@ -1,6 +1,6 @@
-package com.sendsay.sdk.telemetry.model
+package ru.sendsay.sdk.telemetry.model
 
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import java.util.Date
 import kotlin.test.assertEquals
 import org.junit.Test

@@ -1,10 +1,10 @@
-package com.sendsay.sdk
+package ru.sendsay.sdk
 
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.preferences.SendsayPreferencesImpl
-import com.sendsay.sdk.repository.DeviceInitiatedRepository
-import com.sendsay.sdk.repository.DeviceInitiatedRepositoryImpl
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.preferences.SendsayPreferencesImpl
+import ru.sendsay.sdk.repository.DeviceInitiatedRepository
+import ru.sendsay.sdk.repository.DeviceInitiatedRepositoryImpl
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test

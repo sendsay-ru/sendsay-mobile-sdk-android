@@ -43,7 +43,7 @@
     ``` kotlin
     import android.app.NotificationManager  
     import android.content.Context  
-    import com.sendsay.sdk.Sendsay  
+    import ru.sendsay.sdk.Sendsay  
     import com.huawei.hms.push.HmsMessageService  
     import com.huawei.hms.push.RemoteMessage
 

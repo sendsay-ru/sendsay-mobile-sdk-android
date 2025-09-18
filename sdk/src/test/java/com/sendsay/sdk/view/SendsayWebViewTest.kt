@@ -1,12 +1,12 @@
-package com.sendsay.sdk.view
+package ru.sendsay.sdk.view
 
 import android.webkit.CookieManager
 import android.webkit.WebSettings
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.FlushMode
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.models.FlushMode
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

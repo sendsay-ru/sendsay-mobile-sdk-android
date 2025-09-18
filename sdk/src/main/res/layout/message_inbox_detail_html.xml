@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sendsay.sdk.view.SendsayWebView
+    <ru.sendsay.sdk.view.SendsayWebView
         android:id="@+id/message_detail_webview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

@@ -1,13 +1,13 @@
-package com.sendsay.sdk.view
+package ru.sendsay.sdk.view
 
 import android.content.Context
 import android.widget.Button
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.R
-import com.sendsay.sdk.models.InAppMessageTest
-import com.sendsay.sdk.repository.DrawableCache
-import com.sendsay.sdk.testutil.MockFile
+import ru.sendsay.sdk.R
+import ru.sendsay.sdk.models.InAppMessageTest
+import ru.sendsay.sdk.repository.DrawableCache
+import ru.sendsay.sdk.testutil.MockFile
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

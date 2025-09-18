@@ -1,4 +1,4 @@
-package com.sendsay.sdk.models.eventfilter
+package ru.sendsay.sdk.models.eventfilter
 
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

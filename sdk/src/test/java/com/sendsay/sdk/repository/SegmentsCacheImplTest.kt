@@ -1,9 +1,9 @@
-package com.sendsay.sdk.repository
+package ru.sendsay.sdk.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.models.SegmentTest
-import com.sendsay.sdk.models.SegmentationCategories
+import ru.sendsay.sdk.models.SegmentTest
+import ru.sendsay.sdk.models.SegmentationCategories
 import com.google.gson.Gson
 import java.io.File
 import kotlin.test.assertEquals

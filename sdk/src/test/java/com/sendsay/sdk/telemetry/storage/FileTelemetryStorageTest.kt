@@ -1,11 +1,11 @@
-package com.sendsay.sdk.telemetry
+package ru.sendsay.sdk.telemetry
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.telemetry.model.CrashLog
-import com.sendsay.sdk.telemetry.storage.FileTelemetryStorage
-import com.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.telemetry.model.CrashLog
+import ru.sendsay.sdk.telemetry.storage.FileTelemetryStorage
+import ru.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.every
 import java.io.File
 import java.util.Date

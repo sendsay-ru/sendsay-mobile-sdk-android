@@ -1,8 +1,8 @@
-package com.sendsay.sdk.models.eventfilter.operators
+package ru.sendsay.sdk.models.eventfilter.operators
 
-import com.sendsay.sdk.models.eventfilter.EventFilterOperand
-import com.sendsay.sdk.models.eventfilter.EventFilterOperator
-import com.sendsay.sdk.models.eventfilter.EventFilterOperatorException
+import ru.sendsay.sdk.models.eventfilter.EventFilterOperand
+import ru.sendsay.sdk.models.eventfilter.EventFilterOperator
+import ru.sendsay.sdk.models.eventfilter.EventFilterOperatorException
 import kotlin.test.fail
 import org.junit.Test
 import org.junit.runner.RunWith

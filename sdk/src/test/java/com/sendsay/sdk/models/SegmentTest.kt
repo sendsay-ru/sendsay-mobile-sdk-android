@@ -1,4 +1,4 @@
-package com.sendsay.sdk.models
+package ru.sendsay.sdk.models
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

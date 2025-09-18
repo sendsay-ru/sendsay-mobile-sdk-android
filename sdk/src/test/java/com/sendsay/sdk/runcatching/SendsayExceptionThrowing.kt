@@ -1,12 +1,12 @@
-package com.sendsay.sdk.runcatching
+package ru.sendsay.sdk.runcatching
 
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.SendsayComponent
-import com.sendsay.sdk.manager.BackgroundTimerManagerImpl
-import com.sendsay.sdk.mockkConstructorFix
-import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
-import com.sendsay.sdk.services.DefaultAppInboxProvider
-import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.SendsayComponent
+import ru.sendsay.sdk.manager.BackgroundTimerManagerImpl
+import ru.sendsay.sdk.mockkConstructorFix
+import ru.sendsay.sdk.receiver.NotificationsPermissionReceiver
+import ru.sendsay.sdk.services.DefaultAppInboxProvider
+import ru.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController
 import io.mockk.every
 import io.mockk.mockkObject
 

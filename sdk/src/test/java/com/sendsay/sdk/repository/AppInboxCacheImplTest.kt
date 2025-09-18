@@ -1,9 +1,9 @@
-package com.sendsay.sdk.repository
+package ru.sendsay.sdk.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.models.MessageItem
-import com.sendsay.sdk.testutil.assertEqualsIgnoreOrder
+import ru.sendsay.sdk.models.MessageItem
+import ru.sendsay.sdk.testutil.assertEqualsIgnoreOrder
 import com.google.gson.Gson
 import java.io.File
 import kotlin.test.assertEquals

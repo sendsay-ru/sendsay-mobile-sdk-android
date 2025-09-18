@@ -1,0 +1,39 @@
+package ru.sendsay.sdk.manager
+
+import android.content.Context
+import ru.sendsay.sdk.models.ExportedEvent
+import ru.sendsay.sdk.repository.EventRepositoryImpl
+
+/**
+ * Writes changes into DB, but method 'all' returns only events stored from time of creation of this instance.
+ */
+internal class TemporaryEventRepositoryImpl(
+    context: Context
+) : EventRepositoryImpl(context) {
+
+    private val runtimeDatabase = mutableMapOf<String, ExportedEvent>()
+
+    override fun all(): List<ExportedEvent> {
+        return runtimeDatabase.values.toList()
+    }
+
+    override fun add(item: ExportedEvent) {
+        super.add(item)
+        runtimeDatabase.put(item.id, item)
+    }
+
+    override fun update(item: ExportedEvent) {
+        database.update(item)
+        runtimeDatabase.put(item.id, item)
+    }
+
+    override fun remove(id: String) {
+        database.remove(id)
+        runtimeDatabase.remove(id)
+    }
+
+    override fun clear() {
+        database.clear()
+        runtimeDatabase.clear()
+    }
+}

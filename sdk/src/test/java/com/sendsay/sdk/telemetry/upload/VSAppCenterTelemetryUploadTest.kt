@@ -1,13 +1,13 @@
-package com.sendsay.sdk.telemetry
+package ru.sendsay.sdk.telemetry
 
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.telemetry.model.CrashLog
-import com.sendsay.sdk.telemetry.model.EventLog
-import com.sendsay.sdk.telemetry.upload.TelemetryUpload
-import com.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
-import com.sendsay.sdk.testutil.SendsayMockServer
-import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.waitForIt
+import ru.sendsay.sdk.telemetry.model.CrashLog
+import ru.sendsay.sdk.telemetry.model.EventLog
+import ru.sendsay.sdk.telemetry.upload.TelemetryUpload
+import ru.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
+import ru.sendsay.sdk.testutil.SendsayMockServer
+import ru.sendsay.sdk.testutil.SendsaySDKTest
+import ru.sendsay.sdk.testutil.waitForIt
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
@@ -29,8 +29,8 @@ internal class VSAppCenterTelemetryUploadTest : SendsaySDKTest() {
     private lateinit var upload: VSAppCenterTelemetryUpload
 
     private val exceptedDevice = """{
-        "appNamespace":"com.sendsay.sdk.test",
-        "appVersion":"com.sendsay.sdk.test-unknown version",
+        "appNamespace":"ru.sendsay.sdk.test",
+        "appVersion":"ru.sendsay.sdk.test-unknown version",
         "appBuild":"0",
         "sdkName":"SendsaySDK.android",
         "sdkVersion":"1.0.0",

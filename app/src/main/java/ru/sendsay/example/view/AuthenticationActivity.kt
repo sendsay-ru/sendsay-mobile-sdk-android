@@ -1,0 +1,126 @@
+package ru.sendsay.example.view
+
+import android.app.AlertDialog
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import ru.sendsay.example.App
+import ru.sendsay.example.databinding.ActivityAuthenticationBinding
+import ru.sendsay.example.managers.CustomerTokenStorage
+import ru.sendsay.example.utils.isVaildUrl
+import ru.sendsay.example.utils.isValid
+import ru.sendsay.example.utils.onTextChanged
+import ru.sendsay.sdk.BuildConfig
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.Sendsay.runDebugMode
+import ru.sendsay.sdk.models.FlushMode
+import ru.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.models.SendsayConfiguration.Companion.TOKEN_AUTH_PREFIX
+import ru.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
+
+class AuthenticationActivity : AppCompatActivity() {
+
+    var projectToken = "x-17496430561032892"
+    var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
+    var authorizationToken =
+        "Token 192P7IBe8VbXlTlZlb5gP_agFwuMfpUOpkE9KxnKmCsCJ1tj-lbaB5tLgC62s-JXTsxkz"
+    var advancedPublicKey = "PK"
+    var registeredIds = "x-17496430561032892"
+
+    private lateinit var viewBinding: ActivityAuthenticationBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewBinding = ActivityAuthenticationBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+//        setSupportActionBar(viewBinding.toolbar)
+
+        viewBinding.editTextAuthCode.setText(authorizationToken)
+        viewBinding.editTextAdvancedPublicKey.setText(advancedPublicKey)
+        viewBinding.editTextRegisteredIds.setText(registeredIds)
+        viewBinding.editTextProjectToken.setText(projectToken)
+        viewBinding.editTextApiUrl.setText(apiUrl)
+
+        viewBinding.editTextAuthCode.onTextChanged { authorizationToken = it }
+        viewBinding.editTextAdvancedPublicKey.onTextChanged { advancedPublicKey = it }
+        viewBinding.editTextRegisteredIds.onTextChanged { registeredIds = it }
+        viewBinding.editTextProjectToken.onTextChanged { projectToken = it }
+        viewBinding.editTextApiUrl.onTextChanged { apiUrl = it }
+
+        viewBinding.authenticateButton.setOnClickListener {
+            if (!viewBinding.editTextProjectToken.isValid() ||
+                !viewBinding.editTextAuthCode.isValid() ||
+                !viewBinding.editTextApiUrl.isVaildUrl()
+            ) {
+                Toast.makeText(this, "Empty field", Toast.LENGTH_SHORT).show()
+            } else {
+                initSdk()
+            }
+        }
+
+        viewBinding.clearLocalDataButton.setOnClickListener {
+            Sendsay.clearLocalCustomerData()
+        }
+    }
+
+    private fun initSdk() {
+        // Start our sendsay configuration
+        val configuration = SendsayConfiguration()
+
+        // ingore existing prefix for authorization token (Token, Bearer or Basic)
+        configuration.authorization = TOKEN_AUTH_PREFIX + authorizationToken.split(" ").last()
+        configuration.advancedAuthEnabled = advancedPublicKey.isNotBlank()
+        configuration.projectToken = projectToken
+        configuration.baseURL = apiUrl
+        configuration.httpLoggingLevel = SendsayConfiguration.HttpLoggingLevel.BODY
+//        configuration.defaultProperties["thisIsADefaultStringProperty"] =
+//            "This is a default string value"
+//        configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
+        configuration.automaticPushNotification = true
+        configuration.tokenTrackFrequency = EVERY_LAUNCH
+        configuration.pushChannelId = "Push channel (Sendsay)"
+
+        // Prepare Example Advanced Auth
+        CustomerTokenStorage.INSTANCE.configure(
+            host = apiUrl,
+            projectToken = projectToken,
+            publicKey = advancedPublicKey,
+            customerIds = null,
+            expiration = null
+        )
+
+        // Set our customer registration id
+        if (viewBinding.editTextRegisteredIds.isValid()) {
+            App.instance.registeredIdManager.registeredID = registeredIds
+            CustomerTokenStorage.INSTANCE.configure(
+                customerIds = hashMapOf(
+                    "registered" to (App.instance.registeredIdManager.registeredID ?: ""),
+//                    Pair("phone", "+79112343393")
+                    "phone" to "+79602386404"
+                )
+            )
+        }
+
+        // Set up our flushing
+        Sendsay.flushMode = FlushMode.IMMEDIATE
+        Sendsay.checkPushSetup = runDebugMode
+
+        // Start our SDK
+        // Sendsay.initFromFile(App.instance)
+        try {
+            Sendsay.init(App.instance, configuration)
+        } catch (e: Exception) {
+            AlertDialog.Builder(this)
+                .setTitle("Error configuring SDK")
+                .setMessage(e.localizedMessage)
+                .setPositiveButton("OK") { _, _ -> }
+                .create()
+                .show()
+            return
+        }
+
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+}

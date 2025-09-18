@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     tools:parentTag="android.widget.RelativeLayout">
 
-    <com.sendsay.sdk.view.SendsayWebView
+    <ru.sendsay.sdk.view.SendsayWebView
         android:id="@+id/content_block_webview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -1,25 +1,25 @@
 @file:Suppress("DEPRECATION")
 
-package com.sendsay.sdk.runcatching
+package ru.sendsay.sdk.runcatching
 
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.manager.InAppContentBlockManagerImplTest
-import com.sendsay.sdk.models.Constants
-import com.sendsay.sdk.models.CustomerIds
-import com.sendsay.sdk.models.CustomerRecommendationOptions
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.InAppMessageTest
-import com.sendsay.sdk.models.MessageItemAction
-import com.sendsay.sdk.models.MessageItemAction.Type.BROWSER
-import com.sendsay.sdk.models.PurchasedItem
-import com.sendsay.sdk.models.Segment
-import com.sendsay.sdk.models.SegmentationDataCallback
-import com.sendsay.sdk.repository.AppInboxCacheImplTest
+import ru.sendsay.sdk.Sendsay
+import ru.sendsay.sdk.manager.InAppContentBlockManagerImplTest
+import ru.sendsay.sdk.models.Constants
+import ru.sendsay.sdk.models.CustomerIds
+import ru.sendsay.sdk.models.CustomerRecommendationOptions
+import ru.sendsay.sdk.models.SendsayConfiguration
+import ru.sendsay.sdk.models.InAppMessageTest
+import ru.sendsay.sdk.models.MessageItemAction
+import ru.sendsay.sdk.models.MessageItemAction.Type.BROWSER
+import ru.sendsay.sdk.models.PurchasedItem
+import ru.sendsay.sdk.models.Segment
+import ru.sendsay.sdk.models.SegmentationDataCallback
+import ru.sendsay.sdk.repository.AppInboxCacheImplTest
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KFunction
 import kotlin.reflect.KFunction1

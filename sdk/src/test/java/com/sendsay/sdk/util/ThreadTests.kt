@@ -1,6 +1,6 @@
-package com.sendsay.sdk.util
+package ru.sendsay.sdk.util
 
-import com.sendsay.sdk.testutil.waitForIt
+import ru.sendsay.sdk.testutil.waitForIt
 import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -1,8 +1,8 @@
-package com.sendsay.sdk.repository
+package ru.sendsay.sdk.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.sendsay.sdk.models.InAppMessageTest
+import ru.sendsay.sdk.models.InAppMessageTest
 import com.google.gson.Gson
 import java.io.File
 import kotlin.test.assertEquals

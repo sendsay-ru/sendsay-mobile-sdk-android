@@ -1,4 +1,4 @@
-package com.sendsay.sdk.testutil.data
+package ru.sendsay.sdk.testutil.data
 
 internal object NotificationTestPayloads {
     /* ktlint-disable max-line-length */
