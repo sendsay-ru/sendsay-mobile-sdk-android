@@ -24,7 +24,7 @@ class TrackCustomEventDialog : DialogFragment() {
     private lateinit var onConfirmed: (eventName: String, properties: HashMap<String, Any>) -> Unit
     private val propsMap = hashMapOf(
         "property key" to "some value" as Any,
-        "cce" to """{"any-key": "test-value"}""".trimIndent() as Any
+        "cce" to "{any-key: test-value}".trimIndent() as Any
     )
     private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
