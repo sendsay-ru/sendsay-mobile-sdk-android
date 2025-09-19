@@ -1,6 +1,6 @@
 package com.sendsay.sdk.models
 
-// Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataBuilder
+// Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
 // Каждый билдер знает свой обязательный набор полей и делегирует в core-билдер.
 interface TrackSSECBuilder {
     fun cp(map: Map<String, Any>): TrackSSECBuilder
@@ -152,7 +152,7 @@ object TrackSSEC {
 }
 
 
-class TrackSSECDataCore(private val type: TrackingSSECType) {
+internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var productId: String? = null
     private var productName: String? = null
     private var productDateTime: String? = null
@@ -184,7 +184,6 @@ class TrackSSECDataCore(private val type: TrackingSSECType) {
 
     fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
 
-    // общий setters
     fun setProduct(
         id: String? = null,
         name: String? = null,

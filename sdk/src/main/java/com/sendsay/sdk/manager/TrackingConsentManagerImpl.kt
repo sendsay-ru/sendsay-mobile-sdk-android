@@ -18,9 +18,7 @@ import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationChannelImportance
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.PropertiesList
-import com.sendsay.sdk.models.TrackSSECBuilder
 import com.sendsay.sdk.models.TrackSSECData
-import com.sendsay.sdk.models.TrackSSECDataCore
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.network.NetworkHandlerImpl
 import com.sendsay.sdk.network.SendsayServiceImpl

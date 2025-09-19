@@ -34,7 +34,7 @@ parentDocSlug: android-sdk
 #### SSEC (События модуля "Продажи")
 
 Обратитесь к документации [События модуля "Продажи"](https://docs.sendsay.ru/ecom/how-to-configure-data-transfer).
-Там указаны требования к обязательным полям [TrackSSECDataBuilder](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECDataBuilder.kt) для заполнения к каждому типу [TrackingSSECType](../sdk/src/main/java/com/sendsay/sdk/models/TrackingSSECType.kt)
+Там указаны требования к обязательным полям [TrackSSECDataCore](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECBuilders.kt) для заполнения к каждому типу [TrackingSSECType](../sdk/src/main/java/com/sendsay/sdk/models/TrackingSSECType.kt)
 
 ## Пример с помощью TrackSSECDataBuilder(рекомендуется, чтобы избежать ошибок):
 ```kotlin
@@ -43,11 +43,12 @@ fun trackClearBasket() {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     val currentDateTime = dateFormat.format(Date())
 
-    // Создание объекта трекинга SSEC с помощью TrackSSECDataBuilder
-    val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
-        .setProduct(dateTime = currentDateTime)
+    // Создание объекта трекинга SSEC с помощью TrackSSEC
+    val data = TrackSSEC
+        .basketClear()    // Конструктор для удобного создания события BASKET_CLEAR
+        .setProduct(dateTime = currentDateTime) // Указываем обязательные поля (смотри документацию)
         .setItems(listOf(OrderItem(id = "-1")))
-        .build()
+        .buildData()        // Завершаем создание объекта трекинга SSEC
     try {
     // Отправка события SSEC
         Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
@@ -98,7 +99,6 @@ fun trackBasket() {
     val currentDateTime = dateFormat.format(Date())
     
     // Описание "списка заказов"
-
     val orderN = OrderItem(
         id = "product1",
         qnt = 1,
@@ -115,9 +115,13 @@ fun trackBasket() {
     )
     val orders = listOf(orderN, orderN, orderN,)
 
-    // Создание объекта трекинга SSEC с помощью TrackSSECDataBuilder
-    val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
-        .setTransaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+    // Создание объекта трекинга SSEC с помощью TrackSSEC
+    val orderData = TrackSSEC
+        .basketAdd()       // Конструктор для удобного создания события BASKET_ADD
+        .setTransaction(   // Указываем обязательные поля (смотри документацию)
+            id = randomTransactionId, 
+            dt = currentDateTime, sum = 100.9
+        )
         .setItems(orders)
         .build()
     try {

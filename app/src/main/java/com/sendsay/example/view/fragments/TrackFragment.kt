@@ -15,7 +15,6 @@ import com.sendsay.example.App
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.models.Constants
-import com.sendsay.example.utils.asJson
 import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.view.dialogs.TrackCustomAttributesDialog
 import com.sendsay.example.view.dialogs.TrackCustomEventDialog
@@ -26,7 +25,6 @@ import com.sendsay.sdk.models.OrderItem
 import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSEC
-import com.sendsay.sdk.models.TrackSSECDataCore
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
 import java.text.SimpleDateFormat
@@ -343,7 +341,6 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                     )
                 ),
             ).buildData()
-        Log.d("orderData:orderData", orderData.toProperties(TrackingSSECType.BASKET_ADD).asJson())
 
 //        val jsonString = """
 //           {
