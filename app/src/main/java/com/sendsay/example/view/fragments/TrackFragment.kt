@@ -22,9 +22,9 @@ import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.OrderItem
-import com.sendsay.sdk.models.PropertiesAdapter
+import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.PurchasedItem
-import com.sendsay.sdk.models.TrackSSECDataBuilder
+import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
 import java.text.SimpleDateFormat
@@ -107,7 +107,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun trackCustomEvent(eventName: String, properties: HashMap<String, Any>) {
         Sendsay.trackEvent(
             eventType = eventName,
-            properties = PropertiesAdapter(properties = properties).toHashMap()
+            properties = PropertiesList(properties = properties).toHashMap()
         )
     }
 
@@ -165,23 +165,18 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
 
     private fun trackClearBasket() {
-//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val data = TrackSSECDataBuilder(TrackingSSECType.BASKET_CLEAR)
-            .setProduct(dateTime = currentDateTime2)
-            .setItems(listOf(OrderItem(id = "-1")))
-            .build()
-        try {
-            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
-        }
+        val data = TrackSSEC
+            .basketClear()
+            .dateTime(dt = currentDateTime)
+            .items(listOf(OrderItem(id = "-1")))
+            .buildData()
 
 //        val jsonString = """
-//        {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime",
 //            "items": [
 //              {
 //                "id": -1
@@ -189,22 +184,26 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //            ]
 //          }
 //        """.trimIndent()
-//        val jsonToSsecExample: TrackSSECData =
+//        val data: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
-//        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, jsonToSsecExample)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_CLEAR, data)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_CLEAR.name, e.stackTrace.toString())
+        }
     }
 
 
     private fun trackProductView() {
-//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val productData = TrackSSECDataBuilder(TrackingSSECType.VIEW_PRODUCT)
-            .setProduct(
-                dateTime = currentDateTime2,
+        val productData = TrackSSEC
+            .viewProduct()
+            .product(
                 id = "product1",
+                dateTime = currentDateTime,
                 price = 7.88,
                 available = 1,
                 name = "name",
@@ -214,17 +213,12 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                 model = "model",
                 vendor = "vendor",
                 categoryId = 777,
-                category = "category_name",
+                category = "category_name"
             )
-            .build()
-        try {
-            Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, productData)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
-        }
+            .buildData()
 
 //        val jsonString = """
-//        {"dt":"$currentDateTime2",
+//        {"dt":"$currentDateTime",
 //            "id": "product1",
 //            "available": 1,
 //            "name": "name",
@@ -238,27 +232,32 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //            "category": "category name"
 //        }""".trimIndent()
 //
-//        val jsonToSsecExample: TrackSSECData =
+//        val productData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
-//        Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, jsonToSsecExample)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.VIEW_PRODUCT, productData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.VIEW_PRODUCT.name, e.stackTrace.toString())
+        }
     }
 
     private fun trackOrder() {
         // Генерация случайного transaction_id без отрицательных чисел
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
-//        val currentDateTime = LocalDateTime.now()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-//        Log.d("fasdfasdfsd1", currentDateTime.toString())
-//        Log.d("fasdfasdfsd2", currentDateTime2)
-//        Log.d("fasdfasdfsd3", currentDateTime2.toString())
-
-        val orderData = TrackSSECDataBuilder(TrackingSSECType.ORDER)
-            .setUpdate(isUpdatePerItem = false)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9, status = 1)
-            .setItems(
+        val orderData = TrackSSEC
+            .order()
+            .update(isUpdatePerItem = false)
+            .transaction(
+                id = randomTransactionId,
+                dt = currentDateTime,
+                sum = 100.9,
+                status = 1
+            )
+            .items(
                 listOf(
                     OrderItem(
                         id = "product1",
@@ -273,20 +272,16 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                         vendor = "vendor",
                         categoryId = 777,
                         category = "category_name",
-                    )
-                )
+                    ),
+                ),
             )
-            .build()
-        try {
-            Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
-        }
+            .cp(mapOf("cp1" to "promo-2025"))
+            .buildData()
 
 //        val jsonString = """
-//       {"dt":"$currentDateTime2",
+//       {"dt":"$currentDateTime",
 //               "transaction_id": "$randomTransactionId",
-//               "transaction_dt": "$currentDateTime2",
+//               "transaction_dt": "$currentDateTime",
 //               "transaction_sum": 100.9,
 //               "transaction_status": 1,
 //               "update_per_item": 0,
@@ -308,23 +303,27 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //               ]
 //            }
 //            """.trimIndent()
-//        val jsonToSsecExample: TrackSSECData =
+//        val orderData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
-//        Sendsay.trackSSECEvent(TrackingSSECType.ORDER, jsonToSsecExample)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.ORDER, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.ORDER.name, e.stackTrace.toString())
+        }
     }
 
     private fun trackBasket() {
         // Генерация случайного transaction_id без отрицательных чисел
         val randomTransactionId = Random.nextLong().absoluteValue.toString()
 
-//        val currentDateTime = LocalDateTime.now()
         // Получение текущего времени с использованием SimpleDateFormat
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime2 = dateFormat.format(Date())
+        val currentDateTime = dateFormat.format(Date())
 
-        val orderData = TrackSSECDataBuilder(TrackingSSECType.BASKET_ADD)
-            .setTransaction(id = randomTransactionId, dt = currentDateTime2, sum = 100.9)
-            .setItems(
+        val orderData = TrackSSEC
+            .basketAdd()
+            .transaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+            .items(
                 listOf(
                     OrderItem(
                         id = "product1",
@@ -340,14 +339,8 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                         categoryId = 777,
                         category = "category_name",
                     )
-                )
-            )
-            .build()
-        try {
-            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
-        }
+                ),
+            ).buildData()
 
 //        val jsonString = """
 //           {
@@ -372,9 +365,13 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //                     }
 //                   ]
 //            }""".trimIndent()
-//        val jsonToSsecExample: TrackSSECData =
+//        val orderData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
-//        Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, jsonToSsecExample)
+        try {
+            Sendsay.trackSSECEvent(TrackingSSECType.BASKET_ADD, orderData)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TrackingSSECType.BASKET_ADD.name, e.stackTrace.toString())
+        }
     }
 
 

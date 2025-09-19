@@ -23,8 +23,8 @@ class TrackCustomEventDialog : DialogFragment() {
 
     private lateinit var onConfirmed: (eventName: String, properties: HashMap<String, Any>) -> Unit
     private val propsMap = hashMapOf(
-        "property" to "some value" as Any,
-        "cce" to """{ "cce-key": "test-value-CCE" }""".trimIndent() as Any
+        "property key" to "some value" as Any,
+        "cce" to "{any-key: test-value}".trimIndent() as Any
     )
     private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
@@ -114,8 +114,7 @@ class TrackCustomEventDialog : DialogFragment() {
 
         buttonTrack.setOnClickListener {
             val name = eventName.text.toString()
-            val properties = propsMap
-            onConfirmed(name, properties)
+            onConfirmed(name, propsMap)
             dismiss()
         }
     }

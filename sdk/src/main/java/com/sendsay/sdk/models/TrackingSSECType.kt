@@ -8,7 +8,7 @@ enum class TrackingSSECType(val value: String) {
     BASKET_CLEAR("ssec_basket_clear"),
     SEARCH_PRODUCT("ssec_product_search"),
     SUBSCRIBE_PRODUCT_PRICE("ssec_product_price"),
-    SUBSCRIBE_PRODUCT_ISA("ssec_product_isa"),
+    SUBSCRIBE_PRODUCT_ISA("ssec_subscribe_product_isa"),
     FAVORITE("ssec_product_favorite"),
     PREORDER("ssec_product_preorder"),
     PRODUCT_ISA("ssec_product_isa"),

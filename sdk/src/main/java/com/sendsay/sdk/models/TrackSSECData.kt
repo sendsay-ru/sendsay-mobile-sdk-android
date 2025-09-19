@@ -4,137 +4,122 @@ import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import com.google.gson.annotations.SerializedName
 import java.lang.reflect.Type
 import com.google.gson.reflect.TypeToken
 
-
 data class TrackSSECData(
-    @SerializedName("product.id")
     val productId: String? = null,
-
-    @SerializedName("product.name")
     val productName: String? = null,
-
-    @SerializedName("dt")
     val dateTime: String? = null,
-
-    @SerializedName("product.picture")
     val picture: List<String>? = null,
-
-    @SerializedName("product.url")
     val url: String? = null,
-
-    @SerializedName("product.available")
     val available: Long? = null,
-
-    @SerializedName("product.category_paths")
     val categoryPaths: List<String>? = null,
-
-    @SerializedName("product.category_id")
     val categoryId: Long? = null,
-
-    @SerializedName("product.category")
     val category: String? = null,
-
-    @SerializedName("product.description")
     val description: String? = null,
-
-    @SerializedName("product.vendor")
     val vendor: String? = null,
-
-    @SerializedName("product.model")
     val model: String? = null,
-
-    @SerializedName("product.type")
     val type: String? = null,
-
-    @SerializedName("product.price")
     val price: Double? = null,
-
-    @SerializedName("product.old_price")
     val oldPrice: Double? = null,
 
     // Остальные необязательные поля
-    @SerializedName("email")
     val email: String? = null,
-
-    @SerializedName("update_per_item")
-    val updatePerItem: Long? = null,
-
-    @SerializedName("update")
-    val update: Long? = null,
-
+    val updatePerItem: Int? = null,
+    val update: Int? = null,
 
     // Платёжные и транзакционные данные
-    @SerializedName("transaction.id")
     val transactionId: String? = null,
-
-    @SerializedName("transaction.dt")
     val transactionDt: String? = null,
-
-    @SerializedName("transaction.status")
     val transactionStatus: Long? = null,
-
-    @SerializedName("transaction.discount")
     val transactionDiscount: Double? = null,
-
-    @SerializedName("transaction.sum")
     val transactionSum: Double? = null,
 
     // Доставка и оплата
-    @SerializedName("delivery.dt")
     val deliveryDt: String? = null,
-
-    @SerializedName("delivery.price")
     val deliveryPrice: Double? = null,
-
-    @SerializedName("payment.dt")
     val paymentDt: String? = null,
 
     // items (для заказов/корзины)
-    @SerializedName("items")
     val items: List<OrderItem>? = null,
 
     // cp1..cp20
     val cp: Map<String, Any>? = null
 ) {
-    fun toHashmap(): HashMap<String, Any> {
-        return hashMapOf("ssec" to this)
+    /**
+     * Плоская карта без префиксов ключей для отправки в properties["ssec"].
+     * Набор полей зависит от типа события, чтобы исключить конфликт имён.
+     */
+    fun toSsecMap(event: TrackingSSECType): Map<String, Any> {
+        val out = linkedMapOf<String, Any>()
+        fun put(k: String, v: Any?) { if (v != null) out[k] = v }
+
+        when (event) {
+            TrackingSSECType.ORDER -> {
+                // транзакционные поля
+                put("id", transactionId)
+                put("dt", transactionDt)
+                put("status", transactionStatus)
+                put("discount", transactionDiscount)
+                put("sum", transactionSum)
+
+                // уникализируем потенциально конфликтные ключи
+                put("dt_delivery", deliveryDt)
+                put("price_delivery", deliveryPrice)
+                put("dt_payment", paymentDt)
+
+                if (!items.isNullOrEmpty()) out["items"] = items
+            }
+
+            TrackingSSECType.BASKET_ADD -> {
+                // событие корзины: дата, сумма, позиции, флаг update_per_item
+                put("dt", dateTime ?: transactionDt)
+                put("sum", transactionSum)
+                if (!items.isNullOrEmpty()) out["items"] = items
+                put("update_per_item", updatePerItem)
+            }
+
+            TrackingSSECType.BASKET_CLEAR -> {
+                // очистка корзины: дата + позиции
+                put("dt", dateTime ?: transactionDt)
+                if (!items.isNullOrEmpty()) out["items"] = items
+            }
+
+            else -> {
+                // продуктовые поля для прочих событий
+                put("id", productId)
+                put("name", productName)
+                put("dt", dateTime)
+                put("picture", picture)
+                put("url", url)
+                put("available", available)
+                put("category_paths", categoryPaths)
+                put("category_id", categoryId)
+                put("category", category)
+                put("description", description)
+                put("vendor", vendor)
+                put("model", model)
+                put("type", this.type)
+                put("price", price)
+                put("old_price", oldPrice)
+
+                put("email", email)
+                put("update_per_item", updatePerItem)
+                put("update", update)
+            }
+        }
+
+        // cp1..cp20 и любые расширения добавляем как есть
+        cp?.forEach { (k, v) -> put(k, v) }
+
+        return out
     }
+
+    /** хелпер: { "ssec": <map> } */
+    fun toProperties(event: TrackingSSECType): HashMap<String, Any> =
+        hashMapOf("ssec" to toSsecMap(event))
 }
-
-data class OrderItem(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("qnt")
-    val qnt: Long? = null,
-    @SerializedName("price")
-    val price: Double? = null,
-
-    @SerializedName("name")
-    val name: String? = null,
-    @SerializedName("description")
-    val description: String? = null,
-    @SerializedName("uniq")
-    val uniq: String? = null,
-    @SerializedName("available")
-    val available: Long? = null,
-    @SerializedName("old_price")
-    val oldPrice: Double? = null,
-    @SerializedName("picture")
-    val picture: List<String>? = null,
-    @SerializedName("url")
-    val url: String? = null,
-    @SerializedName("model")
-    val model: String? = null,
-    @SerializedName("vendor")
-    val vendor: String? = null,
-    @SerializedName("category_id")
-    val categoryId: Long? = null,
-    @SerializedName("category")
-    val category: String? = null
-)
 
 // Кастомный сериализатор для чисел (чтобы JSON не менял все Num примитивы в Double)
 class StrictNumberDeserializer : JsonDeserializer<Any> {
@@ -208,15 +193,12 @@ class SsecPayloadDeserializer : JsonDeserializer<TrackSSECData> {
     ): TrackSSECData {
         val obj = json.asJsonObject
 
-        // Собираем cp1..cp20 в Map
-        val cpMap = obj.entrySet()
+        val cpMap: Map<String, Any> = obj.entrySet()
             .filter { it.key.matches(Regex("cp\\d+")) }
-            .associate { it.key to it.value }
-//            .associate { it.key to it.value.asString }
+            .associate { (k, v) -> k to context.deserialize<Any>(v, Any::class.java) }
 
         // Десериализуем остальное стандартно
-        val delegate = Gson().fromJson(obj, TrackSSECData::class.java)
-
+        val delegate = context.deserialize<TrackSSECData>(obj, TrackSSECData::class.java)
         return delegate.copy(cp = cpMap)
     }
 }

@@ -21,12 +21,12 @@ import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
 
 class AuthenticationActivity : AppCompatActivity() {
 
-    var projectToken = "x-17496430561032892"
+    var projectToken = "x-"
     var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
     var authorizationToken =
-        "Token 192P7IBe8VbXlTlZlb5gP_agFwuMfpUOpkE9KxnKmCsCJ1tj-lbaB5tLgC62s-JXTsxkz"
+        "Token"
     var advancedPublicKey = "PK"
-    var registeredIds = "x-17496430561032892"
+    var registeredIds = "x-"
 
     private lateinit var viewBinding: ActivityAuthenticationBinding
 

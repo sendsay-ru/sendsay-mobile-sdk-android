@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:text="Properties-Member.Set"
+        android:text="Properties"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"

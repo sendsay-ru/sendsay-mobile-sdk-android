@@ -144,8 +144,8 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: Check this, is it works?
 //        Uncomment this section, if you want to test in-app callback
-        Sendsay.inAppMessageActionCallback = getInAppMessageCallback()
-        Sendsay.appInboxProvider = ExampleAppInboxProvider()
+//        Sendsay.inAppMessageActionCallback = getInAppMessageCallback()
+//        Sendsay.appInboxProvider = ExampleAppInboxProvider()
 
         if (!Sendsay.isInitialized) {
             startActivity(Intent(this, AuthenticationActivity::class.java))

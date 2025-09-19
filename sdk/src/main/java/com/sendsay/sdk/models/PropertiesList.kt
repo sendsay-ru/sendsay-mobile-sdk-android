@@ -1,6 +1,6 @@
 package com.sendsay.sdk.models
 
-data class PropertiesAdapter(
+data class PropertiesList(
     var properties: HashMap<String, Any>
 ) {
 
