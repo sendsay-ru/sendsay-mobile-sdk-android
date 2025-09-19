@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./Documentation/images/logo_engagement.png?raw=true" alt="Bloomreach Engagement"/>
+  <img src="./docs/img/sendsay-logo.jpg?raw=true" alt="Sendsay Logo"/>
 </p>
 
 ### Specs
