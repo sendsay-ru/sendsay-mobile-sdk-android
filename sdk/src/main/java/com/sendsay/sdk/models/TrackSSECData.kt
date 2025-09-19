@@ -43,9 +43,6 @@ data class TrackSSECData(
 
     // items (для заказов/корзины)
     val items: List<OrderItem>? = null,
-
-    // cp1..cp20
-    val cp: Map<String, Any>? = null
 ) {
     /**
      * Плоская карта без префиксов ключей для отправки в properties["ssec"].
@@ -58,16 +55,16 @@ data class TrackSSECData(
         when (event) {
             TrackingSSECType.ORDER -> {
                 // транзакционные поля
-                put("id", transactionId)
-                put("dt", transactionDt)
-                put("status", transactionStatus)
-                put("discount", transactionDiscount)
-                put("sum", transactionSum)
+                put("transaction_id", transactionId)
+                put("transaction_dt", transactionDt)
+                put("transaction_status", transactionStatus)
+                put("transaction_discount", transactionDiscount)
+                put("transaction_sum", transactionSum)
 
-                // уникализируем потенциально конфликтные ключи
-                put("dt_delivery", deliveryDt)
-                put("price_delivery", deliveryPrice)
-                put("dt_payment", paymentDt)
+                // уникализируем потенциально конфликтные поля
+                put("delivery_dt", deliveryDt)
+                put("delivery_price", deliveryPrice)
+                put("payment_dt", paymentDt)
 
                 if (!items.isNullOrEmpty()) out["items"] = items
             }
@@ -109,9 +106,6 @@ data class TrackSSECData(
                 put("update", update)
             }
         }
-
-        // cp1..cp20 и любые расширения добавляем как есть
-        cp?.forEach { (k, v) -> put(k, v) }
 
         return out
     }
@@ -180,25 +174,5 @@ class NumberPreserveAdapter : JsonDeserializer<Any> {
             json.isJsonArray -> context.deserialize<List<Any>>(json, object : TypeToken<List<Any>>(){}.type)
             else -> json.toString()
         }
-    }
-}
-
-// Кастомный сериализатор для cp1..cp20
-class SsecPayloadDeserializer : JsonDeserializer<TrackSSECData> {
-
-    override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): TrackSSECData {
-        val obj = json.asJsonObject
-
-        val cpMap: Map<String, Any> = obj.entrySet()
-            .filter { it.key.matches(Regex("cp\\d+")) }
-            .associate { (k, v) -> k to context.deserialize<Any>(v, Any::class.java) }
-
-        // Десериализуем остальное стандартно
-        val delegate = context.deserialize<TrackSSECData>(obj, TrackSSECData::class.java)
-        return delegate.copy(cp = cpMap)
     }
 }

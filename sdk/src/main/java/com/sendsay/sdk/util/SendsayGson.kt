@@ -1,22 +1,22 @@
 package com.sendsay.sdk.util
 
-import com.sendsay.sdk.models.CustomerRecommendation
-import com.sendsay.sdk.models.CustomerRecommendationDeserializer
-import com.sendsay.sdk.models.eventfilter.EventFilterAttribute
-import com.sendsay.sdk.models.eventfilter.EventFilterConstraint
-import com.sendsay.sdk.models.eventfilter.EventFilterOperator
-import com.sendsay.sdk.models.eventfilter.EventFilterOperatorDeserializer
-import com.sendsay.sdk.models.eventfilter.EventFilterOperatorSerializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializer
 import com.google.gson.ToNumberPolicy
 import com.google.gson.reflect.TypeToken
-import com.sendsay.sdk.models.NumberPreserveAdapter
-import com.sendsay.sdk.models.SsecPayloadDeserializer
+import com.sendsay.sdk.models.CustomerRecommendation
+import com.sendsay.sdk.models.CustomerRecommendationDeserializer
+import com.sendsay.sdk.models.OrderItem
+import com.sendsay.sdk.models.OrderItemAdapter
 import com.sendsay.sdk.models.StrictNumberDeserializer
 import com.sendsay.sdk.models.TrackSSECData
+import com.sendsay.sdk.models.eventfilter.EventFilterAttribute
+import com.sendsay.sdk.models.eventfilter.EventFilterConstraint
+import com.sendsay.sdk.models.eventfilter.EventFilterOperator
+import com.sendsay.sdk.models.eventfilter.EventFilterOperatorDeserializer
+import com.sendsay.sdk.models.eventfilter.EventFilterOperatorSerializer
 
 class SendsayGson {
     companion object {
@@ -54,11 +54,8 @@ class SendsayGson {
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
 //            .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
             // ssec event
-//            .registerTypeAdapter(TrackSSECData::class.java::class.java, NumberPreserveAdapter())
-//            .registerTypeAdapter(Any::class.java, NumberPreserveAdapter())
             .registerTypeAdapter(TrackSSECData::class.java, StrictNumberDeserializer())
-//            .registerTypeAdapter(Any::class.java, StrictNumberDeserializer())
-            .registerTypeAdapter(TrackSSECData::class.java, SsecPayloadDeserializer())
+            .registerTypeAdapter(OrderItem::class.java, OrderItemAdapter())
             // customer recommendation
             .registerTypeAdapter(
                 CustomerRecommendation::class.java,

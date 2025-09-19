@@ -275,7 +275,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                     ),
                 ),
             )
-            .cp(mapOf("cp1" to "promo-2025"))
+//            .cp(mapOf("cp1" to "promo-2025"))
             .buildData()
 
 //        val jsonString = """
@@ -322,7 +322,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
         val orderData = TrackSSEC
             .basketAdd()
-            .transaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9)
+            .transaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9, status = 1)
             .items(
                 listOf(
                     OrderItem(
@@ -338,9 +338,12 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
                         vendor = "vendor",
                         categoryId = 777,
                         category = "category_name",
+                        cp = mapOf("cp1" to "promo-2025"),
                     )
                 ),
             ).buildData()
+
+        Log.d("TrackFragment", "trackBasket: $orderData")
 
 //        val jsonString = """
 //           {
@@ -361,7 +364,6 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 //                       "vendor": "vendor",
 //                       "category_id": 777,
 //                       "category": "category name"
-//
 //                     }
 //                   ]
 //            }""".trimIndent()

@@ -3,7 +3,6 @@ package com.sendsay.sdk.models
 // Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
 // Каждый билдер знает свой обязательный набор полей и делегирует в core-билдер.
 interface TrackSSECBuilder {
-    fun cp(map: Map<String, Any>): TrackSSECBuilder
     fun buildData(): TrackSSECData
     fun buildProperties(): HashMap<String, Any>
 }
@@ -44,7 +43,6 @@ class ViewProductBuilder internal constructor(
         core.setUpdate(isUpdate, isUpdatePerItem)
     }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.VIEW_PRODUCT)
@@ -85,7 +83,6 @@ class OrderBuilder internal constructor(
         core.setProduct(id = id, name = name, price = price)
     }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.ORDER)
@@ -99,8 +96,8 @@ class BasketAddBuilder internal constructor(
     fun transaction(
         id: String,
         dt: String,
-        sum: Double? = null,
-        status: Long? = null,
+        sum: Double,
+        status: Long,
         discount: Double? = null
     ) = apply {
         core.setTransaction(
@@ -114,7 +111,6 @@ class BasketAddBuilder internal constructor(
 
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_ADD)
@@ -128,7 +124,6 @@ class BasketClearBuilder internal constructor(
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
     fun dateTime(dt: String) = apply { core.setProduct(dateTime = dt) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -180,9 +175,6 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var deliveryPrice: Double? = null
     private var paymentDt: String? = null
     private var items: List<OrderItem>? = null
-    private var cpMap: Map<String, Any>? = null
-
-    fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
 
     fun setProduct(
         id: String? = null,
@@ -219,11 +211,11 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     }
 
     fun setTransaction(
-        id: String? = null,
-        dt: String? = null,
-        sum: Double? = null,
+        id: String,
+        dt: String,
+        sum: Double,
         discount: Double? = null,
-        status: Long? = null
+        status: Long
     ) = apply {
         this.transactionId = id
         this.transactionDt = dt
@@ -302,16 +294,16 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         when (type) {
             TrackingSSECType.ORDER -> {
                 // транзакционные поля
-                put("id", transactionId)
-                put("dt", transactionDt)
-                put("status", transactionStatus)
-                put("discount", transactionDiscount)
-                put("sum", transactionSum)
+                put("transaction_id", transactionId)
+                put("transaction_dt", transactionDt)
+                put("transaction_status", transactionStatus)
+                put("transaction_discount", transactionDiscount)
+                put("transaction_sum", transactionSum)
 
                 // уникализируем потенциально конфликтные поля
-                put("dt_delivery", deliveryDt)
-                put("price_delivery", deliveryPrice)
-                put("dt_payment", paymentDt)
+                put("delivery_dt", deliveryDt)
+                put("delivery_price", deliveryPrice)
+                put("payment_dt", paymentDt)
 
                 if (!items.isNullOrEmpty()) out["items"] = items!!
             }
@@ -339,9 +331,6 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
                 put("update", update)
             }
         }
-
-        // cp1..cp20 и любые расширения
-        cpMap?.forEach { (k, v) -> put(k, v) }
 
         return out
     }
@@ -418,8 +407,7 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             deliveryDt = formattedDeliveryDt,
             deliveryPrice = deliveryPrice,
             paymentDt = formattedPaymentDt,
-            items = items,
-            cp = cpMap
+            items = items
         )
     }
 }
