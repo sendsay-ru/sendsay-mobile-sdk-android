@@ -239,15 +239,14 @@ val customerIds = CustomerIds().withId("registered","jane.doe@example.com")
 По желанию создайте словарь с дополнительными свойствами клиента:
 
 ```kotlin
-
-ТУТ поменять на member.set
-
 val properties = PropertiesList(
     hashMapOf(
-        Pair("first_name", "Jane"),
-        Pair("last_name", "Doe"),
-        Pair("age", 32),
-        Pair("phone", "+79991112233")
+        "member_set" to hashMapOf(
+            "datakey" to [
+                ["propertyName", "set/update/delete"+".copy"(optional), "value/newValue"], // пример возможных(не всех) значений установки/обновления/удаления строкового свойства
+                ["anotherProperty", "update.copy", 123] // рабойчи пример обновления числового свойства
+            ]
+        )
     )
 )
 ```
