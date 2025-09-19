@@ -1,10 +1,10 @@
-package ru.sendsay.sdk.telemetry.model
+package com.sendsay.sdk.telemetry.model
 
-import ru.sendsay.sdk.telemetry.CrashManager
-import ru.sendsay.sdk.telemetry.storage.TelemetryStorage
-import ru.sendsay.sdk.telemetry.upload.TelemetryUpload
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.testutil.waitForIt
+import com.sendsay.sdk.telemetry.CrashManager
+import com.sendsay.sdk.telemetry.storage.TelemetryStorage
+import com.sendsay.sdk.telemetry.upload.TelemetryUpload
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.waitForIt
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

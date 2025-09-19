@@ -8,7 +8,7 @@
     tools:background="@android:color/darker_gray"
     android:gravity="center">
 
-    <ru.sendsay.sdk.view.layout.RelativeLayoutWithMaxWidth
+    <com.sendsay.sdk.view.layout.RelativeLayoutWithMaxWidth
         android:id="@+id/inAppMessageDialogWidthLimiter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,13 +27,13 @@
             app:cardMaxElevation="0dp"
             tools:cardCornerRadius="15dp">
 
-            <ru.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow
+            <com.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow
                 android:id="@+id/inAppMessageDialogBackground"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:background="#0000FF">
 
-                <ru.sendsay.sdk.view.component.InAppImageView
+                <com.sendsay.sdk.view.component.InAppImageView
                     android:id="@+id/inAppMessageDialogBackgroundImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -42,7 +42,7 @@
                     tools:src="@android:drawable/btn_minus"
                     tools:visibility="visible" />
 
-            </ru.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow>
+            </com.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow>
 
             <LinearLayout
                 android:id="@+id/inAppMessageDialogBody"
@@ -66,14 +66,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <ru.sendsay.sdk.view.component.InAppImageView
+                        <com.sendsay.sdk.view.component.InAppImageView
                             android:id="@+id/inAppMessageDialogTopImage"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             tools:src="@android:drawable/btn_minus"
                             tools:visibility="visible" />
 
-                        <ru.sendsay.sdk.view.component.InAppLabelView
+                        <com.sendsay.sdk.view.component.InAppLabelView
                             android:id="@+id/textViewTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                             tools:textStyle="bold"
                             tools:layout_marginTop="20dp" />
 
-                        <ru.sendsay.sdk.view.component.InAppLabelView
+                        <com.sendsay.sdk.view.component.InAppLabelView
                             android:id="@+id/textViewBody"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"/>
 
-                        <ru.sendsay.sdk.view.component.InAppImageView
+                        <com.sendsay.sdk.view.component.InAppImageView
                             android:id="@+id/inAppMessageDialogBottomImage"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
 
                 </ScrollView>
 
-                <ru.sendsay.sdk.view.layout.RowFlexLayout
+                <com.sendsay.sdk.view.layout.RowFlexLayout
                     android:id="@+id/buttonsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <ru.sendsay.sdk.view.component.InAppCloseButtonView
+        <com.sendsay.sdk.view.component.InAppCloseButtonView
             android:id="@+id/buttonClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -128,6 +128,6 @@
             android:layout_alignParentEnd="true"
             tools:src="@drawable/in_app_message_close_button" />
 
-    </ru.sendsay.sdk.view.layout.RelativeLayoutWithMaxWidth>
+    </com.sendsay.sdk.view.layout.RelativeLayoutWithMaxWidth>
 
 </RelativeLayout>

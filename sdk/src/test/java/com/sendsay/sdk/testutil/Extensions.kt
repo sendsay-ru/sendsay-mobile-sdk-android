@@ -1,14 +1,14 @@
-package ru.sendsay.sdk.testutil
+package com.sendsay.sdk.testutil
 
 import android.preference.PreferenceManager
 import android.webkit.CookieManager
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.SendsayComponent
-import ru.sendsay.sdk.manager.FlushManagerImpl
-import ru.sendsay.sdk.models.Constants
-import ru.sendsay.sdk.repository.EventRepositoryImpl
-import ru.sendsay.sdk.services.SendsayContextProvider
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.SendsayComponent
+import com.sendsay.sdk.manager.FlushManagerImpl
+import com.sendsay.sdk.models.Constants
+import com.sendsay.sdk.repository.EventRepositoryImpl
+import com.sendsay.sdk.services.SendsayContextProvider
 import io.mockk.clearMocks
 import kotlin.test.fail
 

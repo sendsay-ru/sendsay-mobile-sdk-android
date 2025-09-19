@@ -33,7 +33,7 @@
     "project_id":"736430079245957670",
     "app_id":"104661225",
     "api_key":"CwEAAAAA0otl+rs1I1lSYRubaxM0QS+eSC9Sr5pHt8k23l1ev3cTNPcH0tbpJ9N8lx3BJbouHxB2knDEv7bNmeZqGdyrRv+M5+E=",
-    "package_name":"ru.sendsay.example"
+    "package_name":"com.sendsay.example"
   },
   "oauth_client":{
     "client_id":"104661225",
@@ -41,7 +41,7 @@
   },
   "app_info":{
     "app_id":"104661225",
-    "package_name":"ru.sendsay.example"
+    "package_name":"com.sendsay.example"
   },
   "service":{
     "analytics":{
@@ -79,12 +79,12 @@
   "configuration_version":"3.0",
   "appInfos":[
     {
-      "package_name":"ru.sendsay.example",
+      "package_name":"com.sendsay.example",
       "client":{
         "app_id":"104661225"
       },
       "app_info":{
-        "package_name":"ru.sendsay.example",
+        "package_name":"com.sendsay.example",
         "app_id":"104661225"
       },
       "oauth_client":{

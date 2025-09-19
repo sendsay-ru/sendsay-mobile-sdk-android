@@ -1,33 +1,33 @@
-package ru.sendsay.sdk.view
+package com.sendsay.sdk.view
 
 import android.content.Context
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.manager.EventManagerImpl
-import ru.sendsay.sdk.manager.FetchManagerImpl
-import ru.sendsay.sdk.manager.InAppContentBlockManagerImpl
-import ru.sendsay.sdk.manager.InAppContentBlockManagerImplTest.Companion.buildHtmlMessageContent
-import ru.sendsay.sdk.manager.InAppContentBlockManagerImplTest.Companion.buildMessage
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.ContentBlockCarouselCallback
-import ru.sendsay.sdk.models.ContentBlockSelector
-import ru.sendsay.sdk.models.Event
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.SendsayProject
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.models.HtmlActionType
-import ru.sendsay.sdk.models.InAppContentBlock
-import ru.sendsay.sdk.models.InAppContentBlockAction
-import ru.sendsay.sdk.models.Result
-import ru.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselAdapter
-import ru.sendsay.sdk.telemetry.TelemetryManager
-import ru.sendsay.sdk.telemetry.model.EventType
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.testutil.componentForTesting
-import ru.sendsay.sdk.testutil.reset
-import ru.sendsay.sdk.testutil.runInSingleThread
-import ru.sendsay.sdk.testutil.shutdown
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.manager.EventManagerImpl
+import com.sendsay.sdk.manager.FetchManagerImpl
+import com.sendsay.sdk.manager.InAppContentBlockManagerImpl
+import com.sendsay.sdk.manager.InAppContentBlockManagerImplTest.Companion.buildHtmlMessageContent
+import com.sendsay.sdk.manager.InAppContentBlockManagerImplTest.Companion.buildMessage
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.ContentBlockCarouselCallback
+import com.sendsay.sdk.models.ContentBlockSelector
+import com.sendsay.sdk.models.Event
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.HtmlActionType
+import com.sendsay.sdk.models.InAppContentBlock
+import com.sendsay.sdk.models.InAppContentBlockAction
+import com.sendsay.sdk.models.Result
+import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselAdapter
+import com.sendsay.sdk.telemetry.TelemetryManager
+import com.sendsay.sdk.telemetry.model.EventType
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.componentForTesting
+import com.sendsay.sdk.testutil.reset
+import com.sendsay.sdk.testutil.runInSingleThread
+import com.sendsay.sdk.testutil.shutdown
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -348,7 +348,7 @@ internal class InAppContentBlockCarouselViewTest : SendsaySDKTest() {
         initSdk()
         idleThreads()
         val eventSlot = slot<Event>()
-        val eventTypeSlot = slot<ru.sendsay.sdk.models.EventType>()
+        val eventTypeSlot = slot<com.sendsay.sdk.models.EventType>()
         every {
             anyConstructed<EventManagerImpl>().addEventToQueue(capture(eventSlot), capture(eventTypeSlot), any())
         } just Runs
@@ -372,7 +372,7 @@ internal class InAppContentBlockCarouselViewTest : SendsaySDKTest() {
             anyConstructed<EventManagerImpl>().addEventToQueue(any(), any(), any())
         }
         assertEquals("banner", eventSlot.captured.type)
-        assertEquals(ru.sendsay.sdk.models.EventType.BANNER, eventTypeSlot.captured)
+        assertEquals(com.sendsay.sdk.models.EventType.BANNER, eventTypeSlot.captured)
     }
 
     @Test

@@ -1,8 +1,8 @@
-package ru.sendsay.sdk
+package com.sendsay.sdk
 
 import android.util.Log
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.util.Logger
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.util.Logger
 import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlin.test.assertEquals

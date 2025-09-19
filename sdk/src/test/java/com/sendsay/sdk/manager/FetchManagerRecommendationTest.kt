@@ -1,15 +1,15 @@
-package ru.sendsay.sdk.manager
+package com.sendsay.sdk.manager
 
 import android.os.Build
-import ru.sendsay.sdk.models.CustomerRecommendation
-import ru.sendsay.sdk.models.CustomerRecommendationOptions
-import ru.sendsay.sdk.models.CustomerRecommendationRequest
-import ru.sendsay.sdk.models.SendsayProject
-import ru.sendsay.sdk.models.FetchError
-import ru.sendsay.sdk.models.Result
-import ru.sendsay.sdk.testutil.mocks.SendsayMockService
-import ru.sendsay.sdk.testutil.waitForIt
-import ru.sendsay.sdk.util.SendsayGson
+import com.sendsay.sdk.models.CustomerRecommendation
+import com.sendsay.sdk.models.CustomerRecommendationOptions
+import com.sendsay.sdk.models.CustomerRecommendationRequest
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.models.FetchError
+import com.sendsay.sdk.models.Result
+import com.sendsay.sdk.testutil.mocks.SendsayMockService
+import com.sendsay.sdk.testutil.waitForIt
+import com.sendsay.sdk.util.SendsayGson
 import com.google.gson.JsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody

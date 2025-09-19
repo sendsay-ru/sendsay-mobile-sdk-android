@@ -1,7 +1,7 @@
-package ru.sendsay.sdk.models.eventfilter.operators
+package com.sendsay.sdk.models.eventfilter.operators
 
-import ru.sendsay.sdk.models.eventfilter.EventFilterEvent
-import ru.sendsay.sdk.models.eventfilter.PropertyAttribute
+import com.sendsay.sdk.models.eventfilter.EventFilterEvent
+import com.sendsay.sdk.models.eventfilter.PropertyAttribute
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

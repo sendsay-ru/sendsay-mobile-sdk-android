@@ -1,10 +1,10 @@
-package ru.sendsay.sdk.runcatching
+package com.sendsay.sdk.runcatching
 
 import android.util.Log
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.util.logOnException
-import ru.sendsay.sdk.util.returnOnException
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.util.logOnException
+import com.sendsay.sdk.util.returnOnException
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

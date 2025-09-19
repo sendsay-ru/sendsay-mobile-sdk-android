@@ -1,6 +1,6 @@
-package ru.sendsay.sdk.util
+package com.sendsay.sdk.util
 
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

@@ -1,8 +1,8 @@
-package ru.sendsay.example.services
+package com.sendsay.example.services
 
 import android.app.NotificationManager
 import android.content.Context
-import ru.sendsay.sdk.Sendsay
+import com.sendsay.sdk.Sendsay
 import com.huawei.hms.push.HmsMessageService
 import com.huawei.hms.push.RemoteMessage
 

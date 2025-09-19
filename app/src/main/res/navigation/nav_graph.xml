@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/fetchFragment"
-        android:name="ru.sendsay.example.view.fragments.FetchFragment"
+        android:name="com.sendsay.example.view.fragments.FetchFragment"
         android:label="FetchFragment"
         tools:layout="@layout/fragment_fetch" />
 
     <fragment
         android:id="@+id/trackFragment"
-        android:name="ru.sendsay.example.view.fragments.TrackFragment"
+        android:name="com.sendsay.example.view.fragments.TrackFragment"
         android:label="TrackFragment"
         tools:layout="@layout/fragment_track" />
 
     <fragment
         android:id="@+id/flushFragment"
-        android:name="ru.sendsay.example.view.fragments.FlushFragment"
+        android:name="com.sendsay.example.view.fragments.FlushFragment"
         android:label="FlushFragment"
         tools:layout="@layout/fragment_flush" />
 
     <fragment
         android:id="@+id/anonymizeFragment"
-        android:name="ru.sendsay.example.view.fragments.AnonymizeFragment"
+        android:name="com.sendsay.example.view.fragments.AnonymizeFragment"
         android:label="AnonymizeFragment"
         tools:layout="@layout/fragment_anonymize" />
 

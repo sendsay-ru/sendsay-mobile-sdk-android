@@ -1,35 +1,35 @@
-package ru.sendsay.sdk.manager
+package com.sendsay.sdk.manager
 
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.CustomerIds
-import ru.sendsay.sdk.models.DateFilter
-import ru.sendsay.sdk.models.Event
-import ru.sendsay.sdk.models.EventType
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.InAppContentBlock
-import ru.sendsay.sdk.models.InAppContentBlockAction
-import ru.sendsay.sdk.models.InAppContentBlockActionType
-import ru.sendsay.sdk.models.InAppContentBlockDisplayState
-import ru.sendsay.sdk.models.InAppContentBlockFrequency
-import ru.sendsay.sdk.models.InAppContentBlockPersonalizedData
-import ru.sendsay.sdk.models.InAppContentBlockPlaceholderConfiguration
-import ru.sendsay.sdk.models.InAppContentBlockStatus
-import ru.sendsay.sdk.models.InAppContentBlockType
-import ru.sendsay.sdk.models.Result
-import ru.sendsay.sdk.network.SendsayService
-import ru.sendsay.sdk.repository.CustomerIdsRepository
-import ru.sendsay.sdk.repository.DrawableCache
-import ru.sendsay.sdk.repository.HtmlNormalizedCache
-import ru.sendsay.sdk.repository.InAppContentBlockDisplayStateRepository
-import ru.sendsay.sdk.repository.SimpleFileCache
-import ru.sendsay.sdk.services.SendsayProjectFactory
-import ru.sendsay.sdk.services.inappcontentblock.InAppContentBlockDataLoader
-import ru.sendsay.sdk.telemetry.TelemetryManager
-import ru.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
-import ru.sendsay.sdk.testutil.mocks.SendsayMockService
-import ru.sendsay.sdk.testutil.runInSingleThread
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.CustomerIds
+import com.sendsay.sdk.models.DateFilter
+import com.sendsay.sdk.models.Event
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.InAppContentBlock
+import com.sendsay.sdk.models.InAppContentBlockAction
+import com.sendsay.sdk.models.InAppContentBlockActionType
+import com.sendsay.sdk.models.InAppContentBlockDisplayState
+import com.sendsay.sdk.models.InAppContentBlockFrequency
+import com.sendsay.sdk.models.InAppContentBlockPersonalizedData
+import com.sendsay.sdk.models.InAppContentBlockPlaceholderConfiguration
+import com.sendsay.sdk.models.InAppContentBlockStatus
+import com.sendsay.sdk.models.InAppContentBlockType
+import com.sendsay.sdk.models.Result
+import com.sendsay.sdk.network.SendsayService
+import com.sendsay.sdk.repository.CustomerIdsRepository
+import com.sendsay.sdk.repository.DrawableCache
+import com.sendsay.sdk.repository.HtmlNormalizedCache
+import com.sendsay.sdk.repository.InAppContentBlockDisplayStateRepository
+import com.sendsay.sdk.repository.SimpleFileCache
+import com.sendsay.sdk.services.SendsayProjectFactory
+import com.sendsay.sdk.services.inappcontentblock.InAppContentBlockDataLoader
+import com.sendsay.sdk.telemetry.TelemetryManager
+import com.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
+import com.sendsay.sdk.testutil.mocks.SendsayMockService
+import com.sendsay.sdk.testutil.runInSingleThread
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -686,7 +686,7 @@ internal class InAppContentBlockManagerImplTest {
             )))
         }
         mockkConstructorFix(TelemetryManager::class)
-        val telemetryEventTypeSlot = slot<ru.sendsay.sdk.telemetry.model.EventType>()
+        val telemetryEventTypeSlot = slot<com.sendsay.sdk.telemetry.model.EventType>()
         val telemetryPropertiesSlot = slot<MutableMap<String, String>>()
         every {
             anyConstructed<TelemetryManager>().reportEvent(
@@ -709,7 +709,7 @@ internal class InAppContentBlockManagerImplTest {
         assertTrue(telemetryEventTypeSlot.isCaptured)
         val capturedEventType = telemetryEventTypeSlot.captured
         assertNotNull(capturedEventType)
-        assertEquals(ru.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE, capturedEventType)
+        assertEquals(com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE, capturedEventType)
         assertTrue(telemetryPropertiesSlot.isCaptured)
         val capturedProps = telemetryPropertiesSlot.captured
         assertNotNull(capturedProps)

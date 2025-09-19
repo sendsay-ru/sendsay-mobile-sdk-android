@@ -1,8 +1,8 @@
-package ru.sendsay.sdk.runcatching
+package com.sendsay.sdk.runcatching
 
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.models.Constants
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.models.Constants
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
 import kotlin.test.assertEquals

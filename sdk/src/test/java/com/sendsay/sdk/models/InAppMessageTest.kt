@@ -1,8 +1,8 @@
-package ru.sendsay.sdk.models
+package com.sendsay.sdk.models
 
-import ru.sendsay.sdk.models.InAppMessageType.FREEFORM
-import ru.sendsay.sdk.models.InAppMessageType.MODAL
-import ru.sendsay.sdk.models.eventfilter.EventFilter
+import com.sendsay.sdk.models.InAppMessageType.FREEFORM
+import com.sendsay.sdk.models.InAppMessageType.MODAL
+import com.sendsay.sdk.models.eventfilter.EventFilter
 import com.google.gson.Gson
 import kotlin.test.assertEquals
 import okhttp3.mockwebserver.MockWebServer

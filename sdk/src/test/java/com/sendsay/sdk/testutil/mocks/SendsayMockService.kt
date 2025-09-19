@@ -1,12 +1,12 @@
-package ru.sendsay.sdk.testutil.mocks
+package com.sendsay.sdk.testutil.mocks
 
-import ru.sendsay.sdk.models.CustomerAttributesRequest
-import ru.sendsay.sdk.models.CustomerIds
-import ru.sendsay.sdk.models.Event
-import ru.sendsay.sdk.models.SendsayProject
-import ru.sendsay.sdk.network.SendsayService
-import ru.sendsay.sdk.testutil.SendsayMockServer
-import ru.sendsay.sdk.util.TokenType
+import com.sendsay.sdk.models.CustomerAttributesRequest
+import com.sendsay.sdk.models.CustomerIds
+import com.sendsay.sdk.models.Event
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.network.SendsayService
+import com.sendsay.sdk.testutil.SendsayMockServer
+import com.sendsay.sdk.util.TokenType
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request

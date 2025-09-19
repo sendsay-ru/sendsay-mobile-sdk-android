@@ -1,6 +1,6 @@
-package ru.sendsay.sdk.models
+package com.sendsay.sdk.models
 
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue

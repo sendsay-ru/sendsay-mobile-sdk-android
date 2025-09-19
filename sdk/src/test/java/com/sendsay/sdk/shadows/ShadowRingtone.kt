@@ -1,4 +1,4 @@
-package ru.sendsay.sdk.shadows
+package com.sendsay.sdk.shadows
 
 import android.content.Context
 import android.media.Ringtone

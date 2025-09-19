@@ -1,7 +1,7 @@
-package ru.sendsay.sdk.shadows
+package com.sendsay.sdk.shadows
 
 import android.media.Ringtone
-import ru.sendsay.sdk.runcatching.SendsayExceptionThrowing
+import com.sendsay.sdk.runcatching.SendsayExceptionThrowing
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 

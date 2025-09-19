@@ -1,11 +1,11 @@
-package ru.sendsay.sdk
+package com.sendsay.sdk
 
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.testutil.mocks.DebugMockApplication
-import ru.sendsay.sdk.testutil.mocks.ReleaseMockApplication
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.mocks.DebugMockApplication
+import com.sendsay.sdk.testutil.mocks.ReleaseMockApplication
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals

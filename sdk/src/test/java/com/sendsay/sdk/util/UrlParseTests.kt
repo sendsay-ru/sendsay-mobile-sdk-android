@@ -1,4 +1,4 @@
-package ru.sendsay.sdk.util
+package com.sendsay.sdk.util
 
 import android.net.Uri
 import kotlin.test.assertEquals

@@ -165,7 +165,7 @@ If you want specify action to be completed when user opens push notification. Yo
             android:name=".services.MyReceiver"
             android:enabled="true"
             android:exported="true">
-            <intent-filter><action android:name="ru.sendsay.sdk.action.PUSH_CLICKED"/> </intent-filter>
+            <intent-filter><action android:name="com.sendsay.sdk.action.PUSH_CLICKED"/> </intent-filter>
         </receiver>
   ```
 

@@ -1,10 +1,10 @@
-package ru.sendsay.sdk.models
+package com.sendsay.sdk.models
 
 import android.app.Application
 import android.content.pm.PackageInfo
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.BuildConfig
+import com.sendsay.sdk.BuildConfig
 import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +35,7 @@ internal class DevicePropertiesTest {
     fun `should get app version from package manager`() {
         val packageManager = shadowOf(ApplicationProvider.getApplicationContext<Application>().packageManager)
         val packageInfo = PackageInfo()
-        packageInfo.packageName = "ru.sendsay.sdk.test"
+        packageInfo.packageName = "com.sendsay.sdk.test"
         packageInfo.versionName = "mock version name"
         packageManager.installPackage(packageInfo)
         assertEquals("mock version name", DeviceProperties(ApplicationProvider.getApplicationContext()).appVersion)

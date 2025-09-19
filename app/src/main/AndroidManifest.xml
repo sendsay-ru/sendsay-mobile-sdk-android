@@ -51,9 +51,9 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="ru.sendsay.sdk.action.PUSH_CLICKED" />
-                <action android:name="ru.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />
-                <action android:name="ru.sendsay.sdk.action.PUSH_URL_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_DEEPLINK_CLICKED" />
+                <action android:name="com.sendsay.sdk.action.PUSH_URL_CLICKED" />
             </intent-filter>
         </receiver>
 
@@ -62,6 +62,6 @@
             android:value="true" />
         <meta-data
             android:name="SendsayAuthProvider"
-            android:value="ru.sendsay.example.services.ExampleAuthProvider" />
+            android:value="com.sendsay.example.services.ExampleAuthProvider" />
     </application>
 </manifest>

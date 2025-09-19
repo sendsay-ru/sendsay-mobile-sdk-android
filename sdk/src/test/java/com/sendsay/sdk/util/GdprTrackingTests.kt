@@ -1,6 +1,6 @@
-package ru.sendsay.sdk.util
+package com.sendsay.sdk.util
 
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Test

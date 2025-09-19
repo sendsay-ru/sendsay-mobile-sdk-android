@@ -15,13 +15,13 @@
         tools:cardCornerRadius="15dp"
         tools:layout_margin="10dp">
 
-        <ru.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow
+        <com.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow
             android:id="@+id/inAppMessageSlideInBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:background="#0000FF">
 
-            <ru.sendsay.sdk.view.component.InAppImageView
+            <com.sendsay.sdk.view.component.InAppImageView
                 android:id="@+id/inAppMessageSlideInBackgroundImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -30,7 +30,7 @@
                 tools:src="@android:drawable/btn_minus"
                 tools:visibility="visible" />
 
-        </ru.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow>
+        </com.sendsay.sdk.view.layout.FrameLayoutWithoutOverflow>
 
         <LinearLayout
             android:id="@+id/inAppMessageSlideInBody"
@@ -39,7 +39,7 @@
             android:orientation="horizontal"
             tools:padding="10dp">
 
-            <ru.sendsay.sdk.view.component.InAppImageView
+            <com.sendsay.sdk.view.component.InAppImageView
                 android:id="@+id/inAppMessageSlideInLeftImage"
                 android:layout_width="75dp"
                 android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <ru.sendsay.sdk.view.component.InAppLabelView
+                        <com.sendsay.sdk.view.component.InAppLabelView
                             android:id="@+id/textViewTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
                             tools:text="Title"
                             tools:textStyle="bold" />
 
-                        <ru.sendsay.sdk.view.component.InAppLabelView
+                        <com.sendsay.sdk.view.component.InAppLabelView
                             android:id="@+id/textViewBody"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
 
                 </ScrollView>
 
-                <ru.sendsay.sdk.view.layout.RowFlexLayout
+                <com.sendsay.sdk.view.layout.RowFlexLayout
                     android:id="@+id/buttonsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
 
             </LinearLayout>
 
-            <ru.sendsay.sdk.view.component.InAppImageView
+            <com.sendsay.sdk.view.component.InAppImageView
                 android:id="@+id/inAppMessageSlideInRightImage"
                 android:layout_width="75dp"
                 android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
 
         </LinearLayout>
 
-        <ru.sendsay.sdk.view.component.InAppCloseButtonView
+        <com.sendsay.sdk.view.component.InAppCloseButtonView
             android:id="@+id/buttonClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

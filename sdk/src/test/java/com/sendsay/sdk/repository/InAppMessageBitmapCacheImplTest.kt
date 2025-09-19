@@ -1,11 +1,11 @@
-package ru.sendsay.sdk.repository
+package com.sendsay.sdk.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.testutil.SendsayMockServer
-import ru.sendsay.sdk.testutil.waitForIt
-import ru.sendsay.sdk.util.backgroundThreadDispatcher
-import ru.sendsay.sdk.util.mainThreadDispatcher
+import com.sendsay.sdk.testutil.SendsayMockServer
+import com.sendsay.sdk.testutil.waitForIt
+import com.sendsay.sdk.util.backgroundThreadDispatcher
+import com.sendsay.sdk.util.mainThreadDispatcher
 import io.mockk.spyk
 import io.mockk.verify
 import java.io.File

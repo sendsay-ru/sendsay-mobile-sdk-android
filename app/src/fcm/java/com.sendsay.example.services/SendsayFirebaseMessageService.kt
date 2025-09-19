@@ -1,8 +1,8 @@
-package ru.sendsay.example.services
+package com.sendsay.example.services
 
 import android.app.NotificationManager
 import android.content.Context
-import ru.sendsay.sdk.Sendsay
+import com.sendsay.sdk.Sendsay
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 

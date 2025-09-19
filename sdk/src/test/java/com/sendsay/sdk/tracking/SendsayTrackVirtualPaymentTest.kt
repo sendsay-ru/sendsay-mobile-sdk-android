@@ -1,16 +1,16 @@
-package ru.sendsay.sdk.tracking
+package com.sendsay.sdk.tracking
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.manager.EventManagerImpl
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.Event
-import ru.sendsay.sdk.models.EventType
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.models.PurchasedItem
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.manager.EventManagerImpl
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.Event
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.PurchasedItem
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

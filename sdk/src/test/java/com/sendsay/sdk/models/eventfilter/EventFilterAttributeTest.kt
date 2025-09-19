@@ -1,6 +1,6 @@
-package ru.sendsay.sdk.models.eventfilter
+package com.sendsay.sdk.models.eventfilter
 
-import ru.sendsay.sdk.util.SendsayGson
+import com.sendsay.sdk.util.SendsayGson
 import com.google.gson.JsonParseException
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

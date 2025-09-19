@@ -35,7 +35,7 @@
    ```kotlin
     import android.app.NotificationManager  
     import android.content.Context  
-    import ru.sendsay.sdk.Sendsay  
+    import com.sendsay.sdk.Sendsay  
     import com.google.firebase.messaging.FirebaseMessagingService  
     import com.google.firebase.messaging.RemoteMessage
 
@@ -87,7 +87,7 @@ Push-токен обычно генерируется при первом зап
 >
 > ```kotlin
 > import android.app.Application
-> import ru.sendsay.sdk.Sendsay
+> import com.sendsay.sdk.Sendsay
 > import com.google.firebase.installations.FirebaseMessaging
 > 
 > class SendsayApp : Application() {

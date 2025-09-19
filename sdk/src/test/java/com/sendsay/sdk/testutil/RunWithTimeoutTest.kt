@@ -1,7 +1,7 @@
-package ru.sendsay.sdk.testutil
+package com.sendsay.sdk.testutil
 
 import android.os.Build.VERSION_CODES.M
-import ru.sendsay.sdk.util.runWithTimeout
+import com.sendsay.sdk.util.runWithTimeout
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail

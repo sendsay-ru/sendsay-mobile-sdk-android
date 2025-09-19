@@ -1,5 +1,5 @@
 import android.content.Context
-import ru.sendsay.sdk.Sendsay
+import com.sendsay.sdk.Sendsay
 import com.google.firebase.messaging.FirebaseMessaging
 
 class TokenTracker {

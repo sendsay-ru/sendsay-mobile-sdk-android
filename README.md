@@ -28,7 +28,7 @@ Download via Gradle:
 
 ```groovy
 dependencies {
-  implementation 'ru.sendsay.sdk:sdk:0.1.0'
+  implementation 'com.sendsay.sdk:sdk:0.1.0'
 }
 ```
 
@@ -36,7 +36,7 @@ Download via Maven:
 
 ```groovy
 <dependency>
-    <groupId>ru.sendsay.sdk</groupId>
+    <groupId>com.sendsay.sdk</groupId>
     <artifactId>sdk</artifactId>
     <version>0.1.0</version>
 </dependency>

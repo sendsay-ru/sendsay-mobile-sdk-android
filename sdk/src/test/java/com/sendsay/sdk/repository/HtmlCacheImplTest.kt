@@ -1,11 +1,11 @@
-package ru.sendsay.sdk.repository
+package com.sendsay.sdk.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.preferences.SendsayPreferencesImpl
-import ru.sendsay.sdk.util.HtmlNormalizer
-import ru.sendsay.sdk.util.HtmlNormalizer.HtmlNormalizerConfig
-import ru.sendsay.sdk.util.HtmlNormalizer.NormalizedResult
+import com.sendsay.sdk.preferences.SendsayPreferencesImpl
+import com.sendsay.sdk.util.HtmlNormalizer
+import com.sendsay.sdk.util.HtmlNormalizer.HtmlNormalizerConfig
+import com.sendsay.sdk.util.HtmlNormalizer.NormalizedResult
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

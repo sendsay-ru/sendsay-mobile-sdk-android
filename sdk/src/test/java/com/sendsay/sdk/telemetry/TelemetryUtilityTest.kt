@@ -1,11 +1,11 @@
-package ru.sendsay.sdk.telemetry
+package com.sendsay.sdk.telemetry
 
-import ru.sendsay.sdk.models.EventType
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.SendsayProject
-import ru.sendsay.sdk.telemetry.model.ErrorData
-import ru.sendsay.sdk.telemetry.model.ErrorStackTraceElement
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.telemetry.model.ErrorData
+import com.sendsay.sdk.telemetry.model.ErrorStackTraceElement
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
@@ -116,7 +116,7 @@ internal class TelemetryUtilityTest {
                         otherException.stackTrace = arrayOf(
                             StackTraceElement("com.java.MockClass", "mockMethod", "mockFile", 1),
                             StackTraceElement("org.android.MockClass", "mockMethod", "mockFile", 2),
-                            StackTraceElement("ru.sendsay.MockClass", "mockMethod", "mockFile", 3)
+                            StackTraceElement("com.sendsay.MockClass", "mockMethod", "mockFile", 3)
                         )
                         e
                     },
@@ -130,7 +130,7 @@ internal class TelemetryUtilityTest {
                             arrayListOf(
                                 ErrorStackTraceElement("com.java.MockClass", "mockMethod", "mockFile", 1),
                                 ErrorStackTraceElement("org.android.MockClass", "mockMethod", "mockFile", 2),
-                                ErrorStackTraceElement("ru.sendsay.MockClass", "mockMethod", "mockFile", 3)
+                                ErrorStackTraceElement("com.sendsay.MockClass", "mockMethod", "mockFile", 3)
                             ),
                             null
                         )

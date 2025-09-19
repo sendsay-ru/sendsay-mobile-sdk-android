@@ -14,7 +14,7 @@ task androidSourcesJar(type: Jar) {
 }
 
 nexusStaging {
-    packageGroup = 'ru.sendsay'
+    packageGroup = 'com.sendsay'
     username = ossrhUsername
     password = ossrhPassword
 }
@@ -24,7 +24,7 @@ project.afterEvaluate {
         publications {
             sdk(MavenPublication) {
                 from components.release
-                groupId 'ru.sendsay.sdk'
+                groupId 'com.sendsay.sdk'
                 artifactId 'sdk'
                 version android.defaultConfig.buildConfigFields['SENDSAY_VERSION_NAME'].value.replace('"', '')
 

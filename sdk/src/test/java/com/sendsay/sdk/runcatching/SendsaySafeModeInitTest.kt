@@ -1,10 +1,10 @@
-package ru.sendsay.sdk.runcatching
+package com.sendsay.sdk.runcatching
 
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.telemetry.TelemetryManager
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.telemetry.TelemetryManager
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.every
 import kotlin.reflect.KFunction
 import kotlin.test.assertFalse

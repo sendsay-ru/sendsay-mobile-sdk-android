@@ -1,4 +1,4 @@
-package ru.sendsay.sdk.services
+package com.sendsay.sdk.services
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Configuration
@@ -7,14 +7,14 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.manager.FlushFinishedCallback
-import ru.sendsay.sdk.manager.FlushManagerImpl
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.models.FlushPeriod
-import ru.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.manager.FlushFinishedCallback
+import com.sendsay.sdk.manager.FlushManagerImpl
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.FlushPeriod
+import com.sendsay.sdk.testutil.SendsaySDKTest
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.slot

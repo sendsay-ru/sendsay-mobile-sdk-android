@@ -1,50 +1,50 @@
-package ru.sendsay.sdk.manager
+package com.sendsay.sdk.manager
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.manager.TrackingConsentManager.MODE.CONSIDER_CONSENT
-import ru.sendsay.sdk.mockkConstructorFix
-import ru.sendsay.sdk.models.Constants
-import ru.sendsay.sdk.models.CustomerIds
-import ru.sendsay.sdk.models.DateFilter
-import ru.sendsay.sdk.models.EventType
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.ExportedEvent
-import ru.sendsay.sdk.models.FetchError
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.models.InAppMessage
-import ru.sendsay.sdk.models.InAppMessageButton
-import ru.sendsay.sdk.models.InAppMessageCallback
-import ru.sendsay.sdk.models.InAppMessageDisplayState
-import ru.sendsay.sdk.models.InAppMessageFrequency
-import ru.sendsay.sdk.models.InAppMessagePayloadButton
-import ru.sendsay.sdk.models.InAppMessageTest
-import ru.sendsay.sdk.models.InAppMessageType
-import ru.sendsay.sdk.models.Result
-import ru.sendsay.sdk.models.eventfilter.EventFilter
-import ru.sendsay.sdk.models.eventfilter.EventPropertyFilter
-import ru.sendsay.sdk.models.eventfilter.StringConstraint
-import ru.sendsay.sdk.repository.CustomerIdsRepository
-import ru.sendsay.sdk.repository.DrawableCache
-import ru.sendsay.sdk.repository.EventRepository
-import ru.sendsay.sdk.repository.InAppMessageDisplayStateRepository
-import ru.sendsay.sdk.repository.InAppMessagesCache
-import ru.sendsay.sdk.repository.SimpleFileCache
-import ru.sendsay.sdk.services.SendsayContextProvider
-import ru.sendsay.sdk.services.SendsayProjectFactory
-import ru.sendsay.sdk.telemetry.TelemetryManager
-import ru.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
-import ru.sendsay.sdk.testutil.MockFile
-import ru.sendsay.sdk.testutil.waitForIt
-import ru.sendsay.sdk.util.backgroundThreadDispatcher
-import ru.sendsay.sdk.util.currentTimeSeconds
-import ru.sendsay.sdk.util.mainThreadDispatcher
-import ru.sendsay.sdk.util.runOnBackgroundThread
-import ru.sendsay.sdk.view.InAppMessagePresenter
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.manager.TrackingConsentManager.MODE.CONSIDER_CONSENT
+import com.sendsay.sdk.mockkConstructorFix
+import com.sendsay.sdk.models.Constants
+import com.sendsay.sdk.models.CustomerIds
+import com.sendsay.sdk.models.DateFilter
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.ExportedEvent
+import com.sendsay.sdk.models.FetchError
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.InAppMessage
+import com.sendsay.sdk.models.InAppMessageButton
+import com.sendsay.sdk.models.InAppMessageCallback
+import com.sendsay.sdk.models.InAppMessageDisplayState
+import com.sendsay.sdk.models.InAppMessageFrequency
+import com.sendsay.sdk.models.InAppMessagePayloadButton
+import com.sendsay.sdk.models.InAppMessageTest
+import com.sendsay.sdk.models.InAppMessageType
+import com.sendsay.sdk.models.Result
+import com.sendsay.sdk.models.eventfilter.EventFilter
+import com.sendsay.sdk.models.eventfilter.EventPropertyFilter
+import com.sendsay.sdk.models.eventfilter.StringConstraint
+import com.sendsay.sdk.repository.CustomerIdsRepository
+import com.sendsay.sdk.repository.DrawableCache
+import com.sendsay.sdk.repository.EventRepository
+import com.sendsay.sdk.repository.InAppMessageDisplayStateRepository
+import com.sendsay.sdk.repository.InAppMessagesCache
+import com.sendsay.sdk.repository.SimpleFileCache
+import com.sendsay.sdk.services.SendsayContextProvider
+import com.sendsay.sdk.services.SendsayProjectFactory
+import com.sendsay.sdk.telemetry.TelemetryManager
+import com.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
+import com.sendsay.sdk.testutil.MockFile
+import com.sendsay.sdk.testutil.waitForIt
+import com.sendsay.sdk.util.backgroundThreadDispatcher
+import com.sendsay.sdk.util.currentTimeSeconds
+import com.sendsay.sdk.util.mainThreadDispatcher
+import com.sendsay.sdk.util.runOnBackgroundThread
+import com.sendsay.sdk.view.InAppMessagePresenter
 import io.mockk.Runs
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -1547,7 +1547,7 @@ internal class InAppMessageManagerImplTest {
     @Test
     fun `should track telemetry on message shown`() {
         mockkConstructorFix(TelemetryManager::class)
-        val telemetryEventTypeSlot = slot<ru.sendsay.sdk.telemetry.model.EventType>()
+        val telemetryEventTypeSlot = slot<com.sendsay.sdk.telemetry.model.EventType>()
         val telemetryPropertiesSlot = slot<MutableMap<String, String>>()
         every {
             anyConstructed<TelemetryManager>().reportEvent(
@@ -1578,7 +1578,7 @@ internal class InAppMessageManagerImplTest {
         assertTrue(telemetryEventTypeSlot.isCaptured)
         val capturedEventType = telemetryEventTypeSlot.captured
         assertNotNull(capturedEventType)
-        assertEquals(ru.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE, capturedEventType)
+        assertEquals(com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE, capturedEventType)
         assertTrue(telemetryPropertiesSlot.isCaptured)
         val capturedProps = telemetryPropertiesSlot.captured
         assertNotNull(capturedProps)

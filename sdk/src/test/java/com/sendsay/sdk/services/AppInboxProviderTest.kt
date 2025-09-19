@@ -1,16 +1,16 @@
-package ru.sendsay.sdk.services
+package com.sendsay.sdk.services
 
 import android.content.Context
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.manager.AppInboxManagerImplTest
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.SendsayProject
-import ru.sendsay.sdk.models.FlushMode
-import ru.sendsay.sdk.models.MessageItem
-import ru.sendsay.sdk.testutil.SendsaySDKTest
-import ru.sendsay.sdk.view.AppInboxDetailView
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.manager.AppInboxManagerImplTest
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayProject
+import com.sendsay.sdk.models.FlushMode
+import com.sendsay.sdk.models.MessageItem
+import com.sendsay.sdk.testutil.SendsaySDKTest
+import com.sendsay.sdk.view.AppInboxDetailView
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.Assert.assertEquals

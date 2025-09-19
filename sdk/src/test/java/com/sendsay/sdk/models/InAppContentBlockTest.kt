@@ -1,6 +1,6 @@
-package ru.sendsay.sdk.models
+package com.sendsay.sdk.models
 
-import ru.sendsay.sdk.manager.InAppContentBlockManagerImplTest
+import com.sendsay.sdk.manager.InAppContentBlockManagerImplTest
 import java.util.Date
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

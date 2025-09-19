@@ -1,13 +1,13 @@
-package ru.sendsay.sdk.tracking
+package com.sendsay.sdk.tracking
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.platform.app.InstrumentationRegistry
-import ru.sendsay.sdk.Sendsay
-import ru.sendsay.sdk.models.Constants
-import ru.sendsay.sdk.repository.SendsayConfigRepository
-import ru.sendsay.sdk.testutil.componentForTesting
-import ru.sendsay.sdk.testutil.runInSingleThread
+import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.models.Constants
+import com.sendsay.sdk.repository.SendsayConfigRepository
+import com.sendsay.sdk.testutil.componentForTesting
+import com.sendsay.sdk.testutil.runInSingleThread
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

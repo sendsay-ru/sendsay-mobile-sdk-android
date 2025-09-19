@@ -1,4 +1,4 @@
-package ru.sendsay.sdk.testutil.mocks
+package com.sendsay.sdk.testutil.mocks
 
 import android.app.Application
 import android.content.pm.ApplicationInfo

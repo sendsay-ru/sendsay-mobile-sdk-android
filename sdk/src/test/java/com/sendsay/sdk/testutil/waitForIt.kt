@@ -1,4 +1,4 @@
-package ru.sendsay.sdk.testutil
+package com.sendsay.sdk.testutil
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

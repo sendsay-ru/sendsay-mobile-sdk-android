@@ -34,7 +34,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             />
 
-        <ru.sendsay.sdk.view.InAppMessageDialogImageView
+        <com.sendsay.sdk.view.InAppMessageDialogImageView
             android:id="@+id/imageViewImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

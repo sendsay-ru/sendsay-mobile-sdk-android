@@ -1,26 +1,26 @@
-package ru.sendsay.sdk.manager
+package com.sendsay.sdk.manager
 
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.SendsayExtras
-import ru.sendsay.sdk.models.Constants
-import ru.sendsay.sdk.models.EventType
-import ru.sendsay.sdk.models.SendsayConfiguration
-import ru.sendsay.sdk.models.NotificationAction
-import ru.sendsay.sdk.models.NotificationPayload
-import ru.sendsay.sdk.receiver.NotificationsPermissionReceiver
-import ru.sendsay.sdk.repository.PushTokenRepository
-import ru.sendsay.sdk.repository.PushTokenRepositoryProvider
-import ru.sendsay.sdk.shadows.OnlyDefaultShadowRingtone
-import ru.sendsay.sdk.shadows.ShadowResourcesWithAllResources
-import ru.sendsay.sdk.shadows.ShadowRingtone
-import ru.sendsay.sdk.testutil.data.NotificationTestPayloads
-import ru.sendsay.sdk.testutil.data.NotificationTestPayloads.DEEPLINK_NOTIFICATION
-import ru.sendsay.sdk.testutil.resetVerifyMockkCount
-import ru.sendsay.sdk.util.TokenType
+import com.sendsay.sdk.SendsayExtras
+import com.sendsay.sdk.models.Constants
+import com.sendsay.sdk.models.EventType
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.NotificationAction
+import com.sendsay.sdk.models.NotificationPayload
+import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
+import com.sendsay.sdk.repository.PushTokenRepository
+import com.sendsay.sdk.repository.PushTokenRepositoryProvider
+import com.sendsay.sdk.shadows.OnlyDefaultShadowRingtone
+import com.sendsay.sdk.shadows.ShadowResourcesWithAllResources
+import com.sendsay.sdk.shadows.ShadowRingtone
+import com.sendsay.sdk.testutil.data.NotificationTestPayloads
+import com.sendsay.sdk.testutil.data.NotificationTestPayloads.DEEPLINK_NOTIFICATION
+import com.sendsay.sdk.testutil.resetVerifyMockkCount
+import com.sendsay.sdk.util.TokenType
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -496,7 +496,7 @@ internal class FcmManagerImplTest {
         manager.handleRemoteMessage(payload, notificationManager, true)
         assertTrue(ShadowRingtone.lastRingtone?.wasPlayed ?: false)
         assertEquals(
-            "android.resource://ru.sendsay.sdk.test/raw/mock-sound",
+            "android.resource://com.sendsay.sdk.test/raw/mock-sound",
             ShadowRingtone.lastRingtone?.withUri.toString()
         )
     }
@@ -509,7 +509,7 @@ internal class FcmManagerImplTest {
         manager.handleRemoteMessage(payload, notificationManager, true)
         assertTrue(ShadowRingtone.lastRingtone?.wasPlayed ?: false)
         assertEquals(
-            "android.resource://ru.sendsay.sdk.test/raw/mock-sound",
+            "android.resource://com.sendsay.sdk.test/raw/mock-sound",
             ShadowRingtone.lastRingtone?.withUri.toString()
         )
     }

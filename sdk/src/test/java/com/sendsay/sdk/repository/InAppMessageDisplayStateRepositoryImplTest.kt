@@ -1,11 +1,11 @@
-package ru.sendsay.sdk.repository
+package com.sendsay.sdk.repository
 
 import androidx.test.core.app.ApplicationProvider
-import ru.sendsay.sdk.models.InAppMessageDisplayState
-import ru.sendsay.sdk.models.InAppMessageTest
-import ru.sendsay.sdk.preferences.SendsayPreferences
-import ru.sendsay.sdk.preferences.SendsayPreferencesImpl
-import ru.sendsay.sdk.util.SendsayGson
+import com.sendsay.sdk.models.InAppMessageDisplayState
+import com.sendsay.sdk.models.InAppMessageTest
+import com.sendsay.sdk.preferences.SendsayPreferences
+import com.sendsay.sdk.preferences.SendsayPreferencesImpl
+import com.sendsay.sdk.util.SendsayGson
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.time.temporal.ChronoUnit
