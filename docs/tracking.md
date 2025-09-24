@@ -135,7 +135,7 @@ fun trackBasket() {
 #### CCE (Пользовательские события) (в разработке)
 
 ```kotlin
-    jsonString = """{
+    val jsonString = """{
         "cce": {"any-key": "test-value"},
     }""".trimIndent()
     

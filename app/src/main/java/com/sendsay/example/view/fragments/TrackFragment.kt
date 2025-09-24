@@ -130,7 +130,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         }
         val customerIds = CustomerIds()
             .withId("registered", (App.instance.registeredIdManager.registeredID))
-            .withId("phone", "+79602386404")
+
         CustomerTokenStorage.INSTANCE.configure(
             customerIds = hashMapOf(
                 "registered" to (App.instance.registeredIdManager.registeredID ?: "")

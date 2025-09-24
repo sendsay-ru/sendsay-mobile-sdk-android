@@ -110,7 +110,7 @@ Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
     }
 
     override fun onPushNotificationOpened(
-        action: ExponeaNotificationActionType,
+        action: SendsayNotificationActionType,
         url: String?,
         notificationData: Map<String, Any>
     ) {
@@ -148,9 +148,9 @@ class MyReceiver : BroadcastReceiver() {
   // Реагировать на нажатие действия push
   override fun onReceive(context: Context, intent: Intent) {  
         // Извлечь данные push
-        val data = intent.getParcelableExtra<NotificationData>(ExponeaExtras.EXTRA_DATA)  
-        val actionInfo = intent.getSerializableExtra(ExponeaExtras.EXTRA_ACTION_INFO) as? NotificationAction  
-        val customData = intent.getSerializableExtra(ExponeaExtras.EXTRA_CUSTOM_DATA) as Map<String, String>  
+        val data = intent.getParcelableExtra<NotificationData>(SendsayExtras.EXTRA_DATA)  
+        val actionInfo = intent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO) as? NotificationAction  
+        val customData = intent.getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA) as Map<String, String>  
         // Обработать данные push по необходимости
     }  
 }

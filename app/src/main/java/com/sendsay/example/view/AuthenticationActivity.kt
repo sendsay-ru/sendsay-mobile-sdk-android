@@ -96,8 +96,6 @@ class AuthenticationActivity : AppCompatActivity() {
             CustomerTokenStorage.INSTANCE.configure(
                 customerIds = hashMapOf(
                     "registered" to (App.instance.registeredIdManager.registeredID ?: ""),
-//                    Pair("phone", "+79112343393")
-                    "phone" to "+79602386404"
                 )
             )
         }

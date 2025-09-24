@@ -117,10 +117,10 @@ Push-токен обычно генерируется при первом зап
 2. **Сгенерируйте новый приватный ключ**. Найдите FCM service account, который вы создали на предыдущем шаге, затем выберите `Actions` > `Manage Keys`. Выберите `Add Key` > `Create new key`. Скачайте файл ключа JSON.
 
 3. **Добавьте интеграцию Firebase Cloud Messaging** в ваш проект Engagement. В Engagement перейдите в `Data & Assets` > `Integration`. Нажмите на `Add new integration` и выберите `Firebase Cloud Messaging` для отправки push-уведомлений через узел push-уведомлений. Обратите внимание, что если вы хотите отправлять push-уведомления через webhooks, вместо этого необходимо выбрать `Firebase Service Account Authentication`.
-![](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/firebase-1.png)
+![](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/firebase-1.png)
 
 4. **Вставьте ключ из шага 2** на страницу настроек интеграции Firebase Cloud Messaging в поле `Service Account JSON Credentials`. Нажмите на `Save integration`.
-![](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/firebase-2.png)
+![](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/firebase-2.png)
 
 5. **Выберите интеграцию Firebase Cloud Messaging** в `Project Settings` > `Channels` > `Push notifications` > `Firebase Cloud Messaging integration`. Нажмите на `Save changes`.
 
@@ -129,7 +129,7 @@ Push-токен обычно генерируется при первом зап
 #### Чек-лист
 
 - [ ] Если вы запустите приложение, самопроверка должна быть способна отправить и получить беззвучное push-уведомление.
-  ![](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/self-check.png)
+  ![](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/self-check.png)
 - [ ] Теперь вы должны быть способны отправлять push-уведомления с помощью веб-приложения Engagement и получать их в вашем приложении. Обратитесь к разделу [Мобильные push-уведомления](https://documentation.bloomreach.com/engagement/docs/mobile-push-notifications#creating-a-new-notification), чтобы узнать, как создавать push-уведомления в веб-приложении Engagement.
 - [ ] Отправьте тестовое push-уведомление из Engagement на устройство и нажмите на него. Ваш broadcast receiver должен быть вызван.
 

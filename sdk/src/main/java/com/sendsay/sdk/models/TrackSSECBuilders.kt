@@ -3,6 +3,7 @@ package com.sendsay.sdk.models
 // Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
 // Каждый билдер знает свой обязательный набор полей и делегирует в core-билдер.
 interface TrackSSECBuilder {
+    fun cp(map: Map<String, Any>): TrackSSECBuilder
     fun buildData(): TrackSSECData
     fun buildProperties(): HashMap<String, Any>
 }
@@ -38,11 +39,12 @@ class ViewProductBuilder internal constructor(
         )
     }
 
-    fun email(value: String) = apply { core.setEmail(value) }
+    //    fun email(value: String) = apply { core.setEmail(value) }
     fun update(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
         core.setUpdate(isUpdate, isUpdatePerItem)
     }
 
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.VIEW_PRODUCT)
@@ -83,6 +85,7 @@ class OrderBuilder internal constructor(
         core.setProduct(id = id, name = name, price = price)
     }
 
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.ORDER)
@@ -96,8 +99,8 @@ class BasketAddBuilder internal constructor(
     fun transaction(
         id: String,
         dt: String,
-        sum: Double,
-        status: Long,
+        sum: Double? = null,
+        status: Long? = null,
         discount: Double? = null
     ) = apply {
         core.setTransaction(
@@ -111,6 +114,7 @@ class BasketAddBuilder internal constructor(
 
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
 
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_ADD)
@@ -124,6 +128,53 @@ class BasketClearBuilder internal constructor(
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
     fun dateTime(dt: String) = apply { core.setProduct(dateTime = dt) }
 
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    override fun buildData(): TrackSSECData = core.build()
+    override fun buildProperties(): HashMap<String, Any> =
+        core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
+}
+
+/** VIEW_CATEGORY */
+class ViewCategoryBuilder internal constructor(
+    private val core: TrackSSECDataCore = TrackSSECDataCore(TrackingSSECType.VIEW_CATEGORY)
+) : TrackSSECBuilder {
+
+    fun searchByCategoryDescription(category: String? = null) =
+        apply { core.searchCategory(category = category) }
+
+    fun searchByCategoryId(categoryId: Long? = null) =
+        apply { core.searchCategory(categoryId = categoryId) }
+
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    override fun buildData(): TrackSSECData = core.build()
+    override fun buildProperties(): HashMap<String, Any> =
+        core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
+}
+
+/** SEARCH_PRODUCT */
+class SearchProductBuilder internal constructor(
+    private val core: TrackSSECDataCore = TrackSSECDataCore(TrackingSSECType.SEARCH_PRODUCT)
+) : TrackSSECBuilder {
+
+    fun search(description: String) = apply { core.searchDescription(description) }
+
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    override fun buildData(): TrackSSECData = core.build()
+    override fun buildProperties(): HashMap<String, Any> =
+        core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
+}
+
+/** SUBSCRIBE_PRODUCT_PRICE / SUBSCRIBE_PRODUCT_ISA / FAVORITE / PREORDER / PRODUCT_PRICE_CHANGED */
+class SubscribeProductBuilder internal constructor(
+    val type: TrackingSSECType,
+    private val core: TrackSSECDataCore = TrackSSECDataCore(type)
+) : TrackSSECBuilder {
+
+    fun add(items: List<OrderItem>) = apply { core.setSubscriptionOrFavoritesAdd(items) }
+    fun delete(itemsId: List<Int>) = apply { core.setSubscriptionOrFavoritesDelete(itemsId) }
+    fun clear(eraseAll: Boolean) = apply { core.setSubscriptionOrFavoritesClear(eraseAll) }
+
+    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -135,6 +186,14 @@ object TrackSSEC {
     fun order() = OrderBuilder()
     fun basketAdd() = BasketAddBuilder()
     fun basketClear() = BasketClearBuilder()
+    fun viewCategory() = ViewCategoryBuilder()
+    fun search() = SearchProductBuilder()
+    fun subscribePrice() = SubscribeProductBuilder(TrackingSSECType.SUBSCRIBE_PRODUCT_PRICE)
+    fun subscribeISA() = SubscribeProductBuilder(TrackingSSECType.SUBSCRIBE_PRODUCT_ISA)
+    fun favorite() = SubscribeProductBuilder(TrackingSSECType.FAVORITE)
+    fun preorder() = SubscribeProductBuilder(TrackingSSECType.PREORDER)
+    fun productISA() = SubscribeProductBuilder(TrackingSSECType.PRODUCT_ISA)
+    fun productPriceChanged() = SubscribeProductBuilder(TrackingSSECType.PRODUCT_PRICE_CHANGED)
 
     /** Универсальный вход по enum */
     fun builder(type: TrackingSSECType): TrackSSECBuilder = when (type) {
@@ -142,6 +201,14 @@ object TrackSSEC {
         TrackingSSECType.ORDER -> order()
         TrackingSSECType.BASKET_ADD -> basketAdd()
         TrackingSSECType.BASKET_CLEAR -> basketClear()
+        TrackingSSECType.VIEW_CATEGORY -> viewCategory()
+        TrackingSSECType.SEARCH_PRODUCT -> search()
+        TrackingSSECType.SUBSCRIBE_PRODUCT_PRICE -> subscribePrice()
+        TrackingSSECType.SUBSCRIBE_PRODUCT_ISA -> subscribeISA()
+        TrackingSSECType.FAVORITE -> favorite()
+        TrackingSSECType.PREORDER -> preorder()
+        TrackingSSECType.PRODUCT_ISA -> productISA()
+        TrackingSSECType.PRODUCT_PRICE_CHANGED -> productPriceChanged()
         else -> viewProduct() // Добавляем остальные кейсы по мере необходимости
     }
 }
@@ -175,6 +242,12 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var deliveryPrice: Double? = null
     private var paymentDt: String? = null
     private var items: List<OrderItem>? = null
+    private var subscriptionAdd: List<OrderItem>? = null
+    private var subscriptionDelete: List<Int>? = null
+    private var subscriptionClear: Int? = null
+    private var cpMap: Map<String, Any>? = null
+
+    fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
 
     fun setProduct(
         id: String? = null,
@@ -211,11 +284,11 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     }
 
     fun setTransaction(
-        id: String,
-        dt: String,
-        sum: Double,
+        id: String? = null,
+        dt: String? = null,
+        sum: Double? = null,
         discount: Double? = null,
-        status: Long
+        status: Long? = null
     ) = apply {
         this.transactionId = id
         this.transactionDt = dt
@@ -236,9 +309,9 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         this.paymentDt = dt
     }
 
-    fun setEmail(email: String) = apply {
-        this.email = email
-    }
+//    fun setEmail(email: String) = apply {
+//        this.email = email
+//    }
 
     fun setUpdate(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
         isUpdate?.let { this.update = if (it) 1 else 0 }
@@ -247,96 +320,23 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
 
     fun setItems(items: List<OrderItem>) = apply { this.items = items }
 
-    /**
-     * Формирует плоскую карту ключей без префиксов для отправки в properties["ssec"].
-     * Набор полей зависит от типа события, чтобы исключить конфликт имён (id/dt/price и т.п.).
-     */
-    fun buildSsecMap(): Map<String, Any> {
-        val out = linkedMapOf<String, Any>()
-        fun put(k: String, v: Any?) {
-            if (v != null) out[k] = v
-        }
+    fun setSubscriptionOrFavoritesAdd(orderItems: List<OrderItem>) =
+        apply { this.subscriptionAdd = orderItems }
 
-        when (type) {
-            TrackingSSECType.VIEW_PRODUCT -> {
-                requireNotNull(productId) { "product.id is required for VIEW_PRODUCT" }
-            }
+    fun setSubscriptionOrFavoritesDelete(itemsId: List<Int>) =
+        apply { this.subscriptionDelete = itemsId }
 
-            TrackingSSECType.ORDER -> {
-                requireNotNull(transactionId) { "transaction.id is required for type ORDER" }
-                requireNotNull(transactionDt) { "transaction.dt is required for type ORDER" }
-                requireNotNull(transactionSum) { "transaction.sum is required for type ORDER" }
-                requireNotNull(transactionStatus) { "transaction.status is required for type ORDER" }
-                if (update == 1) require(!items.isNullOrEmpty()) { "items must be provided for type ORDER and 'update' == 1" }
-            }
+    fun setSubscriptionOrFavoritesClear(eraseAll: Boolean) =
+        apply { this.subscriptionClear = if (eraseAll) 1 else 0 }
 
-            TrackingSSECType.BASKET_ADD -> {
-                requireNotNull(transactionId) { "transaction.id is required for type BASKET_ADD" }
-                requireNotNull(transactionDt) { "transaction.dt is required for type BASKET_ADD" }
-                require(!items.isNullOrEmpty()) { "items must be provided for type BASKET_ADD" }
-                items?.any { it.id.isEmpty() || it.price == null || it.qnt == null }
-                    ?.let { require(!(it)) { "items must content id, price & qnt for type BASKET_ADD" } }
-                updatePerItem = 0
-            }
-
-            TrackingSSECType.BASKET_CLEAR -> {
-//                requireNotNull(productDateTime) { "product.dt is required for type BASKET_CLEAR" }
-                require(!items.isNullOrEmpty()) { "items must be provided for type BASKET_CLEAR" }
-                items?.any { it.id.isEmpty() }
-                    ?.let { require(!(it)) { "items must content id for type BASKET_CLEAR" } }
-            }
-
-            else -> {
-                // другие события
-            }
-        }
-
-        when (type) {
-            TrackingSSECType.ORDER -> {
-                // транзакционные поля
-                put("transaction_id", transactionId)
-                put("transaction_dt", transactionDt)
-                put("transaction_status", transactionStatus)
-                put("transaction_discount", transactionDiscount)
-                put("transaction_sum", transactionSum)
-
-                // уникализируем потенциально конфликтные поля
-                put("delivery_dt", deliveryDt)
-                put("delivery_price", deliveryPrice)
-                put("payment_dt", paymentDt)
-
-                if (!items.isNullOrEmpty()) out["items"] = items!!
-            }
-
-            else -> {
-                // продуктовые поля
-                put("id", productId)
-                put("name", productName)
-                put("dt", productDateTime)
-                put("picture", productPicture)
-                put("url", productUrl)
-                put("available", productAvailable)
-                put("category_paths", productCategoryPaths)
-                put("category_id", productCategoryId)
-                put("category", productCategory)
-                put("description", productDescription)
-                put("vendor", productVendor)
-                put("model", productModel)
-                put("type", productType)
-                put("price", productPrice)
-                put("old_price", productOldPrice)
-                // дополнительные флаги
-                put("email", email)
-                put("update_per_item", updatePerItem)
-                put("update", update)
-            }
-        }
-
-        return out
+    fun searchCategory(category: String? = null, categoryId: Long? = null) = apply {
+        category?.let { this.productCategory = category }
+        categoryId?.let { this.productCategoryId = categoryId }
     }
 
-    /** Удобный хелпер: готовые properties для отправки/кеширования */
-    fun buildProperties(): HashMap<String, Any> = hashMapOf("ssec" to buildSsecMap())
+    fun searchDescription(description: String) =
+        apply { this.productDescription = description }
+
 
     fun build(): TrackSSECData {
         when (type) {
@@ -368,12 +368,54 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
                     ?.let { require(!(it)) { "items must content id for type BASKET_CLEAR" } }
             }
 
-            else -> {
-                // другие события
+            TrackingSSECType.VIEW_CATEGORY -> {
+                require(!productCategory.isNullOrEmpty() || productCategoryId != null) {
+                    "product.category or product.category_id is required for type VIEW_CATEGORY"
+                }
+            }
+
+            TrackingSSECType.SEARCH_PRODUCT -> {
+                requireNotNull(productDescription) { "product.description is required for type SEARCH_PRODUCT" }
+            }
+
+            /// /// /// NEW
+            TrackingSSECType.SUBSCRIBE_PRODUCT_PRICE,
+            TrackingSSECType.SUBSCRIBE_PRODUCT_ISA,
+            TrackingSSECType.FAVORITE,
+            TrackingSSECType.PREORDER,
+            TrackingSSECType.PRODUCT_ISA -> {
+                require(
+                    !subscriptionAdd.isNullOrEmpty()
+                            xor !subscriptionDelete.isNullOrEmpty()
+                            xor (subscriptionClear?.equals(1) == true)
+                ) {
+                    "Only ONE subscription type add/delete/clear is required for type SUBSCRIBE_... or FAVORITE"
+                }
+                subscriptionAdd?.any { it.id.isEmpty() }
+                    ?.let {
+                        require(!(it)) { "productData must content id for type SUBSCRIBE_PRODUCT_PRICE" }
+                    }
+                subscriptionDelete?.let { require(it.isEmpty()) { "productData must content id for type SUBSCRIBE_PRODUCT_PRICE" } }
+            }
+
+            TrackingSSECType.PRODUCT_PRICE_CHANGED -> {
+                requireNotNull(productId) { "product.id is required for type PRODUCT_PRICE_CHANGED" }
+                requireNotNull(productPrice) { "product.price is required for type PRODUCT_PRICE_CHANGED" }
+                requireNotNull(productOldPrice) { "product.old_price is required for type PRODUCT_PRICE_CHANGED" }
+//                requireNotNull(email) { "email is required for type SUBSCRIBE_PRODUCT_PRICE" }
+            }
+
+            TrackingSSECType.REGISTRATION -> {
+//                requireNotNull(productId) { "product.id is required for type SUBSCRIBE_PRODUCT_PRICE" }
+//                requireNotNull(email) { "email is required for type SUBSCRIBE_PRODUCT_PRICE" }
+            }
+
+            TrackingSSECType.AUTHORIZATION -> {
+//                requireNotNull(productId) { "product.id is required for type SUBSCRIBE_PRODUCT_PRICE" }
+//                requireNotNull(email) { "email is required for type SUBSCRIBE_PRODUCT_PRICE" }
             }
         }
 
-        val formattedProductDateTime = productDateTime
         val formattedTransactionDt = transactionDt
         val formattedDeliveryDt = deliveryDt
         val formattedPaymentDt = paymentDt
@@ -381,7 +423,6 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         return TrackSSECData(
             productId = productId,
             productName = productName,
-            dateTime = formattedProductDateTime,
             picture = productPicture,
             url = productUrl,
             available = productAvailable,
@@ -395,7 +436,6 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             price = productPrice,
             oldPrice = productOldPrice,
 
-            email = email,
             updatePerItem = updatePerItem,
             update = update,
 
@@ -407,7 +447,13 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             deliveryDt = formattedDeliveryDt,
             deliveryPrice = deliveryPrice,
             paymentDt = formattedPaymentDt,
-            items = items
+            items = items,
+
+            subscriptionAdd = subscriptionAdd,
+            subscriptionDelete = subscriptionDelete,
+            subscriptionClear = subscriptionClear,
+
+            cp = cpMap
         )
     }
 }
