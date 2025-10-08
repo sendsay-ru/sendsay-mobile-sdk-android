@@ -16,11 +16,11 @@ Android SDK Sendsay включает пример приложения, кото
 
 ## Сборка и запуск примера приложения
 
-1. Клонируйте репозиторий [sendsay-android-sdk](https://github.com/sendsay/sendsay-android-sdk) на GitHub:
+1. Клонируйте репозиторий [sendsay-mobile-sdk-android](https://github.com/sendsay-ru/sendsay-mobile-sdk-android) на GitHub:
    ```shell
-   git clone https://github.com/sendsay/sendsay-android-sdk.git
+   git clone https://github.com/sendsay-ru/sendsay-mobile-sdk-android.git
    ```
-2. Откройте проект `sendsay-android-sdk` в Android Studio.
+2. Откройте проект `sendsay-mobile-sdk-android` в Android Studio.
 3. Откройте файл `sdk/build.gradle` и найдите следующую строку:
    ```
    apply from: 'publish-maven.gradle'

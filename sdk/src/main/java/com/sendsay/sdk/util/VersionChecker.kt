@@ -12,7 +12,7 @@ internal class VersionChecker(
     private val networkManager: NetworkHandler,
     private val context: Context
 ) {
-    private val baseUrl = "https://api.github.com/repos/sendsay/%s/releases/latest"
+    private val baseUrl = "https://api.github.com/repos/sendsay-ru/%s/releases/latest"
 
     private data class GitHubReleaseResponse(val tag_name: String)
 
@@ -38,7 +38,7 @@ internal class VersionChecker(
             }
             else -> {
                 actualVersion = BuildConfig.SENDSAY_VERSION_NAME
-                gitProject = "sendsay-android-sdk"
+                gitProject = "sendsay-mobile-sdk-android"
             }
         }
         val url = String.format(baseUrl, gitProject)
