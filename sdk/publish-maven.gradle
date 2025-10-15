@@ -5,8 +5,8 @@ apply plugin: 'signing'
 ext["signing.keyId"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_KEY_ID')
 ext["signing.password"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_PASSWORD')
 ext["signing.secretKeyRingFile"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_SECRET_KEY_RING_FILE')
-ext["ossrhUsername"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_USERNAME')
-ext["ossrhPassword"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_PASSWORD')
+//ext["ossrhUsername"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_USERNAME')
+//ext["ossrhPassword"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_PASSWORD')
 
 task androidSourcesJar(type: Jar) {
     archiveClassifier = 'sources'
@@ -45,7 +45,7 @@ project.afterEvaluate {
                         developer {
                             id = 'sendsay'
                             name = 'Sendsay'
-                            email = 'moscow@sendsay.ru'
+                            email = 'ask@sendsay.ru'
                         }
                     }
                     scm {
@@ -62,7 +62,8 @@ project.afterEvaluate {
         repositories {
             maven {
                 name = 'sonatype'
-                url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+//                url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
                 credentials {
                     username ossrhUsername
                     password ossrhPassword

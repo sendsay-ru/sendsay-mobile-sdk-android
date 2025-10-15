@@ -38,6 +38,7 @@ Sendsay Android SDK можно установить или обновить с �
       <groupId>com.sendsay.sdk</groupId>
       <artifactId>sdk</artifactId>
       <version>0.1.0</version>
+      <type>aar</type>  <!---> Опционально, если требуется -->
    </dependency>   
    ```
 2. Пересоберите ваше приложение с помощью Maven.

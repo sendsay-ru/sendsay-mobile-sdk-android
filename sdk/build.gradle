@@ -19,8 +19,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdk 35
-        buildConfigField "String", "SENDSAY_VERSION_NAME", '"4.1.0"'
-        buildConfigField "int", "SENDSAY_VERSION_CODE", "82"
+        buildConfigField "String", "SENDSAY_VERSION_NAME", '"0.1.0"'
+        buildConfigField "int", "SENDSAY_VERSION_CODE", "10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
         testBuildType "unitTesting"
