@@ -2,7 +2,8 @@ name: Android CI
 
 on:
   push:
-    tags: ['v*']          # билд/релиз по тегам
+    tags:
+      - '*'          # билд/релиз по тегам
   workflow_dispatch:       # запуск вручную
 
 env:
@@ -36,11 +37,23 @@ jobs:
                      "build-tools;${ANDROID_BUILD_TOOLS}"
           yes | sdkmanager --licenses
 
-      - name: Restore keystore from secret
+      - name:  Restore keystore from secret
         run: |
-          mkdir -p $HOME/.secrets
-          echo "$ANDROID_KEYSTORE_B64" | base64 -d > $HOME/.secrets/Sendsay.jks
-          echo "ANDROID_KEYSTORE_FILE_PATH=$HOME/.secrets/Sendsay.jks" >> $GITHUB_ENV
+          echo "$SENDSAY_JKS_B64" | base64 -d > app/Sendsay.jks
+        env:
+          $SENDSAY_JKS_B64: ${{ secrets.$SENDSAY_JKS_B64 }}
+
+      - name:  Restore google-services.json
+        run: |
+          echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > app/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+
+      - name:  Restore agconnect-services.json
+        run: |
+          echo "$AGCONNECT_SERVICES_JSON_B64" | base64 -d > app/agconnect-services.json
+        env:
+          AGCONNECT_SERVICES_JSON_B64: ${{ secrets.AGCONNECT_SERVICES_JSON_B64 }}
 
       - name: Assemble release
         run: ./gradlew --no-daemon assembleRelease
