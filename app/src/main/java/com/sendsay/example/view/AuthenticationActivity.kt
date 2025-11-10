@@ -24,7 +24,7 @@ class AuthenticationActivity : AppCompatActivity() {
     var projectToken = ""
     var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
     var authorizationToken =
-        "Token"
+        "Token "
     var advancedPublicKey = "PK"
     var registeredIds = ""
 
