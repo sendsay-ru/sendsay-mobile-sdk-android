@@ -94,10 +94,14 @@ dependencies {
     // Html handling for in-app freeform messages
     implementation 'org.jsoup:jsoup:1.15.4'
     // Images handling
-    implementationEmbed 'io.coil-kt:coil:1.4.0'
-    implementationEmbed 'io.coil-kt:coil-base:1.4.0'
-    implementationEmbed 'io.coil-kt:coil-gif:1.4.0'
-    implementationEmbed 'io.coil-kt:coil-svg:1.4.0'
+    implementationEmbed 'io.coil-kt:coil:2.0.0'
+    implementationEmbed 'io.coil-kt:coil-base:2.0.0'
+    implementationEmbed 'io.coil-kt:coil-gif:2.0.0'
+    implementationEmbed 'io.coil-kt:coil-svg:2.0.0'
+//    implementationEmbed 'io.coil-kt:coil:1.4.0'
+//    implementationEmbed 'io.coil-kt:coil-base:1.4.0'
+//    implementationEmbed 'io.coil-kt:coil-gif:1.4.0'
+//    implementationEmbed 'io.coil-kt:coil-svg:1.4.0'
     // Custom Tabs
     implementation 'androidx.browser:browser:1.5.0'
     // Kotlin reflection

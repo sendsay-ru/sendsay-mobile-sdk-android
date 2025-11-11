@@ -14,13 +14,13 @@ if (localPropsFile.exists()) {
 
 // ---- signing props (lazy, from env -> gradle.properties -> local.properties) ----
 ext["signing.keyId"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_KEY_ID')
-        ?: findProperty('keyAlias')
+//        ?: findProperty('signing.keyId')
         ?: localProps.getProperty('keyIdSDK')
 ext["signing.password"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_PASSWORD')
-        ?: findProperty('storePassword')
+//        ?: findProperty('signing.password')
         ?: localProps.getProperty('passwordSDK')
 ext["signing.secretKey"] = System.getenv('SENDSAY_ANDROID_SDK_SECRET')
-        ?: findProperty('keySecret')
+//        ?: findProperty('signing.secretKey')
         ?: localProps.getProperty('keySDK')
 //ext["signing.secretKeyRingFile"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_SECRET_KEY_RING_FILE')
 //        ?: findProperty('storeFile')
@@ -28,10 +28,10 @@ ext["signing.secretKey"] = System.getenv('SENDSAY_ANDROID_SDK_SECRET')
 
 // ---- central portal token (env -> gradle.properties -> local.properties) ----
 def portalTokenUser = System.getenv('CENTRAL_TOKEN_USER')
-        ?: findProperty('centralTokenUser')
+//        ?: findProperty('centralTokenUser')
         ?: localProps.getProperty('centralTokenUser')
 def portalTokenPass = System.getenv('CENTRAL_TOKEN_PASS')
-        ?: findProperty('centralTokenPass')
+//        ?: findProperty('centralTokenPass')
         ?: localProps.getProperty('centralTokenPass')
 
 if (!portalTokenUser || portalTokenUser.trim() == '' || !portalTokenPass || portalTokenPass.trim() == '') {
@@ -180,21 +180,20 @@ tasks.matching { it.name.startsWith('publish') }.configureEach {
 //    sign publishing.publications
 //}
 signing {
-    def signingKey = findProperty("signing.key") ?: System.getenv("SIGNING_KEY")
-    def signingPassword = findProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+    def rawKey = localProps.getProperty("signing.secretKey") ?: System.getenv("SIGNING_KEY")
+    def signingPassword = localProps.getProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
 
-    if (signingKey && signingPassword) {
+    if (rawKey && signingPassword) {
+        def signingKey = rawKey.replace('\\n', '\n')
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications)
     } else {
-        logger.lifecycle("PGP signing is skipped: no signing.key / SIGNING_KEY provided")
+        logger.lifecycle("PGP signing is skipped: no signing.secretKey / SIGNING_KEY provided")
     }
 }
 
 tasks.withType(Sign).configureEach { task ->
-    def signingKey = findProperty("signing.key") ?: System.getenv("SIGNING_KEY")
-    def signingPassword = findProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
-    task.onlyIf {
-        signingKey && signingPassword
-    }
+    def signingKey = localProps.getProperty("signing.secretKey") ?: System.getenv("SIGNING_KEY")
+    def signingPassword = localProps.getProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+    task.onlyIf { signingKey && signingPassword }
 }
