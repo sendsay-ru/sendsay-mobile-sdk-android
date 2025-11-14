@@ -3,7 +3,7 @@ package com.sendsay.sdk.models
 // Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
 // Каждый билдер знает свой обязательный набор полей и делегирует в core-билдер.
 interface TrackSSECBuilder {
-    fun cp(map: Map<String, Any>): TrackSSECBuilder
+//    fun cp(map: Map<String, Any>): TrackSSECBuilder
     fun buildData(): TrackSSECData
     fun buildProperties(): HashMap<String, Any>
 }
@@ -44,7 +44,7 @@ class ViewProductBuilder internal constructor(
         core.setUpdate(isUpdate, isUpdatePerItem)
     }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.VIEW_PRODUCT)
@@ -85,7 +85,7 @@ class OrderBuilder internal constructor(
         core.setProduct(id = id, name = name, price = price)
     }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.ORDER)
@@ -114,7 +114,7 @@ class BasketAddBuilder internal constructor(
 
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_ADD)
@@ -128,7 +128,7 @@ class BasketClearBuilder internal constructor(
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
     fun dateTime(dt: String) = apply { core.setProduct(dateTime = dt) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -145,7 +145,7 @@ class ViewCategoryBuilder internal constructor(
     fun searchByCategoryId(categoryId: Long? = null) =
         apply { core.searchCategory(categoryId = categoryId) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -158,7 +158,7 @@ class SearchProductBuilder internal constructor(
 
     fun search(description: String) = apply { core.searchDescription(description) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -174,7 +174,7 @@ class SubscribeProductBuilder internal constructor(
     fun delete(itemsId: List<Int>) = apply { core.setSubscriptionOrFavoritesDelete(itemsId) }
     fun clear(eraseAll: Boolean) = apply { core.setSubscriptionOrFavoritesClear(eraseAll) }
 
-    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -245,9 +245,9 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var subscriptionAdd: List<OrderItem>? = null
     private var subscriptionDelete: List<Int>? = null
     private var subscriptionClear: Int? = null
-    private var cpMap: Map<String, Any>? = null
+//    private var cpMap: Map<String, Any>? = null
 
-    fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
+//    fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
 
     fun setProduct(
         id: String? = null,
@@ -453,7 +453,7 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             subscriptionDelete = subscriptionDelete,
             subscriptionClear = subscriptionClear,
 
-            cp = cpMap
+//            cp = cpMap
         )
     }
 }
