@@ -157,13 +157,8 @@ final def centralUploadToPortal = tasks.register('centralUploadToPortal') {
     }
 }
 
-// any publish -> notify
-// notify portal only on remote publish (not on mavenLocal)
-def remoteTaskName = "publishSdkPublicationToMavenCentralRepository"
-if (tasks.findByName(remoteTaskName) != null) {
-    tasks.named(remoteTaskName) {
-        finalizedBy(centralUploadToPortal)
-    }
+tasks.named("publish") {
+    finalizedBy(centralUploadToPortal)
 }
 
 // ---- signing ----
