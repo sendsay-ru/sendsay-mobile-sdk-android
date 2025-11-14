@@ -118,7 +118,7 @@ plugins.withId('com.android.library') {
             }
             repositories {
                 maven {
-                    name = 'ossrh-staging-api'
+                    name = 'MavenCentral'
                     url = uri('https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/')
                     credentials(HttpHeaderCredentials) {
                         name = 'Authorization'
@@ -159,7 +159,7 @@ final def centralUploadToPortal = tasks.register('centralUploadToPortal') {
 
 // any publish -> notify
 // notify portal only on remote publish (not on mavenLocal)
-def remoteTaskName = "publishSdkPublicationToOssrhStagingApiRepository"
+def remoteTaskName = "publishSdkPublicationToMavenCentralRepository"
 if (tasks.findByName(remoteTaskName) != null) {
     tasks.named(remoteTaskName) {
         finalizedBy(centralUploadToPortal)
