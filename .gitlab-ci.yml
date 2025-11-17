@@ -1,0 +1,94 @@
+#image: sendsay/android-ci
+image: eclipse-temurin:17-jdk
+
+variables:
+  ANDROID_COMPILE_SDK: "35"
+  ANDROID_BUILD_TOOLS: "35.0.0"
+  ANDROID_SDK_TOOLS: "13114758"
+  ANDROID_SDK_ROOT: "$CI_PROJECT_DIR/android-sdk"
+  ANDROID_HOME: "$CI_PROJECT_DIR/android-sdk"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  SECURE_FILES_DIR: ".secure_files"
+
+before_script:
+  # JDK 17 + утилиты
+  - apt-get -qq update && apt-get -qq install -y openjdk-17-jdk wget unzip lib32stdc++6 lib32z1
+  - java -version
+
+  # SDK базовая структура
+  - mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools" "$HOME/.android"
+  - touch "$HOME/.android/repositories.cfg"
+
+  # cmdline-tools -> latest
+  - wget -q -O /tmp/cmdline-tools.zip "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip"
+  - unzip -q /tmp/cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+
+  # приводим к ожидаемой структуре <sdk>/cmdline-tools/latest/...
+  - mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+
+  # PATH
+  - export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
+  
+  # выясняем версии нашего sdk
+  - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
+  - sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list | grep "Build-Tools" | tac | head -n 15
+
+  # Диагностика переменных (поймаем переопределения из GitLab UI)
+  - echo "COMPILE_SDK=$ANDROID_COMPILE_SDK"
+  - echo "BUILD_TOOLS=$ANDROID_BUILD_TOOLS"
+  - which sdkmanager && sdkmanager --version
+
+  # ставим всё разом и явно указываем корень SDK
+  - set +o pipefail
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools"
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
+  - yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+  - set -o pipefail
+  - chmod +x ./gradlew
+stages:
+#  - test
+  - build
+  - release
+cache:
+  key: "gradle-${ANDROID_COMPILE_SDK}-${ANDROID_BUILD_TOOLS}"
+  policy: pull-push
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+#lintDebug:
+#  stage: test
+#  script:
+#    - ./gradlew -Pci --console=plain :app:testDebug
+#    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+
+assemble_release:
+  stage: build
+  script:
+    - echo "Building the project:"
+    - echo "Locate keystore."
+    - curl -sSf https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer | bash
+    - export ANDROID_KEYSTORE_FILE_PATH="$SECURE_FILES_DIR/Sendsay.jks"
+    - ./gradlew --version
+    - ./gradlew assembleRelease
+#    - cp app/build/outputs/apk/release/app-release.apk app-release.apk
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "ci-release-test" # Trigger this job only on tags
+      when: always # or on_success # or 'never'
+    - when: manual # or 'always'
+      allow_failure: true
+  artifacts:
+    paths:
+      - app/build/outputs/apk/*/release/*.apk
+#      - app-release.apk
+
+create_internal_publish_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG # Trigger this job only on tags
+  script:
+    - echo "Releasing by TAG:"
+    - release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
+      --description "Release notes for $CI_COMMIT_TAG" \
+      --assets-link "{\"name\":\"*.apk\", \"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/*.apk\"}"

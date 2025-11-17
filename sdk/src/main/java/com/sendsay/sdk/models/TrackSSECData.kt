@@ -4,13 +4,13 @@ import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.annotations.SerializedName
 import java.lang.reflect.Type
 import com.google.gson.reflect.TypeToken
 
 data class TrackSSECData(
     val productId: String? = null,
     val productName: String? = null,
-    val dateTime: String? = null,
     val picture: List<String>? = null,
     val url: String? = null,
     val available: Long? = null,
@@ -24,8 +24,7 @@ data class TrackSSECData(
     val price: Double? = null,
     val oldPrice: Double? = null,
 
-    // Остальные необязательные поля
-    val email: String? = null,
+    // Продуктовое обновление
     val updatePerItem: Int? = null,
     val update: Int? = null,
 
@@ -43,76 +42,97 @@ data class TrackSSECData(
 
     // items (для заказов/корзины)
     val items: List<OrderItem>? = null,
+
+    // Подписка на изменения продуктов / работа с избранным
+    val subscriptionAdd: List<OrderItem>? = null,
+    val subscriptionDelete: List<Int>? = null,
+    val subscriptionClear: Int? = null,
+
+    // cp1..cp20
+    val cp: Map<String, Any>? = null
 ) {
     /**
-     * Плоская карта без префиксов ключей для отправки в properties["ssec"].
-     * Набор полей зависит от типа события, чтобы исключить конфликт имён.
+     * Формирует плоскую карту ключей без префиксов для отправки в properties["ssec"].
+     * Набор полей зависит от типа события, чтобы исключить конфликт имён (id/dt/price и т.п.).
      */
-    fun toSsecMap(event: TrackingSSECType): Map<String, Any> {
+    fun toSsecMap(): Map<String, Any> {
         val out = linkedMapOf<String, Any>()
-        fun put(k: String, v: Any?) { if (v != null) out[k] = v }
-
-        when (event) {
-            TrackingSSECType.ORDER -> {
-                // транзакционные поля
-                put("transaction_id", transactionId)
-                put("transaction_dt", transactionDt)
-                put("transaction_status", transactionStatus)
-                put("transaction_discount", transactionDiscount)
-                put("transaction_sum", transactionSum)
-
-                // уникализируем потенциально конфликтные поля
-                put("delivery_dt", deliveryDt)
-                put("delivery_price", deliveryPrice)
-                put("payment_dt", paymentDt)
-
-                if (!items.isNullOrEmpty()) out["items"] = items
-            }
-
-            TrackingSSECType.BASKET_ADD -> {
-                // событие корзины: дата, сумма, позиции, флаг update_per_item
-                put("dt", dateTime ?: transactionDt)
-                put("sum", transactionSum)
-                if (!items.isNullOrEmpty()) out["items"] = items
-                put("update_per_item", updatePerItem)
-            }
-
-            TrackingSSECType.BASKET_CLEAR -> {
-                // очистка корзины: дата + позиции
-                put("dt", dateTime ?: transactionDt)
-                if (!items.isNullOrEmpty()) out["items"] = items
-            }
-
-            else -> {
-                // продуктовые поля для прочих событий
-                put("id", productId)
-                put("name", productName)
-                put("dt", dateTime)
-                put("picture", picture)
-                put("url", url)
-                put("available", available)
-                put("category_paths", categoryPaths)
-                put("category_id", categoryId)
-                put("category", category)
-                put("description", description)
-                put("vendor", vendor)
-                put("model", model)
-                put("type", this.type)
-                put("price", price)
-                put("old_price", oldPrice)
-
-                put("email", email)
-                put("update_per_item", updatePerItem)
-                put("update", update)
-            }
+        fun put(k: String, v: Any?) {
+            if (v != null) out[k] = v
         }
+
+        // Все свойства добавляем по их 
+        put("id", productId)
+        put("name", productName)
+        put("picture", picture)
+        put("url", url)
+        put("available", available)
+        put("category_paths", categoryPaths)
+        put("category_id", categoryId)
+        put("category", category)
+        put("description", description)
+        put("vendor", vendor)
+        put("model", model)
+        put("type", type)
+        put("price", price)
+        put("oldPrice", oldPrice)
+
+        // Обновления продукта
+        put("update_per_item", updatePerItem)
+        put("update", update)
+
+        // Платёжные и транзакционные данные
+        put("transaction_id", transactionId)
+        put("transaction_dt", transactionDt)
+        put("transaction_status", transactionStatus)
+        put("transaction_discount", transactionDiscount)
+        put("transaction_sum", transactionSum)
+
+        // Доставка и оплата
+        put("delivery_dt", deliveryDt)
+        put("delivery_price", deliveryPrice)
+        put("payment_dt", paymentDt)
+
+        // Позиции/заказы (добавляем только если не пусто)
+        if (!items.isNullOrEmpty()) out["items"] = items
+
+        // Подписка на изменения
+        put("add", subscriptionAdd)
+        put("delete", subscriptionDelete)
+        put("clear", subscriptionClear)
+
+        // cp1..cp20 и любые дополнительные поля
+        cp?.forEach { (k, v) -> put(k, v) }
 
         return out
     }
 
-    /** хелпер: { "ssec": <map> } */
+    /**
+     * Удобный хелпер: готовые properties для отправки/кеширования
+     * { "ssec": <map> }
+     */
     fun toProperties(event: TrackingSSECType): HashMap<String, Any> =
-        hashMapOf("ssec" to toSsecMap(event))
+        hashMapOf("ssec" to toSsecMap())
+}
+
+enum class SSECTransactionStatus(val code: Long, val desc: String? = null) {
+    REGISTRED(1, "Заказ Оформлен (создан,принят)"),
+    PAID(2, "Заказ Оплачен"),
+    ACCEPTED(3, "Заказ Принят в работу (сборка, комплектация)"),
+    DELIVERY(4, "Доставка"),
+    DELIVERY_TRACKING(5, "Доставка: присвоен трек-номер"),
+    DELIVERY_HANDED_OVER(6, "Доставка: передан в доставку"),
+    DELIVERY_SHIPPED(7, "Доставка: отправлен"),
+    DELIVERY_COURIER_OR_POINT(8, "Доставка: поступил в пункт-выдачи / передан курьеру"),
+    DELIVERY_RECEIVED(9, "Доставка: получен"),
+    CANCELED(10, "Заказ Отменен: отмена заказа"),
+    CANCELED_RETURN(11, "Заказ Отменен: возврат заказа"),
+    CHANGED_UPDATE_ORDER(12, "Заказ Изменен: обновление заказа");
+
+    companion object {
+        fun fromCode(code: Long?): SSECTransactionStatus? =
+            entries.find { it.code == code }
+    }
 }
 
 // Кастомный сериализатор для чисел (чтобы JSON не менял все Num примитивы в Double)
@@ -128,8 +148,8 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
                 val prim = json.asJsonPrimitive
                 when {
                     prim.isBoolean -> prim.asBoolean
-                    prim.isString  -> prim.asString
-                    prim.isNumber  -> {
+                    prim.isString -> prim.asString
+                    prim.isNumber -> {
                         val str = prim.asString
                         if (str.contains('.')) prim.asDouble
                         else {
@@ -141,6 +161,7 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
                             }
                         }
                     }
+
                     else -> prim.asString
                 }
             }
@@ -161,18 +182,55 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
 }
 
 class NumberPreserveAdapter : JsonDeserializer<Any> {
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Any {
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): Any {
         return when {
             json.isJsonPrimitive && json.asJsonPrimitive.isNumber -> {
                 val num = json.asJsonPrimitive.asNumber
                 if (num.toString().contains(".")) num.toDouble()
                 else {
-                    try { num.toInt() } catch (e: Exception) { num.toLong() }
+                    try {
+                        num.toInt()
+                    } catch (e: Exception) {
+                        num.toLong()
+                    }
                 }
             }
-            json.isJsonObject -> context.deserialize<Map<String, Any>>(json, object : TypeToken<Map<String, Any>>(){}.type)
-            json.isJsonArray -> context.deserialize<List<Any>>(json, object : TypeToken<List<Any>>(){}.type)
+
+            json.isJsonObject -> context.deserialize<Map<String, Any>>(
+                json,
+                object : TypeToken<Map<String, Any>>() {}.type
+            )
+
+            json.isJsonArray -> context.deserialize<List<Any>>(
+                json,
+                object : TypeToken<List<Any>>() {}.type
+            )
+
             else -> json.toString()
         }
+    }
+}
+
+// Кастомный сериализатор для cp1..cp20
+class SsecPayloadDeserializer : JsonDeserializer<TrackSSECData> {
+
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): TrackSSECData {
+        val obj = json.asJsonObject
+
+        val cpMap: Map<String, Any> = obj.entrySet()
+            .filter { it.key.matches(Regex("cp\\d+")) }
+            .associate { (k, v) -> k to context.deserialize<Any>(v, Any::class.java) }
+
+        // Десериализуем остальное стандартно
+        val delegate = context.deserialize<TrackSSECData>(obj, TrackSSECData::class.java)
+        return delegate.copy(cp = cpMap)
     }
 }

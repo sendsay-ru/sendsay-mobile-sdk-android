@@ -17,6 +17,7 @@ import freeze.coil.decode.ImageDecoderDecoder
 import freeze.coil.decode.SvgDecoder
 import freeze.coil.request.CachePolicy
 import freeze.coil.request.ImageRequest
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -32,15 +33,15 @@ internal class DrawableCacheImpl(
     internal val fileCache = SimpleFileCache(context, DIRECTORY)
 
     private val imageLoader = ImageLoader.Builder(context)
-        .componentRegistry {
+        .components {
             if (Build.VERSION.SDK_INT >= 28) {
-                add(ImageDecoderDecoder(context))
+                add(ImageDecoderDecoder.Factory())
             } else {
-                add(GifDecoder())
+                add(GifDecoder.Factory())
             }
-            add(SvgDecoder(context))
+            add(SvgDecoder.Factory())
         }
-        .launchInterceptorChainOnMainThread(false)
+        .interceptorDispatcher(Dispatchers.IO)
         .okHttpClient(fileCache.httpClient)
         .memoryCachePolicy(CachePolicy.DISABLED)
         .diskCachePolicy(CachePolicy.DISABLED)
@@ -74,7 +75,7 @@ internal class DrawableCacheImpl(
                                     .listener(
                                         onError = { _, result ->
                                             onImageNotLoadedFallback(
-                                                "Image showing failed due error: ${result.localizedMessage}"
+                                                "Image showing failed due error: ${result.throwable.localizedMessage}"
                                             )
                                         }
                                     )

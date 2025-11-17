@@ -96,6 +96,7 @@
                 android:layout_marginEnd="@dimen/content_margin"
                 android:layout_marginStart="@dimen/content_margin"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextAuthCodeLayout">
@@ -143,7 +144,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextApiUrlLayout">
-
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextRegisteredIds"

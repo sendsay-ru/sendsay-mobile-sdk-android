@@ -16,11 +16,11 @@ Android SDK Sendsay включает пример приложения, кото
 
 ## Сборка и запуск примера приложения
 
-1. Клонируйте репозиторий [sendsay-android-sdk](https://github.com/sendsay/sendsay-android-sdk) на GitHub:
+1. Клонируйте репозиторий [sendsay-mobile-sdk-android](https://github.com/sendsay-ru/sendsay-mobile-sdk-android) на GitHub:
    ```shell
-   git clone https://github.com/sendsay/sendsay-android-sdk.git
+   git clone https://github.com/sendsay-ru/sendsay-mobile-sdk-android.git
    ```
-2. Откройте проект `sendsay-android-sdk` в Android Studio.
+2. Откройте проект `sendsay-mobile-sdk-android` в Android Studio.
 3. Откройте файл `sdk/build.gradle` и найдите следующую строку:
    ```
    apply from: 'publish-maven.gradle'
@@ -37,10 +37,10 @@ Android SDK Sendsay включает пример приложения, кото
 
 ## Навигация по примеру приложения
 
-![Экраны примера приложения: конфигурация, получение данных, отслеживание, отслеживание событий](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/android-example-app-1.png)
+![Экраны примера приложения: конфигурация, получение данных, отслеживание, отслеживание событий](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/android-example-app-1.png)
 
 Когда вы запустите приложение в симуляторе, вы увидите экран **Authentication** (Аутентификация). Введите ваш [токен проекта, API токен и базовый URL API](mobile-sdks-api-access-management). Опционально введите адрес электронной почты hard ID в поле `Registered`, чтобы идентифицировать клиента. Затем нажмите `Authenticate`, чтобы [инициализировать SDK](ios-sdk-setup#initialize-the-sdk).
-> [`AuthenticationActivity.kt`](https://github.com/exponea/exponea-android-sdk/blob/main/app/src/main/java/com/exponea/example/view/AuthenticationActivity.kt)
+> [`AuthenticationActivity.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/main/app/src/main/java/com/sendsay/example/view/AuthenticationActivity.kt)
 
 > 👍
 >
@@ -50,22 +50,22 @@ Android SDK Sendsay включает пример приложения, кото
 Приложение предоставляет несколько экранов, доступных через нижнюю навигацию, для тестирования различных функций SDK:
 
 - Экран **Fetch** (Получение) позволяет получать рекомендации и согласия, а также открывать inbox приложения.
-  > [`FetchFragment.kt`](https://github.com/exponea/exponea-android-sdk/blob/main/app/src/main/java/com/exponea/example/view/fragments/FetchFragment.kt)
+  > [`FetchFragment.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/main/app/src/main/java/com/sendsay/example/view/fragments/FetchFragment.kt)
   
 - Экран **Track** (Отслеживание) позволяет тестировать отслеживание различных событий и свойств. Кнопки `Custom Event` и `Identify Customer` ведут к отдельным экранам для ввода тестовых данных.
-  > [`TrackFragment.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/fragments/TrackFragment.kt)
-  > [`TrackCustomAttributesDialog.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/dialogs/TrackCustomAttributesDialog.kt)
-  > [`TrackCustomEventDialog.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/dialogs/TrackCustomEventDialog.kt)
+  > [`TrackFragment.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/TrackFragment.kt)
+  > [`TrackCustomAttributesDialog.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/dialogs/TrackCustomAttributesDialog.kt)
+  > [`TrackCustomEventDialog.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/dialogs/TrackCustomEventDialog.kt)
 
 - Экран **Manual Flush** (Ручной сброс) позволяет запустить ручной сброс данных.
-  > [`FlushFragment.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/fragments/FlushFragment.kt)
+  > [`FlushFragment.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/FlushFragment.kt)
 
 - Экран **Anonymize** (Анонимизация) позволяет анонимизировать текущего пользователя.
-  > [`AnonymizeFragment.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/fragments/AnonymizeFragment.kt)
+  > [`AnonymizeFragment.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/AnonymizeFragment.kt)
 
 - Экран **InAppCB** отображает блоки контента внутри приложения. Используйте ID плейсхолдеров `example_top`, `ph_x_example_iOS`, `example_list`, `example_carousel` и `example_carousel_and` в настройках ваших блоков контента внутри приложения.
-  > [`InAppContentBlocksFragment.kt`](https://github.com/exponea/exponea-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/exponea/example/view/fragments/InAppContentBlocksFragment.kt)
-  > [`fragment_inapp_content_blocks.xml`](https://github.com/exponea/exponea-android-sdk/blob/main/app/src/main/res/layout/fragment_inapp_content_blocks.xml)
+  > [`InAppContentBlocksFragment.kt`](https://github.com/sendsay/sendsay-android-sdk/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/InAppContentBlocksFragment.kt)
+  > [`fragment_inapp_content_blocks.xml`](https://github.com/sendsay/sendsay-android-sdk/blob/main/app/src/main/res/layout/fragment_inapp_content_blocks.xml)
 
 Попробуйте различные функции в приложении, затем найдите профиль клиента в веб-приложении Engagement (в разделе `Data & Assets` > `Customers`), чтобы увидеть свойства и события, отслеживаемые SDK.
 
@@ -77,7 +77,7 @@ Android SDK Sendsay включает пример приложения, кото
 >
 > Обратитесь к разделу [Идентификация клиентов](https://documentation.bloomreach.com/engagement/docs/customer-identification) для получения дополнительной информации о soft ID и hard ID.
 
-![Экраны примера приложения: идентификация, сброс, анонимизация, блоки контента](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/android-example-app-2.png)
+![Экраны примера приложения: идентификация, сброс, анонимизация, блоки контента](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/android-example-app-2.png)
 
 ## Устранение неполадок
 

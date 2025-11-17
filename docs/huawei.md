@@ -104,14 +104,14 @@ Push-токен обычно генерируется при первом зап
 ## Настройка интеграции Huawei Push Service в Engagement
 
 1. В Huawei App Gallery Connect перейдите в `Project settings` > `App information` > `OAuth 2.0 client ID`. Найдите `Client ID` и `Client secret` и скопируйте их значения. Вы будете использовать их для настройки интеграции Huawei Push Service в Engagement.
-   ![HMS - Client ID и Client secret](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/huawei1.png)
+   ![HMS - Client ID и Client secret](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/huawei1.png)
 
 2. Откройте веб-приложение Engagement и перейдите в `Data & Assets` > `Integrations`. Нажмите `+ Add new integration`.
 
 3. Найдите `Huawei Push Service` и нажмите `+ Add integration`.
-   ![Интеграции Engagement - Выберите интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/huawei2.png)
+   ![Интеграции Engagement - Выберите интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/huawei2.png)
 
 4. Введите значения `Client ID` и `Client secret`, которые вы скопировали на шаге 1. Нажмите `Save integration` для завершения.
-   ![Интеграции Engagement - Настройте интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/exponea/exponea-android-sdk/main/Documentation/images/huawei3.png)
+   ![Интеграции Engagement - Настройте интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay/sendsay-android-sdk/main/Documentation/images/huawei3.png)
 
 5. Перейдите в `Settings` > `Project settings` > `Channels` > `Push notifications` > `Android Notifications` и установите `Huawei integration` в `Huawei Push Service`.

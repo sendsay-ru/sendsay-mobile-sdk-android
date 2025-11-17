@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.kotlin_version = '2.1.10'
+    ext.kotlin_version = '2.1.0'
     ext.ksp_version = '1.0.29'
     ext.jacoco_version = '0.8.12'
     ext.room_version = '2.6.1'
@@ -33,6 +33,7 @@ buildscript {
 plugins {
     // version must match used kotlin, find full version: https://github.com/google/ksp/releases
     id 'com.google.devtools.ksp' version "$kotlin_version-$ksp_version" apply false
+    id 'org.jetbrains.dokka' version "$kotlin_version"
 }
 apply plugin: 'io.codearte.nexus-staging'
 
@@ -44,9 +45,9 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}
 
 subprojects {
     apply plugin: "org.jlleitschuh.gradle.ktlint"

@@ -1,77 +1,182 @@
+import java.net.HttpURLConnection
+import java.net.URL
+import org.gradle.plugins.signing.Sign
+
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-//apply plugin: 'io.codearte.nexus-staging'
+apply plugin: "org.jetbrains.dokka"
 
+// ---- load local.properties (optional secrets) ----
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
+// ---- signing props (lazy, from env -> local.properties) ----
 ext["signing.keyId"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_KEY_ID')
+        ?: localProps.getProperty('keyIdSDK')
 ext["signing.password"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_PASSWORD')
-ext["signing.secretKeyRingFile"] = System.getenv('SENDSAY_ANDROID_SDK_SIGNING_SECRET_KEY_RING_FILE')
-ext["ossrhUsername"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_USERNAME')
-ext["ossrhPassword"] = System.getenv('SENDSAY_ANDROID_SDK_NEXUS_PASSWORD')
+        ?: localProps.getProperty('passwordSDK')
+ext["signing.secretKey"] = System.getenv('SENDSAY_ANDROID_SDK_SECRET')
+        ?: localProps.getProperty('keySDK')
 
-task androidSourcesJar(type: Jar) {
-    archiveClassifier = 'sources'
-    from android.sourceSets.main.java.source
+// ---- central portal token (env -> gradle.properties -> local.properties) ----
+def portalTokenUser = System.getenv('CENTRAL_TOKEN_USER')
+//        ?: findProperty('centralTokenUser')
+        ?: localProps.getProperty('centralTokenUser')
+def portalTokenPass = System.getenv('CENTRAL_TOKEN_PASS')
+//        ?: findProperty('centralTokenPass')
+        ?: localProps.getProperty('centralTokenPass')
+
+if (!portalTokenUser || portalTokenUser.trim() == '' || !portalTokenPass || portalTokenPass.trim() == '') {
+    throw new GradleException("Missing Central Portal credentials. Please set CENTRAL_TOKEN_USER and CENTRAL_TOKEN_PASS (or add to gradle.properties/local.properties).")
 }
 
-nexusStaging {
-    packageGroup = 'com.sendsay'
-    username = ossrhUsername
-    password = ossrhPassword
+// Base64(username:password) for Authorization: Bearer <...>
+def bearer = "${portalTokenUser}:${portalTokenPass}".bytes.encodeBase64().toString()
+
+// Configure Dokka tasks without referencing the class directly (avoids 'unknown property org')
+tasks.matching { it.name.toLowerCase().contains('dokka') }.configureEach { t ->
+    if (t.hasProperty('dokkaSourceSets')) {
+        t.dokkaSourceSets.configureEach {
+            externalDocumentationLink {
+                url.set(new URL("https://developer.android.com/reference/"))
+                packageListUrl.set(new URL("https://developer.android.com/reference/androidx/package-list"))
+            }
+            externalDocumentationLink {
+                url.set(new URL("https://kotlinlang.org/api/kotlin/"))
+                packageListUrl.set(new URL("https://kotlinlang.org/api/kotlin/package-list"))
+            }
+        }
+    }
 }
 
-project.afterEvaluate {
-    publishing {
-        publications {
-            sdk(MavenPublication) {
-                from components.release
-                groupId 'com.sendsay.sdk'
-                artifactId 'sdk'
-                version android.defaultConfig.buildConfigFields['SENDSAY_VERSION_NAME'].value.replace('"', '')
-
-                artifact androidSourcesJar
-
-                pom {
-                    name = 'Sendsay Sdk Library'
-                    packaging 'aar'
-                    description = 'Sendsay Sdk Library'
-                    url = 'https://github.com/sendsay-ru/sendsay-sdk-android'
-                    licenses {
-                        license {
-                            name = 'MIT'
-                            url = 'https://opensource.org/license/mit'
+// ---- publishing ----
+// we need android component, so configure only when android library plugin is applied
+plugins.withId('com.android.library') {
+    android {
+        publishing {
+            singleVariant('release') {
+                withSourcesJar()
+                withJavadocJar()
+            }
+        }
+    }
+    project.afterEvaluate {
+        publishing {
+            publications {
+                create('sdk', MavenPublication) {
+//                    from components.release
+                    // attach Android 'release' component safely (works even if it's not created yet)
+                    def releaseComponent = components.findByName("release")
+                    if (releaseComponent != null) {
+                        from(releaseComponent)
+                    } else {
+                        components.all { comp ->
+                            if (comp.name == "release") {
+                                from(comp)
+                            }
                         }
                     }
-                    developers {
-                        developer {
-                            id = 'sendsay'
-                            name = 'Sendsay'
-                            email = 'moscow@sendsay.ru'
+
+                    groupId = 'com.sendsay.sdk'
+                    artifactId = 'sdk'
+                    version = android.defaultConfig.buildConfigFields['SENDSAY_VERSION_NAME']
+                            .value.replace('"', '')
+
+                    // artifacts for sources/javadoc jars are now handled by android publishing.singleVariant
+
+                    pom {
+                        name.set('Sendsay Sdk Library')
+                        packaging = 'aar'
+                        description.set('Sendsay Sdk Library')
+                        url.set('https://github.com/sendsay-ru/sendsay-sdk-android')
+                        licenses {
+                            license {
+                                name.set('MIT')
+                                url.set('https://opensource.org/license/mit')
+                            }
                         }
-                    }
-                    scm {
-                        url = 'https://github.com/sendsay-ru/sendsay-sdk-android/tree/main'
-                        connection = 'scm:https://github.com/sendsay-ru/sendsay-sdk-android.git'
-                    }
-                    issueManagement {
-                        system = 'GitHub issues'
-                        url = 'https://github.com/sendsay-ru/sendsay-sdk-android/issues'
+                        developers {
+                            developer {
+                                id.set('sendsay')
+                                name.set('Sendsay')
+                                email.set('ask@sendsay.ru')
+                            }
+                        }
+                        scm {
+                            url.set('https://github.com/sendsay-ru/sendsay-sdk-android/tree/main')
+                            connection.set('scm:https://github.com/sendsay-ru/sendsay-sdk-android.git')
+                        }
+                        issueManagement {
+                            system.set('GitHub issues')
+                            url.set('https://github.com/sendsay-ru/sendsay-sdk-android/issues')
+                        }
                     }
                 }
             }
-        }
-        repositories {
-            maven {
-                name = 'sonatype'
-                url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-                credentials {
-                    username ossrhUsername
-                    password ossrhPassword
+            repositories {
+                maven {
+                    name = 'MavenCentral'
+                    url = uri('https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/')
+                    credentials(HttpHeaderCredentials) {
+                        name = 'Authorization'
+                        value = "Bearer ${bearer}"
+                    }
+                    authentication {
+                        header(HttpHeaderAuthentication)
+                    }
                 }
             }
         }
     }
 }
 
+// ---- notify portal task (pure lazy) ----
+final def centralUploadToPortal = tasks.register('centralUploadToPortal') {
+    group = 'publishing'
+    description = 'Notifies Central Portal to process the uploaded artifacts.'
+    doLast {
+        def ns = findProperty('centralNamespace') ?: 'com.sendsay.sdk'
+        def endpoint = new URL("https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/${ns}")
+        HttpURLConnection conn = (HttpURLConnection) endpoint.openConnection()
+        conn.setRequestMethod('POST')
+        conn.setRequestProperty('Authorization', "Bearer ${bearer}")
+        conn.setRequestProperty('Content-Type', 'application/json')
+        conn.setDoOutput(true)
+        def body = '{"publishing_type":"user_managed"}'
+        conn.outputStream.withWriter('UTF-8') { it << body }
+        int code = conn.responseCode
+        if (code < 200 || code >= 300) {
+            def err = conn.errorStream ? conn.errorStream.getText('UTF-8') : ''
+            throw new GradleException("Central Portal notification failed: ${code} ${err}")
+        } else {
+            logger.lifecycle("Central Portal notified: ${code}")
+        }
+    }
+}
+
+tasks.named("publish") {
+    finalizedBy(centralUploadToPortal)
+}
+
+// ---- signing ----
 signing {
-    sign publishing.publications
+    def rawKey = localProps.getProperty("signing.secretKey") ?: System.getenv("SIGNING_KEY")
+    def signingPassword = localProps.getProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+
+    if (rawKey && signingPassword) {
+        def signingKey = rawKey.replace('\\n', '\n')
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications)
+    } else {
+        logger.lifecycle("PGP signing is skipped: no signing.secretKey / SIGNING_KEY provided")
+    }
+}
+
+tasks.withType(Sign).configureEach { task ->
+    def signingKey = localProps.getProperty("signing.secretKey") ?: System.getenv("SIGNING_KEY")
+    def signingPassword = localProps.getProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+    task.onlyIf { signingKey && signingPassword }
 }

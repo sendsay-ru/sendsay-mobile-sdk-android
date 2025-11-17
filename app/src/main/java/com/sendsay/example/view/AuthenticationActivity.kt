@@ -24,7 +24,7 @@ class AuthenticationActivity : AppCompatActivity() {
     var projectToken = ""
     var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
     var authorizationToken =
-        "Token"
+        "Token "
     var advancedPublicKey = "PK"
     var registeredIds = ""
 
@@ -96,8 +96,6 @@ class AuthenticationActivity : AppCompatActivity() {
             CustomerTokenStorage.INSTANCE.configure(
                 customerIds = hashMapOf(
                     "registered" to (App.instance.registeredIdManager.registeredID ?: ""),
-//                    Pair("phone", "+79112343393")
-                    "phone" to "+79602386404"
                 )
             )
         }

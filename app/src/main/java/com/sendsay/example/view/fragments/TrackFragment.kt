@@ -130,7 +130,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         }
         val customerIds = CustomerIds()
             .withId("registered", (App.instance.registeredIdManager.registeredID))
-            .withId("phone", "+79602386404")
+
         CustomerTokenStorage.INSTANCE.configure(
             customerIds = hashMapOf(
                 "registered" to (App.instance.registeredIdManager.registeredID ?: "")
@@ -202,35 +202,32 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         val productData = TrackSSEC
             .viewProduct()
             .product(
-                id = "product1",
-                dateTime = currentDateTime,
-                price = 7.88,
-                available = 1,
-                name = "name",
-                oldPrice = 5.99,
-                picture = listOf(),
-                url = "url",
-                model = "model",
-                vendor = "vendor",
-                categoryId = 777,
-                category = "category_name"
+                id = "101626",
+                name = "Кеды",
+//                dateTime = currentDateTime,
+                picture = listOf(
+                    "https://m.media-amazon.com/images/I/71UiJ6CG9ZL._AC_UL320_.jpg"
+                ),
+                url = "https://sendsay.ru/catalog/kedy/kedy_290/",
+                categoryId = 1117,
+                model = "506-066 139249",
+                price = 4490.0,
             )
             .buildData()
 
 //        val jsonString = """
-//        {"dt":"$currentDateTime",
-//            "id": "product1",
-//            "available": 1,
-//            "name": "name",
-//            "price": 7.88,
-//            "old_price": 5.99,
-//            "picture": [],
-//            "url": "url",
-//            "model": "model",
-//            "vendor": "vendor",
-//            "category_id": 777,
-//            "category": "category name"
-//        }""".trimIndent()
+//                {
+////                        "dt":"$currentDateTime",
+//                    "id": "101626",
+//                    "price": 4490,
+//                    "model": "506-066 139249",
+//                    "name": "Кеды",
+//                    "picture": [
+//                        "https://m.media-amazon.com/images/I/71UiJ6CG9ZL._AC_UL320_.jpg"
+//                    ],
+//                    "url": "https://sendsay.ru/catalog/kedy/kedy_290/",
+//                    "category_id": 1117
+//                }""".trimIndent()
 //
 //        val productData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
@@ -252,26 +249,21 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
             .order()
             .update(isUpdatePerItem = false)
             .transaction(
-                id = randomTransactionId,
-                dt = currentDateTime,
-                sum = 100.9,
-                status = 1
+                id = randomTransactionId, dt = currentDateTime, sum = 1490.0, status = 1
             )
             .items(
                 listOf(
                     OrderItem(
-                        id = "product1",
+                        id = "101695",
                         qnt = 1,
-                        price = 7.88,
-                        available = 1,
-                        name = "name",
-                        oldPrice = 5.99,
-                        picture = listOf(),
-                        url = "url",
-                        model = "model",
-                        vendor = "vendor",
-                        categoryId = 777,
-                        category = "category_name",
+                        price = 1490.0,
+                        name = "Сумка",
+                        picture = listOf(
+                            "https://m.media-amazon.com/images/I/81h0fWxyp9S._AC_UL320_.jpg"
+                        ),
+                        url = "https://sendsay.ru/catalog/sumki_1/sumka_468/",
+                        model = "1110-001 139276",
+                        categoryId = 1154
                     ),
                 ),
             )
@@ -279,30 +271,29 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
             .buildData()
 
 //        val jsonString = """
-//       {"dt":"$currentDateTime",
-//               "transaction_id": "$randomTransactionId",
-//               "transaction_dt": "$currentDateTime",
-//               "transaction_sum": 100.9,
-//               "transaction_status": 1,
-//               "update_per_item": 0,
-//               "items": [
-//                 {
-//                   "id": "product1",
-//                   "available": 1,
-//                   "name": "name",
-//                   "qnt": 1,
-//                   "price": 7.88,
-//                   "old_price": 5.99,
-//                   "picture": [],
-//                   "url": "url",
-//                   "model": "model",
-//                   "vendor": "vendor",
-//                   "category_id": 777,
-//                   "category": "category name"
-//                 }
-//               ]
+//       [
+//            {
+//                "transaction_id": randomTransactionId,
+//                "transaction_dt": formattedDT,
+//                "transaction_status": 1,
+//                "transaction_sum": 1490,
+//                "update": 0,
+//                "items": [
+//                     {
+//                        "id": "101695",
+//                        "qnt": 1,
+//                        "price": 1490,
+//                        "model": "1110-001 139276",
+//                        "name": "Сумка",
+//                        "picture": [
+//                            "https://m.media-amazon.com/images/I/81h0fWxyp9S._AC_UL320_.jpg"
+//                        ],
+//                        "url": "https://sendsay.ru/catalog/sumki_1/sumka_468/",
+//                        "category_id": 1154
+//                    }
+//                ]
 //            }
-//            """.trimIndent()
+//            ]""".trimIndent()
 //        val orderData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
         try {
@@ -322,51 +313,48 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
         val orderData = TrackSSEC
             .basketAdd()
-            .transaction(id = randomTransactionId, dt = currentDateTime, sum = 100.9, status = 1)
+            .transaction(id = "2968", dt = currentDateTime, sum = 2590.0, status = 1)
             .items(
                 listOf(
                     OrderItem(
-                        id = "product1",
+                        id = "101115",
                         qnt = 1,
-                        price = 7.88,
-                        available = 1,
-                        name = "name",
-                        oldPrice = 5.99,
-                        picture = listOf(),
-                        url = "url",
-                        model = "model",
-                        vendor = "vendor",
-                        categoryId = 777,
-                        category = "category_name",
+                        price = 2590.0,
+                        name = "Рюкзак",
+                        picture = listOf(
+                            "https://m.media-amazon.com/images/I/91fkUMA5K1L._AC_UL320_.jpg"
+                        ),
+                        url = "https://sendsay.ru/catalog/ryukzaki/ryukzak_745/",
+                        model = "210-045 138761",
+                        categoryId = 1153,
                         cp = mapOf("cp1" to "promo-2025"),
                     )
                 ),
-            ).buildData()
+            )
+            .buildData()
 
         Log.d("TrackFragment", "trackBasket: $orderData")
 
 //        val jsonString = """
-//           {
-//                   "dt":"$currentDateTime",
-//                   "transaction_sum": 100.9,
-//                   "update_per_item": 0,
-//                   "items": [
-//                     {
-//                       "id": "product1",
-//                       "available": 1,
-//                       "name": "name",
-//                       "qnt": 1,
-//                       "price": 7.88,
-//                       "old_price": 5.99,
-//                       "picture": [],
-//                       "url": "url",
-//                       "model": "model",
-//                       "vendor": "vendor",
-//                       "category_id": 777,
-//                       "category": "category name"
-//                     }
-//                   ]
-//            }""".trimIndent()
+//        {
+//            "transaction_id": "2968",
+//            "transaction_sum": 2590,
+//            "items": [
+//                {
+//                    "id": "101115",
+//                    "qnt": 1,
+//                    "price": 2590,
+//                    "model": "210-045 138761",
+//                    "name": "Рюкзак",
+//                    "picture": [
+//                        "https://m.media-amazon.com/images/I/91fkUMA5K1L._AC_UL320_.jpg"
+//                    ],
+//                    "url": "https://sendsay.ru/catalog/ryukzaki/ryukzak_745/",
+//                    "category_id": 1153
+//                }
+//            ]
+//        }
+//        """.trimIndent()
 //        val orderData: TrackSSECData =
 //            SendsayGson.instance.fromJson(jsonString, TrackSSECData::class.java)
         try {
