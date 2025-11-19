@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply from: 'publish-maven.gradle'
+//apply from: 'publish-maven.gradle'
 apply from: '../jacoco.gradle'
 apply plugin: 'com.panaxeo.shadow-aar'
 apply plugin: 'com.google.devtools.ksp'
