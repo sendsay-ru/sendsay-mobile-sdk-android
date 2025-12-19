@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
@@ -53,9 +54,11 @@ class NotificationsPermissionActivity : Activity() {
         if (requestCode == permissionRequestCode) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 Logger.i(this, "Push notifications permission has been granted")
+                Toast.makeText(this, "Push notifications permission has been granted", Toast.LENGTH_LONG)
                 sendBroadcastResult(true)
             } else {
                 Logger.w(this, "Push notifications permission has been denied")
+                Toast.makeText(this, "Push notifications permission has been denied", Toast.LENGTH_LONG)
                 sendBroadcastResult(false)
             }
             finish()

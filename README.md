@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/img/sendsay-logo.jpg?raw=true" alt="Sendsay Logo"/>
+  <img src="./docs/img/sendsay-logo.png?raw=true" alt="Sendsay Logo"/>
 </p>
 
 ## Что такое Sendsay Android SDK?

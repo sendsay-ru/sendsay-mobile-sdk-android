@@ -34,7 +34,7 @@ internal class VersionChecker(
             }
             context.isMauiSDK() -> {
                 actualVersion = context.getMauiSDKVersion()
-                gitProject = "bloomreach-maui-sdk"
+                gitProject = "sendsay-maui-sdk"
             }
             else -> {
                 actualVersion = BuildConfig.SENDSAY_VERSION_NAME

@@ -12,8 +12,11 @@ enum class EventType {
     // Session end event used to mark the end of a session, typically when an app goes to background.
     SESSION_END,
 
-    // Custom event tracking, used to report any custom events that you want.
+    // Custom event tracking, used to report any custom events that you want (aka "CCE").
     TRACK_EVENT,
+
+    // Tracking of Sendsay E-Commerce events (ex. View products/Basket updates/Orders/etc).
+    TRACK_SSEC,
 
     // Tracking of customers is used to identify a current customer by some identifier.
     TRACK_CUSTOMER,
