@@ -9,10 +9,12 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.logOnException
 import com.sendsay.sdk.util.runOnBackgroundThread
+import com.sendsay.sdk.util.runOnMainThread
 import com.sendsay.sdk.view.NotificationsPermissionActivity
 
 class NotificationsPermissionReceiver(
@@ -29,8 +31,9 @@ class NotificationsPermissionReceiver(
             ACTION_PERMISSIONS_RESULT_BOOL,
             false
         )
-        Logger.i(this, "Push notification permission has been " +
-            if (permissionGranted) "GRANTED" else "DENIED"
+        Logger.i(
+            this, "Push notification permission has been " +
+                    if (permissionGranted) "GRANTED" else "DENIED"
         )
         runOnBackgroundThread {
             runCatching {
@@ -72,6 +75,13 @@ class NotificationsPermissionReceiver(
                     )
                     if (permissionState == PackageManager.PERMISSION_GRANTED) {
                         Logger.i(this, "Push notifications permission already granted")
+                        runOnMainThread {
+                            Toast.makeText(
+                                context,
+                                "Push notifications permission already granted",
+                                Toast.LENGTH_LONG
+                            )
+                        }
                         listener(true)
                         return@runCatching
                     }

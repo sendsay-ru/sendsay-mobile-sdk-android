@@ -26,7 +26,7 @@ Sendsay Android SDK можно установить или обновить с �
 
 1. В файле `build.gradle` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```groovy
-   implementation 'com.sendsay.sdk:sdk:0.1.0'
+   implementation 'com.sendsay.sdk:sdk:0.1.1'
    ```
 2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
 
@@ -102,7 +102,7 @@ SDK прочитает параметры конфигурации из файл
 
 > 📘
 >
-> Обратитесь к [`sendsay_configuration.json`](https://github.com/prosky/sendsay-android-sdk/blob/main/app/src/main/assets/sendsay_configuration.json) в [примере приложения](https://documentation.bloomreach.com/engagement/docs/android-sdk-example-app) для примера файла конфигурации.
+> Обратитесь к [`sendsay_configuration.json`](https://github.com/prosky/sendsay-android-sdk/blob/main/app/src/main/assets/sendsay_configuration.json) в [примере приложения](example-app.md) для примера файла конфигурации.
 
 ### Где разместить код инициализации SDK
 

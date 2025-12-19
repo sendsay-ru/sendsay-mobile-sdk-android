@@ -18,15 +18,19 @@ import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.SendsayConfiguration.Companion.TOKEN_AUTH_PREFIX
 import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
+import kotlin.collections.set
 
 class AuthenticationActivity : AppCompatActivity() {
+    // Start our sendsay configuration
+    val configuration = SendsayConfiguration()
 
-    var projectToken = ""
-    var apiUrl = "https://mobi.sendsay.ru/xnpe/v100"
+    var projectToken = "${configuration.defaultProperties["projectToken"] ?: ""}"
+    var apiUrl =
+        "${configuration.defaultProperties["apiUrl"] ?: "https://mobi.sendsay.ru/xnpe/v100"}"
     var authorizationToken =
-        "Token "
-    var advancedPublicKey = "PK"
-    var registeredIds = ""
+        "Token ${configuration.defaultProperties["authorizationToken"] ?: ""}"
+    var advancedPublicKey = "${configuration.defaultProperties["advancedPublicKey"] ?: "PK"}"
+    var registeredIds = "${configuration.defaultProperties["registeredIds"] ?: ""}"
 
     private lateinit var viewBinding: ActivityAuthenticationBinding
 
@@ -65,11 +69,16 @@ class AuthenticationActivity : AppCompatActivity() {
     }
 
     private fun initSdk() {
-        // Start our sendsay configuration
-        val configuration = SendsayConfiguration()
+        // Saving current field state
+        configuration.defaultProperties["projectToken"] = projectToken
+        configuration.defaultProperties["apiUrl"] = apiUrl
+        configuration.defaultProperties["authorizationToken"] = authorizationToken.split(" ").last()
+        configuration.defaultProperties["advancedPublicKey"] = advancedPublicKey
+        configuration.defaultProperties["registeredIds"] = registeredIds
 
         // ingore existing prefix for authorization token (Token, Bearer or Basic)
-        configuration.authorization = TOKEN_AUTH_PREFIX + authorizationToken.split(" ").last()
+        configuration.authorization =
+            TOKEN_AUTH_PREFIX + authorizationToken.split(" ").last()
         configuration.advancedAuthEnabled = advancedPublicKey.isNotBlank()
         configuration.projectToken = projectToken
         configuration.baseURL = apiUrl
