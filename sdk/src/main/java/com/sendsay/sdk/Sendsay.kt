@@ -68,6 +68,8 @@ import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
 import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.PushNotificationRepository
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_ISSUE
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_LETTER
 import com.sendsay.sdk.repository.PushTokenRepositoryProvider
 import com.sendsay.sdk.services.AppInboxProvider
 import com.sendsay.sdk.services.SendsayContextProvider
@@ -245,6 +247,9 @@ object Sendsay {
             repository?.popClickedPushData()?.forEach {
                 value.handleClickedPushUpdate(it)
             }
+            //
+//            val issue = repository?.getExtraData()?.entries?.any { it.key == KEY_ISSUE }
+//            val letter = repository?.getExtraData()?.entries?.any { it.key == KEY_LETTER }
         }.logOnException()
 
     /**
@@ -751,9 +756,9 @@ object Sendsay {
     }
 
     /**
-     * Tracks payment manually
-     * @param timestamp - Time in timestamp format where the event was created. ( in seconds )
-     * @param purchasedItem - represents payment details.
+     * Tracks SSEC event to CDP Sendsay
+     * @param type - is type of SSEC event
+     * @param data - represents SSEC data details.
      */
     fun trackSSECEvent(
         type: TrackingSSECType,

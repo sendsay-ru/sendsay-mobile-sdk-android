@@ -1,9 +1,12 @@
 package com.sendsay.sdk.models
 
+import com.sendsay.sdk.preferences.SendsayPreferencesImpl
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_ISSUE
+import com.sendsay.sdk.services.SendsayContextProvider
+
 // Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
 // Каждый билдер знает свой обязательный набор полей и делегирует в core-билдер.
 interface TrackSSECBuilder {
-//    fun cp(map: Map<String, Any>): TrackSSECBuilder
     fun buildData(): TrackSSECData
     fun buildProperties(): HashMap<String, Any>
 }
@@ -17,7 +20,7 @@ class ViewProductBuilder internal constructor(
     fun product(
         id: String,
         name: String? = null,
-        dateTime: String? = null,
+//        dateTime: String? = null,
         picture: List<String>? = null,
         url: String? = null,
         available: Long? = null,
@@ -32,7 +35,7 @@ class ViewProductBuilder internal constructor(
         oldPrice: Double? = null,
     ) = apply {
         core.setProduct(
-            id = id, name = name, dateTime = dateTime, picture = picture, url = url,
+            id = id, name = name, /*dateTime = dateTime, */ picture = picture, url = url,
             available = available, categoryPaths = categoryPaths, categoryId = categoryId,
             category = category, description = description, vendor = vendor, model = model,
             type = type, price = price, oldPrice = oldPrice
@@ -44,7 +47,7 @@ class ViewProductBuilder internal constructor(
         core.setUpdate(isUpdate, isUpdatePerItem)
     }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.VIEW_PRODUCT)
@@ -85,7 +88,7 @@ class OrderBuilder internal constructor(
         core.setProduct(id = id, name = name, price = price)
     }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.ORDER)
@@ -114,7 +117,7 @@ class BasketAddBuilder internal constructor(
 
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_ADD)
@@ -126,9 +129,9 @@ class BasketClearBuilder internal constructor(
 ) : TrackSSECBuilder {
 
     fun items(items: List<OrderItem>) = apply { core.setItems(items) }
-    fun dateTime(dt: String) = apply { core.setProduct(dateTime = dt) }
+//    fun dateTime(dt: String) = apply { core.setProduct(dateTime = dt) }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -145,7 +148,7 @@ class ViewCategoryBuilder internal constructor(
     fun searchByCategoryId(categoryId: Long? = null) =
         apply { core.searchCategory(categoryId = categoryId) }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -158,7 +161,7 @@ class SearchProductBuilder internal constructor(
 
     fun search(description: String) = apply { core.searchDescription(description) }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -174,7 +177,7 @@ class SubscribeProductBuilder internal constructor(
     fun delete(itemsId: List<Int>) = apply { core.setSubscriptionOrFavoritesDelete(itemsId) }
     fun clear(eraseAll: Boolean) = apply { core.setSubscriptionOrFavoritesClear(eraseAll) }
 
-//    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.BASKET_CLEAR)
@@ -217,7 +220,8 @@ object TrackSSEC {
 internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var productId: String? = null
     private var productName: String? = null
-    private var productDateTime: String? = null
+
+    //    private var productDateTime: String? = null
     private var productPicture: List<String>? = null
     private var productUrl: String? = null
     private var productAvailable: Long? = null
@@ -232,6 +236,9 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var productOldPrice: Double? = null
     private var email: String? = null
     private var updatePerItem: Int? = null
+    private var issue: Int? = null
+    private var letter: Int? = null
+    private var issueDt: String? = null
     private var update: Int? = null
     private var transactionId: String? = null
     private var transactionDt: String? = null
@@ -245,14 +252,21 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var subscriptionAdd: List<OrderItem>? = null
     private var subscriptionDelete: List<Int>? = null
     private var subscriptionClear: Int? = null
-//    private var cpMap: Map<String, Any>? = null
 
-//    fun setCp(cp: Map<String, Any>) = apply { this.cpMap = cp }
+    fun setIssueLetter(
+        issue: Int? = null,
+        letter: Int? = null,
+        issueDt: String? = null,
+    ) = apply {
+        this.issue = if (issue != 0) issue else null
+        this.letter = if (letter != 0) letter else null
+        this.issueDt = if (issueDt != "") issueDt else null
+    }
 
     fun setProduct(
         id: String? = null,
         name: String? = null,
-        dateTime: String? = null,
+//        dateTime: String? = null,
         picture: List<String>? = null,
         url: String? = null,
         available: Long? = null,
@@ -268,7 +282,7 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     ) = apply {
         this.productId = id
         this.productName = name
-        this.productDateTime = dateTime
+//        this.productDateTime = dateTime
         this.productPicture = picture
         this.productUrl = url
         this.productAvailable = available
@@ -420,6 +434,14 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         val formattedDeliveryDt = deliveryDt
         val formattedPaymentDt = paymentDt
 
+        // Передача данных о выпуске CDP Sendsay (Redmine 14014)
+        val prefs = SendsayPreferencesImpl(SendsayContextProvider.applicationContext!!)
+        setIssueLetter(
+            issue = prefs.getLong(key = KEY_ISSUE, default = 0L).toInt(),
+            letter = prefs.getLong(key = KEY_ISSUE, default = 0L).toInt(),
+            issueDt = prefs.getString(key = KEY_ISSUE, default = "")
+        )
+
         return TrackSSECData(
             productId = productId,
             productName = productName,
@@ -435,6 +457,10 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             type = productType,
             price = productPrice,
             oldPrice = productOldPrice,
+
+            issue = issue,
+            letter = letter,
+            issueDt = issueDt,
 
             updatePerItem = updatePerItem,
             update = update,
@@ -452,8 +478,6 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
             subscriptionAdd = subscriptionAdd,
             subscriptionDelete = subscriptionDelete,
             subscriptionClear = subscriptionClear,
-
-//            cp = cpMap
         )
     }
 }

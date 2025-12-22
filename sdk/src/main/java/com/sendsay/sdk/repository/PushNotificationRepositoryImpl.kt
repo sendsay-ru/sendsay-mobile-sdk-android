@@ -1,14 +1,25 @@
 package com.sendsay.sdk.repository
 
+import android.icu.util.Calendar
+import com.google.gson.Gson
 import com.sendsay.sdk.models.PushOpenedData
 import com.sendsay.sdk.preferences.SendsayPreferences
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.fromJson
-import com.google.gson.Gson
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.DurationUnit
 
 internal class PushNotificationRepositoryImpl(
     private val preferences: SendsayPreferences
 ) : PushNotificationRepository {
+    companion object {
+        //    private val ISSUE_LETTER_EXPIRE_DURATION: Long = 48.hours.toLong(DurationUnit.MILLISECONDS)
+        val ISSUE_LETTER_EXPIRE_DURATION: Long = 15.minutes.toLong(DurationUnit.MILLISECONDS)
+
+        val KEY_ISSUE_LETTER_DATETIME_DATA = "SendsayIssueLetterDateTimeData"
+        val KEY_ISSUE = "sendsay_issue_id"
+        val KEY_LETTER = "sendsay_letter_id"
+    }
 
     private val KEY_EXTRA_DATA = "SendsayPushNotificationExtraData"
     private val KEY_DELIVERED_DATA = "SendsayDeliveredPushNotificationData"
@@ -19,12 +30,38 @@ internal class PushNotificationRepositoryImpl(
         if (dataString.isEmpty()) {
             return null
         }
-        return Gson().fromJson<HashMap<String, Any>>(dataString)
+        val mapData = Gson().fromJson<HashMap<String, Any>>(dataString)
+        checkIssueAndLetterOnExpire(mapData)
+        return mapData
+    }
+
+    private fun checkIssueAndLetterOnExpire(data: Map<String, Any>) {
+        val now = Calendar.getInstance().timeInMillis
+        val lastIssueLetterDateTime: Long =
+            (data.entries.firstOrNull { it.key == KEY_ISSUE_LETTER_DATETIME_DATA }
+                ?.value as? Long ?: now)
+        if ((now - lastIssueLetterDateTime)
+            >= ISSUE_LETTER_EXPIRE_DURATION
+        ) {
+            val mutableMap = data.toMutableMap()
+            mutableMap.remove(KEY_ISSUE_LETTER_DATETIME_DATA)
+            mutableMap.remove(KEY_ISSUE)
+            mutableMap.remove(KEY_LETTER)
+            setExtraData(mutableMap)
+        }
     }
 
     override fun setExtraData(data: Map<String, Any>) {
+        setLastDateTimeOnIssueAndLetter(data)
         val dataString = Gson().toJson(data)
         preferences.setString(KEY_EXTRA_DATA, dataString)
+    }
+
+    private fun setLastDateTimeOnIssueAndLetter(data: Map<String, Any>) {
+        if (data.entries.any { it.key == KEY_ISSUE || it.key == KEY_LETTER }) {
+            val currentDateTime = Calendar.getInstance().timeInMillis
+            data.entries.plus(KEY_ISSUE_LETTER_DATETIME_DATA to currentDateTime)
+        }
     }
 
     override fun appendDeliveredNotification(data: Map<String, String>) {
