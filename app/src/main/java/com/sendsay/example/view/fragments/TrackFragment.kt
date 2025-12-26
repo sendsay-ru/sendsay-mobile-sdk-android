@@ -166,12 +166,12 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
     private fun trackClearBasket() {
         // Получение текущего времени с использованием SimpleDateFormat
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val currentDateTime = dateFormat.format(Date())
+//        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+//        val currentDateTime = dateFormat.format(Date())
 
         val data = TrackSSEC
             .basketClear()
-            .dateTime(dt = currentDateTime)
+//            .dateTime(dt = currentDateTime)
             .items(listOf(OrderItem(id = "-1")))
             .buildData()
 

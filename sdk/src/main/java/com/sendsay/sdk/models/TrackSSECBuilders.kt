@@ -1,7 +1,10 @@
 package com.sendsay.sdk.models
 
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_ISSUE
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_ISSUE_LETTER_DATETIME_DATA_UTC
+import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_LETTER
 import com.sendsay.sdk.services.SendsayContextProvider
 
 // Типо-безопасные билдеры-обёртки вокруг существующего TrackSSECDataCore
@@ -43,8 +46,8 @@ class ViewProductBuilder internal constructor(
     }
 
     //    fun email(value: String) = apply { core.setEmail(value) }
-    fun update(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
-        core.setUpdate(isUpdate, isUpdatePerItem)
+    fun update(isUpdate: Boolean? = null,) = apply {
+        core.setUpdate(isUpdate)
     }
 
     //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
@@ -69,8 +72,8 @@ class OrderBuilder internal constructor(
         core.setTransaction(id = id, dt = dt, sum = sum, discount = discount, status = status)
     }
 
-    fun update(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
-        core.setUpdate(isUpdate, isUpdatePerItem)
+    fun update(isUpdate: Boolean? = null) = apply {
+        core.setUpdate(isUpdate)
     }
 
     fun delivery(dt: String, price: Double? = null) = apply { core.setDelivery(dt, price) }
@@ -88,7 +91,11 @@ class OrderBuilder internal constructor(
         core.setProduct(id = id, name = name, price = price)
     }
 
-    //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
+    fun update(isUpdate: Boolean? = null, isUpdatePerItem: Boolean? = null) = apply {
+        core.setUpdate(isUpdate, isUpdatePerItem)
+    }
+
+        //    override fun cp(map: Map<String, Any>) = apply { core.setCp(map) }
     override fun buildData(): TrackSSECData = core.build()
     override fun buildProperties(): HashMap<String, Any> =
         core.build().toProperties(TrackingSSECType.ORDER)
@@ -435,11 +442,12 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         val formattedPaymentDt = paymentDt
 
         // Передача данных о выпуске CDP Sendsay (Redmine 14014)
-        val prefs = SendsayPreferencesImpl(SendsayContextProvider.applicationContext!!)
+        val prefs =
+            PushNotificationRepositoryImpl(SendsayPreferencesImpl(SendsayContextProvider.applicationContext!!)).getExtraData() as HashMap<String, Any>
         setIssueLetter(
-            issue = prefs.getLong(key = KEY_ISSUE, default = 0L).toInt(),
-            letter = prefs.getLong(key = KEY_ISSUE, default = 0L).toInt(),
-            issueDt = prefs.getString(key = KEY_ISSUE, default = "")
+            issue = (prefs.entries.find { it.key == KEY_ISSUE }?.value as String).toIntOrNull() ?: -1,
+            letter = (prefs.entries.find { it.key == KEY_LETTER }?.value as String).toIntOrNull() ?: -1,
+//            issueDt = prefs.entries.find { it.key == KEY_ISSUE_LETTER_DATETIME_DATA_UTC }?.value as String
         )
 
         return TrackSSECData(
