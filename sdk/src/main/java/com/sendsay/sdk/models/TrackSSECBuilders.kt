@@ -1,5 +1,6 @@
 package com.sendsay.sdk.models
 
+import com.sendsay.sdk.Sendsay.getPushNotificationRepository
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl.Companion.KEY_ISSUE
@@ -260,7 +261,7 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
     private var subscriptionDelete: List<Int>? = null
     private var subscriptionClear: Int? = null
 
-    fun setIssueLetter(
+    private fun setIssueLetter(
         issue: Int? = null,
         letter: Int? = null,
         issueDt: String? = null,
@@ -442,11 +443,12 @@ internal class TrackSSECDataCore(private val type: TrackingSSECType) {
         val formattedPaymentDt = paymentDt
 
         // Передача данных о выпуске CDP Sendsay (Redmine 14014)
-        val prefs =
-            PushNotificationRepositoryImpl(SendsayPreferencesImpl(SendsayContextProvider.applicationContext!!)).getExtraData() as HashMap<String, Any>
+        val prefs = getPushNotificationRepository()?.getExtraData() as? HashMap<String, Any>
+//        val prefs =
+//            PushNotificationRepositoryImpl(SendsayPreferencesImpl(SendsayContextProvider.applicationContext!!)).getExtraData() as? HashMap<String, Any>
         setIssueLetter(
-            issue = (prefs.entries.find { it.key == KEY_ISSUE }?.value as String).toIntOrNull() ?: -1,
-            letter = (prefs.entries.find { it.key == KEY_LETTER }?.value as String).toIntOrNull() ?: -1,
+            issue = (prefs?.entries?.find { it.key == KEY_ISSUE }?.value as String?)?.toIntOrNull(), // ?: -1,
+            letter = (prefs?.entries?.find { it.key == KEY_LETTER }?.value as String?)?.toIntOrNull(), //?: -1,
 //            issueDt = prefs.entries.find { it.key == KEY_ISSUE_LETTER_DATETIME_DATA_UTC }?.value as String
         )
 

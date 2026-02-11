@@ -10,7 +10,7 @@ import com.google.android.material.textfield.TextInputEditText
 import java.io.Serializable
 
 fun TextInputEditText.isValid(): Boolean {
-    val isValid = !text.toString().isEmpty()
+    val isValid = !text.isNullOrEmpty()
     error = if (isValid) {
         null
     } else {
@@ -20,7 +20,7 @@ fun TextInputEditText.isValid(): Boolean {
 }
 
 fun TextInputEditText.isVaildUrl(): Boolean {
-    val isEmpty = text.toString().isEmpty()
+    val isEmpty = text.isNullOrEmpty()
     val text = text ?: ""
     val isUrl = Patterns.WEB_URL.matcher(text).matches() && (text.startsWith("https://") || text.startsWith("http://"))
     error = when {

@@ -1,7 +1,7 @@
 package com.sendsay.sdk.preferences
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.sendsay.sdk.util.Logger
 
 internal class SendsayPreferencesImpl(

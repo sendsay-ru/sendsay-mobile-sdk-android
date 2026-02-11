@@ -8,8 +8,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 
 class NetworkManager {
     private val mediaTypeJson: MediaType = "application/json".toMediaTypeOrNull()!!
@@ -33,7 +35,7 @@ class NetworkManager {
                     .protocol(Protocol.HTTP_2)
                     .message(message)
                     .request(it.request())
-                    .body(ResponseBody.create("text/plain".toMediaTypeOrNull(), message))
+                    .body(message.toResponseBody("text/plain".toMediaTypeOrNull()))
                     .build()
             }
         }
@@ -58,10 +60,10 @@ class NetworkManager {
         if (body != null) {
             when (method) {
                 "GET" -> requestBuilder.get()
-                "POST" -> requestBuilder.post(RequestBody.create(mediaTypeJson, body))
+                "POST" -> requestBuilder.post(body.toRequestBody(mediaTypeJson))
                 else -> throw RuntimeException("Http method $method not supported.")
             }
-            requestBuilder.post(RequestBody.create(mediaTypeJson, body))
+            requestBuilder.post(body.toRequestBody(mediaTypeJson))
         }
 
         return networkClient.newCall(requestBuilder.build())

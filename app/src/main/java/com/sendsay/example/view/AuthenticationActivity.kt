@@ -18,19 +18,21 @@ import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.SendsayConfiguration.Companion.TOKEN_AUTH_PREFIX
 import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
+import com.sendsay.sdk.repository.SendsayConfigRepository
+import com.sendsay.sdk.services.SendsayContextProvider
+import com.sendsay.sdk.util.Logger
 import kotlin.collections.set
 
 class AuthenticationActivity : AppCompatActivity() {
-    // Start our sendsay configuration
-    val configuration = SendsayConfiguration()
+    // Simple Sendsay configuration - without SDK init
+    val defaultProperties = CustomerTokenStorage.INSTANCE
 
-    var projectToken = "${configuration.defaultProperties["projectToken"] ?: ""}"
-    var apiUrl =
-        "${configuration.defaultProperties["apiUrl"] ?: "https://mobi.sendsay.ru/xnpe/v100"}"
+    var projectToken = defaultProperties.projectToken ?: ""
+    var apiUrl = defaultProperties.host ?: "https://mobi.sendsay.ru/xnpe/v100"
     var authorizationToken =
-        "Token ${configuration.defaultProperties["authorizationToken"] ?: ""}"
-    var advancedPublicKey = "${configuration.defaultProperties["advancedPublicKey"] ?: "PK"}"
-    var registeredIds = "${configuration.defaultProperties["registeredIds"] ?: ""}"
+        "Token ${defaultProperties.authToken ?: ""}"
+    var advancedPublicKey = defaultProperties.publicKey ?: "PK"
+    var registeredIds = defaultProperties.customerIds?.values?.last() ?: ""
 
     private lateinit var viewBinding: ActivityAuthenticationBinding
 
@@ -38,7 +40,6 @@ class AuthenticationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityAuthenticationBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
-//        setSupportActionBar(viewBinding.toolbar)
 
         viewBinding.editTextAuthCode.setText(authorizationToken)
         viewBinding.editTextAdvancedPublicKey.setText(advancedPublicKey)
@@ -69,6 +70,7 @@ class AuthenticationActivity : AppCompatActivity() {
     }
 
     private fun initSdk() {
+        val configuration = SendsayConfiguration()
         // Saving current field state
         configuration.defaultProperties["projectToken"] = projectToken
         configuration.defaultProperties["apiUrl"] = apiUrl
@@ -94,6 +96,7 @@ class AuthenticationActivity : AppCompatActivity() {
         CustomerTokenStorage.INSTANCE.configure(
             host = apiUrl,
             projectToken = projectToken,
+            authToken = authorizationToken.split(" ").last(),
             publicKey = advancedPublicKey,
             customerIds = null,
             expiration = null

@@ -109,6 +109,9 @@ dependencies {
     // Kotlin DateTime
     implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.7.1"
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.9'
+    // Android X prefs
+    implementation "androidx.preference:preference:1.2.1"
+    implementation "androidx.preference:preference-ktx:1.2.1"
 
     // Base Test
     testImplementation 'junit:junit:4.13.2'

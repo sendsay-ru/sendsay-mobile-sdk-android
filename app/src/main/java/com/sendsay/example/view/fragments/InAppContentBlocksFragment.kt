@@ -61,6 +61,8 @@ class InAppContentBlocksFragment : BaseFragment() {
 
     private val OPEN_CAROUSEL_ACTION_ID = 1
 
+
+    @Deprecated("")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.add(
             Menu.NONE,
@@ -71,19 +73,20 @@ class InAppContentBlocksFragment : BaseFragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @Deprecated("")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             OPEN_CAROUSEL_ACTION_ID -> {
-//                openCarousel()
+                openCarousel()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-//    private fun openCarousel() {
-//        (activity as? MainActivity)?.openCarousel()
-//    }
+    private fun openCarousel() {
+        (activity as? MainActivity)?.openCarousel()
+    }
 
     private fun prepareExampleListCbPlaceholder() {
         viewBinding.contentBlocksList.layoutManager = LinearLayoutManager(requireContext())

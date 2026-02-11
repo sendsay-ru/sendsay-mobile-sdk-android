@@ -3,21 +3,17 @@ package com.sendsay.sdk.repository
 import android.icu.util.Calendar
 import com.google.gson.Gson
 import com.sendsay.sdk.models.PushOpenedData
+import com.sendsay.sdk.models.SendsayConfiguration.Companion.ISSUE_LETTER_EXPIRE_DURATION
 import com.sendsay.sdk.preferences.SendsayPreferences
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.fromJson
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 
 internal class PushNotificationRepositoryImpl(
     private val preferences: SendsayPreferences
 ) : PushNotificationRepository {
     companion object {
-        private val ISSUE_LETTER_EXPIRE_DURATION: Long = 48.hours.toLong(DurationUnit.MILLISECONDS)
-//        val ISSUE_LETTER_EXPIRE_DURATION: Long = 15.minutes.toLong(DurationUnit.MILLISECONDS)
-
         val KEY_ISSUE_LETTER_DATETIME_DATA_UTC = "sendsay_issue_letter_datetime"
         val KEY_ISSUE = "sendsay_issue_id"
         val KEY_LETTER = "sendsay_letter_id"
@@ -50,7 +46,9 @@ internal class PushNotificationRepositoryImpl(
             mutableMap.remove(KEY_ISSUE_LETTER_DATETIME_DATA_UTC)
             mutableMap.remove(KEY_ISSUE)
             mutableMap.remove(KEY_LETTER)
+
             setExtraData(mutableMap)
+
             return mutableMap as HashMap
         }
         return data
