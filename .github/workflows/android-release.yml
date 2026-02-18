@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "$SENDSAY_JKS_B64" | base64 -d > app/Sendsay.jks
         env:
-          $SENDSAY_JKS_B64: ${{ secrets.$SENDSAY_JKS_B64 }}
+          SENDSAY_JKS_B64: ${{ secrets.SENDSAY_JKS_B64 }}
 
       - name:  Restore google-services.json
         run: |
