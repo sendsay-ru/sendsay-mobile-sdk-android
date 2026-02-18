@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
@@ -34,10 +33,6 @@ import com.sendsay.sdk.models.CustomerRecommendationOptions
 import com.sendsay.sdk.models.CustomerRecommendationRequest
 import com.sendsay.sdk.models.DeviceProperties
 import com.sendsay.sdk.models.EventType
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency
-import com.sendsay.sdk.models.SendsayNotificationActionType
-import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.FetchError
 import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.FlushMode.APP_CLOSE
@@ -61,19 +56,23 @@ import com.sendsay.sdk.models.PushOpenedData
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentationDataCallback
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency
+import com.sendsay.sdk.models.SendsayNotificationActionType
+import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.TrackSSECData
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
 import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
-import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.PushNotificationRepository
 import com.sendsay.sdk.repository.PushNotificationRepositoryImpl
 import com.sendsay.sdk.repository.PushTokenRepositoryProvider
+import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.services.AppInboxProvider
-import com.sendsay.sdk.services.SendsayContextProvider
-import com.sendsay.sdk.services.SendsayInitManager
 import com.sendsay.sdk.services.MessagingUtils
+import com.sendsay.sdk.services.SendsayContextProvider
 import com.sendsay.sdk.services.SendsayDeintegrateManager
+import com.sendsay.sdk.services.SendsayInitManager
 import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_MAX_MESSAGES_COUNT
 import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_SCROLL_DELAY
 import com.sendsay.sdk.telemetry.TelemetryManager
@@ -91,18 +90,11 @@ import com.sendsay.sdk.util.logOnException
 import com.sendsay.sdk.util.logOnExceptionWithResult
 import com.sendsay.sdk.util.returnOnException
 import com.sendsay.sdk.util.runOnMainThread
-import com.sendsay.sdk.util.toMap
 import com.sendsay.sdk.view.ContentBlockCarouselView
 import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
 import com.sendsay.sdk.view.InAppMessagePresenter
 import com.sendsay.sdk.view.InAppMessageView
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 //@SuppressLint("StaticFieldLeak")
 object Sendsay {
@@ -238,12 +230,17 @@ object Sendsay {
             if (value == null) {
                 return@runCatching
             }
-            val repository = getPushNotificationRepository()
-            repository?.popDeliveredPushData()?.forEach {
-                value.handleReceivedPushUpdate(it)
-            }
-            repository?.popClickedPushData()?.forEach {
-                value.handleClickedPushUpdate(it)
+            val storeData = component.pushNotificationRepository.getExtraData()
+            if (storeData != null) {
+                val repository = getPushNotificationRepository()
+                repository?.popDeliveredPushData()?.forEach {
+                    value.handleReceivedPushUpdate(it)
+                }
+                repository?.popClickedPushData()?.forEach {
+                    value.handleClickedPushUpdate(it)
+                }
+
+//                component.pushNotificationRepository.clearExtraData()
             }
         }.logOnException()
 
@@ -751,9 +748,9 @@ object Sendsay {
     }
 
     /**
-     * Tracks payment manually
-     * @param timestamp - Time in timestamp format where the event was created. ( in seconds )
-     * @param purchasedItem - represents payment details.
+     * Tracks SSEC event to CDP Sendsay
+     * @param type - is type of SSEC event
+     * @param data - represents SSEC data details.
      */
     fun trackSSECEvent(
         type: TrackingSSECType,
@@ -789,9 +786,7 @@ object Sendsay {
     ): Boolean = runCatching {
         if (!isSendsayPushNotification(messageData)) return@runCatching false
         val fcmManagerInstance = getFcmManager(applicationContext)
-        if (fcmManagerInstance != null) {
-            fcmManagerInstance.handleRemoteMessage(messageData, manager, showNotification)
-        }
+        fcmManagerInstance?.handleRemoteMessage(messageData, manager, showNotification)
         return true
     }.returnOnException { true }
 

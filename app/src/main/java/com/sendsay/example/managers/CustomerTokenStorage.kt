@@ -33,15 +33,16 @@ class CustomerTokenStorage(
         Logger.d(this, "[CTS] Conf loaded $confJson")
     }
 
-    private var host: String? = null
-    private var projectToken: String? = null
-    private var publicKey: String? = null
-    private var customerIds: HashMap<String, String>? = null
-    private var expiration: Int? = null
+    var host: String? = null
+    var projectToken: String? = null
+    var authToken: String? = null
+    var publicKey: String? = null
+    var customerIds: HashMap<String, String>? = null
+    var expiration: Int? = null
 
-    private var tokenCache: String? = null
+    var tokenCache: String? = null
 
-    private var lastTokenRequestTime: Long = 0
+    var lastTokenRequestTime: Long = 0
 
     fun retrieveJwtToken(): String? {
         val now = System.currentTimeMillis()
@@ -114,12 +115,14 @@ class CustomerTokenStorage(
     fun configure(
         host: String? = this.host,
         projectToken: String? = this.projectToken,
+        authToken: String? = this.authToken,
         publicKey: String? = this.publicKey,
         customerIds: HashMap<String, String>? = this.customerIds,
         expiration: Int? = this.expiration
     ) {
         this.host = host
         this.projectToken = projectToken
+        this.authToken = authToken
         this.publicKey = publicKey
         this.customerIds = customerIds
         this.expiration = expiration
@@ -140,6 +143,7 @@ class CustomerTokenStorage(
         return mapOf(
             "host" to this.host,
             "projectToken" to this.projectToken,
+            "authToken" to this.authToken,
             "publicKey" to this.publicKey,
             "customerIds" to this.customerIds?.let { gson.toJson(it) },
             "expiration" to this.expiration?.toString()
@@ -157,6 +161,7 @@ class CustomerTokenStorage(
         )
         this.host = confAsMap["host"]
         this.projectToken = confAsMap["projectToken"]
+        this.authToken = confAsMap["authToken"]
         this.publicKey = confAsMap["publicKey"]
         val customerIdsMap = gson.fromJson<HashMap<String, String>>(
             confAsMap["customerIds"] ?: "{}", object : TypeToken<HashMap<String, String>>() {}.type

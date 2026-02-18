@@ -43,11 +43,15 @@ data class OrderItem(
     @SerializedName("category")
     val category: String? = null,
 
-    // cp1..cp20
-    val cp: Map<String, Any>? = null
+    // cp1..cp12
+    val cp: Map<String, String>? = null,
+    // cd1..cd5
+    val cd: Map<String, String>? = null,
+    // ci1..ci5
+    val ci: Map<String, Int>? = null
 )
 
-// Кастомный сериализатор для cp1..cp20
+// Кастомный сериализатор для cp1..cp12, cd1..cd5, ci1..ci5
 class OrderItemAdapter : JsonSerializer<OrderItem>, JsonDeserializer<OrderItem> {
     override fun serialize(src: OrderItem, typeOfSrc: Type, ctx: JsonSerializationContext): JsonElement {
         val o = JsonObject()
@@ -69,9 +73,17 @@ class OrderItemAdapter : JsonSerializer<OrderItem>, JsonDeserializer<OrderItem> 
         add("category_id", src.categoryId)
         add("category", src.category)
 
-        // cp1..cp20 раскладываем как отдельные поля
+        // cp1..cp12 раскладываем как отдельные поля
         src.cp?.forEach { (k, v) ->
             if (k.matches(Regex("cp\\d+"))) o.add(k, ctx.serialize(v))
+        }
+        // cd1..cd5
+        src.cd?.forEach { (k, v) ->
+            if (k.matches(Regex("cd\\d+"))) o.add(k, ctx.serialize(v))
+        }
+        // ci1..ci5
+        src.ci?.forEach { (k, v) ->
+            if (k.matches(Regex("ci\\d+"))) o.add(k, ctx.serialize(v))
         }
         return o
     }
@@ -85,7 +97,13 @@ class OrderItemAdapter : JsonSerializer<OrderItem>, JsonDeserializer<OrderItem> 
 
         val cp = o.entrySet()
             .filter { it.key.matches(Regex("cp\\d+")) }
-            .associate { (k, v) -> k to ctx.deserialize<Any>(v, Any::class.java) }
+            .associate { (k, v) -> k to ctx.deserialize<String>(v, Any::class.java) }
+        val cd = o.entrySet()
+            .filter { it.key.matches(Regex("cd\\d+")) }
+            .associate { (k, v) -> k to ctx.deserialize<String>(v, Any::class.java) }
+        val ci = o.entrySet()
+            .filter { it.key.matches(Regex("ci\\d+")) }
+            .associate { (k, v) -> k to ctx.deserialize<Int>(v, Any::class.java) }
 
         val pictureType = object : TypeToken<List<String>>() {}.type
 
@@ -104,7 +122,9 @@ class OrderItemAdapter : JsonSerializer<OrderItem>, JsonDeserializer<OrderItem> 
             vendor = asString("vendor"),
             categoryId = asLong("category_id"),
             category = asString("category"),
-            cp = cp
+            cp = cp,
+            cd = cd,
+            ci = ci,
         )
     }
 }

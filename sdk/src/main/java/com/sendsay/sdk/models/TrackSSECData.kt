@@ -22,6 +22,11 @@ data class TrackSSECData(
     val price: Double? = null,
     val oldPrice: Double? = null,
 
+    // Данные о выпуске CDP Sendsay
+    val issue: Int? = null,
+    val letter: Int? = null,
+    val issueDt: String? = null,
+
     // Продуктовое обновление
     val updatePerItem: Int? = null,
     val update: Int? = null,
@@ -46,8 +51,6 @@ data class TrackSSECData(
     val subscriptionDelete: List<Int>? = null,
     val subscriptionClear: Int? = null,
 
-    // cp1..cp20
-    val cp: Map<String, Any>? = null
 ) {
     /**
      * Формирует плоскую карту ключей без префиксов для отправки в properties["ssec"].
@@ -75,6 +78,11 @@ data class TrackSSECData(
         put("price", price)
         put("oldPrice", oldPrice)
 
+        // Данные о выпуске CDP Sendsay
+        put("issue", issue)
+        put("letter", letter)
+        put("issue_dt", issueDt)
+
         // Обновления продукта
         put("update_per_item", updatePerItem)
         put("update", update)
@@ -98,9 +106,6 @@ data class TrackSSECData(
         put("add", subscriptionAdd)
         put("delete", subscriptionDelete)
         put("clear", subscriptionClear)
-
-        // cp1..cp20 и любые дополнительные поля
-        cp?.forEach { (k, v) -> put(k, v) }
 
         return out
     }
@@ -176,59 +181,5 @@ class StrictNumberDeserializer : JsonDeserializer<Any> {
 
             else -> json.toString()
         }
-    }
-}
-
-class NumberPreserveAdapter : JsonDeserializer<Any> {
-    override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): Any {
-        return when {
-            json.isJsonPrimitive && json.asJsonPrimitive.isNumber -> {
-                val num = json.asJsonPrimitive.asNumber
-                if (num.toString().contains(".")) num.toDouble()
-                else {
-                    try {
-                        num.toInt()
-                    } catch (e: Exception) {
-                        num.toLong()
-                    }
-                }
-            }
-
-            json.isJsonObject -> context.deserialize<Map<String, Any>>(
-                json,
-                object : TypeToken<Map<String, Any>>() {}.type
-            )
-
-            json.isJsonArray -> context.deserialize<List<Any>>(
-                json,
-                object : TypeToken<List<Any>>() {}.type
-            )
-
-            else -> json.toString()
-        }
-    }
-}
-
-// Кастомный сериализатор для cp1..cp20
-class SsecPayloadDeserializer : JsonDeserializer<TrackSSECData> {
-
-    override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): TrackSSECData {
-        val obj = json.asJsonObject
-
-        val cpMap: Map<String, Any> = obj.entrySet()
-            .filter { it.key.matches(Regex("cp\\d+")) }
-            .associate { (k, v) -> k to context.deserialize<Any>(v, Any::class.java) }
-
-        // Десериализуем остальное стандартно
-        val delegate = context.deserialize<TrackSSECData>(obj, TrackSSECData::class.java)
-        return delegate.copy(cp = cpMap)
     }
 }

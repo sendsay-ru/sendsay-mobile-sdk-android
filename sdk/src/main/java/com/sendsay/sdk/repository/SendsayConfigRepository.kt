@@ -7,7 +7,7 @@ import com.google.gson.Gson
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.Logger
 
-internal object SendsayConfigRepository {
+object SendsayConfigRepository {
 
     private const val PREF_CONFIG = "SendsayConfigurationPref"
 

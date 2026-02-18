@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * Uses Android app lifecycle system - ContentProviders are loaded in main thread after App start
  * See more: https://firebase.blog/posts/2016/12/how-does-firebase-initialize-on-android
  */
-internal class SendsayContextProvider : ContentProvider() {
+public class SendsayContextProvider : ContentProvider() {
 
     companion object {
 

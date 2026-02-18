@@ -383,7 +383,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    internal fun openCarousel() {
-//        getNavController().navigate(NavigationItem.InAppCarousel.navigationId)
-//    }
+    internal fun openCarousel() {
+        getNavController().navigate(NavigationItem.InAppCarousel.navigationId)
+    }
 }

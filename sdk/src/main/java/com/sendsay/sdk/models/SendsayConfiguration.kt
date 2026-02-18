@@ -2,6 +2,8 @@ package com.sendsay.sdk.models
 
 import android.app.NotificationManager
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.DurationUnit
 
 data class SendsayConfiguration(
     /** Default project token. */
@@ -103,9 +105,12 @@ data class SendsayConfiguration(
 ) {
 
     companion object {
-        public val TOKEN_AUTH_PREFIX = "Token "
-        public val BASIC_AUTH_PREFIX = "Basic "
-        public val BEARER_AUTH_PREFIX = "Bearer "
+        val TOKEN_AUTH_PREFIX = "Token "
+        val BASIC_AUTH_PREFIX = "Basic "
+        val BEARER_AUTH_PREFIX = "Bearer "
+
+        val ISSUE_LETTER_EXPIRE_DURATION: Long = 24.hours.toLong(DurationUnit.MILLISECONDS)
+//        val ISSUE_LETTER_EXPIRE_DURATION: Long = 15.minutes.toLong(DurationUnit.MILLISECONDS)
     }
 
     enum class HttpLoggingLevel {
