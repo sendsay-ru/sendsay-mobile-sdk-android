@@ -623,6 +623,17 @@ object Sendsay {
         )
     }.logOnException()
 
+    /**
+     * Manually track Rsm Token to Sendsay API.
+     */
+    fun trackRsmPushToken(token: String) = runCatching {
+        trackPushTokenInternal(
+            token,
+            SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, // always track it when tracking manually
+            TokenType.RSM
+        )
+    }.logOnException()
+
     private fun trackPushTokenInternal(
         fcmToken: String,
         tokenTrackFrequency: SendsayConfiguration.TokenFrequency,
@@ -1235,6 +1246,19 @@ object Sendsay {
             TokenType.HMS
         )
     }
+
+    /**
+     * Use this method to track push token, when new token is obtained in rustore messaging service
+     */
+    fun handleNewRsmToken(context: Context, token: String) {
+        handleNewTokenInternal(
+            context,
+            token,
+            null, // track it according to SDK configuration
+            TokenType.RSM
+        )
+    }
+
 
     private fun handleNewTokenInternal(
         context: Context,

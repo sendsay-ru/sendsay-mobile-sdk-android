@@ -52,8 +52,10 @@ internal object Constants {
         const val source = "xnpe_platform"
         const val fcmTokenProperty = "google_push_notification_id"
         const val hmsTokenProperty = "huawei_push_notification_id"
+        const val rsmTokenProperty = "rustore_push_notification_id"
         const val fcmSelfCheckPlatformProperty = "android"
         const val hmsSelfCheckPlatformProperty = "huawei"
+        const val rsmSelfCheckPlatformProperty = "rustore"
         const val defaultPushAuthorizationRequired = false
     }
 

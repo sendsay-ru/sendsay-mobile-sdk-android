@@ -276,6 +276,7 @@ internal class SendsayComponent(
         // Do not use TokenFrequency from the configuration, clear tokens immediately during anonymize
         fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.FCM)
         fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.HMS)
+        fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.RSM)
         deviceInitiatedRepository.set(false)
         campaignRepository.clear()
         inAppMessageManager?.clear()
