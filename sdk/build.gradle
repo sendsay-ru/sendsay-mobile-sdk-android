@@ -19,8 +19,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdk 35
-        buildConfigField "String", "SENDSAY_VERSION_NAME", '"0.1.2"'
-        buildConfigField "int", "SENDSAY_VERSION_CODE", "12"
+        buildConfigField "String", "SENDSAY_VERSION_NAME", '"0.1.3"'
+        buildConfigField "int", "SENDSAY_VERSION_CODE", "13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
         testBuildType "unitTesting"
@@ -31,7 +31,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions { jvmTarget = "17" }
+//    kotlinOptions { jvmTarget = "17" }
+    kotlin {
+        jvmToolchain(21)
+    }
 
     lintOptions {
         warning "MissingPermission"
@@ -39,8 +42,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            debuggable false
+            minifyEnabled true
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android.txt"),
+                    "proguard-rules.pro"
+            )
         }
         debug {
             testCoverageEnabled  true
@@ -98,10 +108,6 @@ dependencies {
     implementationEmbed 'io.coil-kt:coil-base:2.0.0'
     implementationEmbed 'io.coil-kt:coil-gif:2.0.0'
     implementationEmbed 'io.coil-kt:coil-svg:2.0.0'
-//    implementationEmbed 'io.coil-kt:coil:1.4.0'
-//    implementationEmbed 'io.coil-kt:coil-base:1.4.0'
-//    implementationEmbed 'io.coil-kt:coil-gif:1.4.0'
-//    implementationEmbed 'io.coil-kt:coil-svg:1.4.0'
     // Custom Tabs
     implementation 'androidx.browser:browser:1.5.0'
     // Kotlin reflection
@@ -110,8 +116,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.7.1"
     implementation 'com.jakewharton.threetenabp:threetenabp:1.4.9'
     // Android X prefs
-    implementation "androidx.preference:preference:1.2.1"
+//    implementation "androidx.preference:preference:1.2.1"
     implementation "androidx.preference:preference-ktx:1.2.1"
+    // Co-Routines
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
 
     // Base Test
     testImplementation 'junit:junit:4.13.2'
@@ -123,8 +131,6 @@ dependencies {
     testImplementation 'com.github.gmazzo:okhttp-mock:1.4.1'
     // Improved Unit Testing
     testImplementation "org.robolectric:robolectric:4.14.1"
-    // Co-Routines
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4'
     // Mockk
     testImplementation "io.mockk:mockk:1.12.8"
     // WorkManager testing

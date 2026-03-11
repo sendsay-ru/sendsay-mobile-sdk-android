@@ -23,15 +23,15 @@ android {
     defaultConfig {
         applicationId "com.sendsay.example"
 //        archivesBaseName = "${applicationId.substring(4)}-v$versionCode($versionName)"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdk 35
         versionCode 12
-        versionName "0.1.2"
+        versionName "0.1.3"
         vectorDrawables.useSupportLibrary = true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     signingConfigs {
         debug {
@@ -74,27 +74,32 @@ android {
         release {
 //            applicationIdSuffix = ".release"
             // Obfuscation and minification can considerably extend the compile time of an Android application
-//            minifyEnabled true
-//            shrinkResources true
+            minifyEnabled true
+            shrinkResources true
             signingConfig signingConfigs.release
 //            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    flavorDimensions "messagingService"
     productFlavors {
+        flavorDimensions "messagingService"
         fcm {
-            dimension = "messagingService"
+            dimension "messagingService"
+            // custom fields, for example:
+//            buildConfigField("String", "API_ENDPOINT", "\"https://api.staging.com\"")
         }
         hms {
-            dimension = "messagingService"
+            dimension "messagingService"
+        }
+        rsm {
+            dimension "messagingService"
         }
     }
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
 //            def formattedDate = new Date().format('yyyyMMdd_HHmm')
-            def apkName = "SandsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
+            def apkName = "SandsayApp_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
             output.outputFileName = apkName
         }
     }
@@ -112,6 +117,7 @@ dependencies {
     fcmImplementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
     hmsImplementation 'com.huawei.agconnect:agconnect-core:1.7.3.302'
     hmsImplementation 'com.huawei.hms:push:6.11.0.300'
+    rsmImplementation 'ru.rustore.sdk:pushclient:7.2.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.google.code.gson:gson:2.10.1'
 

@@ -2,6 +2,8 @@ package com.sendsay.sdk.util
 
 import android.app.Activity
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
@@ -16,6 +18,7 @@ import android.os.Looper
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -132,6 +135,7 @@ internal fun String?.adjustUrl(): String? {
 }
 
 fun Intent?.isViewUrlIntent(schemePrefix: String): Boolean {
+    // TODO: check if starts with "app.sendsay.." (for example)
     return isViewUrlIntent() && this?.data?.scheme?.startsWith(schemePrefix, true) == true
 }
 
@@ -290,8 +294,14 @@ fun Context.isCalledFromExampleApp(): Boolean = runCatching {
 private fun Context.getSDKVersion(metadataName: String): String? = runCatching {
     val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
     if (appInfo.metaData == null) return null
-    return appInfo.metaData[metadataName] as String?
+    return appInfo.metaData.getString(metadataName)
 }.returnOnException { null }
+
+fun Context.copyToClipboard(text: CharSequence, label: String = "label") {
+    val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clip)
+}
 
 internal var mainThreadDispatcher = CoroutineScope(Dispatchers.Main)
 internal var backgroundThreadDispatcher = CoroutineScope(Dispatchers.Default)

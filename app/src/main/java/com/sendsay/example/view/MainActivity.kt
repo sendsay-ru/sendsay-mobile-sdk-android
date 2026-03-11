@@ -19,20 +19,19 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.sendsay.example.R
 import com.sendsay.example.databinding.ActivityMainBinding
-import com.sendsay.example.services.ExampleAppInboxProvider
 import com.sendsay.example.view.NavigationItem.Anonymize
-import com.sendsay.example.view.NavigationItem.Manual
-import com.sendsay.example.view.NavigationItem.Track
 import com.sendsay.example.view.NavigationItem.Fetch
 import com.sendsay.example.view.NavigationItem.InAppContentBlock
+import com.sendsay.example.view.NavigationItem.Manual
+import com.sendsay.example.view.NavigationItem.Track
 import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.models.InAppMessage
 import com.sendsay.sdk.models.InAppMessageButton
 import com.sendsay.sdk.models.InAppMessageCallback
 import com.sendsay.sdk.models.PushNotificationDelegate
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentationDataCallback
+import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.isResumedActivity
 import com.sendsay.sdk.util.isViewUrlIntent
@@ -40,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlin.collections.mutableSetOf
 
 class MainActivity : AppCompatActivity() {
 

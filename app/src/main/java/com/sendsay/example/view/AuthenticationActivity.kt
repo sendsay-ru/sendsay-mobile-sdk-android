@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.sendsay.example.App
+import com.sendsay.example.R
 import com.sendsay.example.databinding.ActivityAuthenticationBinding
 import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.utils.isVaildUrl
@@ -90,7 +91,8 @@ class AuthenticationActivity : AppCompatActivity() {
 //        configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
         configuration.automaticPushNotification = true
         configuration.tokenTrackFrequency = EVERY_LAUNCH
-        configuration.pushChannelId = "Push channel (Sendsay)"
+//        configuration.pushChannelId = "Push channel (Sendsay)"
+        configuration.pushChannelId = getString(R.string.pushes_notification_channel_id)
 
         // Prepare Example Advanced Auth
         CustomerTokenStorage.INSTANCE.configure(

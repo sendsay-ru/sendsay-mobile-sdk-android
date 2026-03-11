@@ -10,6 +10,7 @@
     <string name="action_track_event">Track Event</string>
     <string name="action_track_purchase">Track Purchase</string>
     <string name="action_track_install">Track Install</string>
+    <string name="pushes_notification_channel_id">"Push channel (Sendsay)"</string>
 
     <string name="hint_custids">Customer Id</string>
     <string name="hint_auth_code">Authentication Token (optional)</string>
