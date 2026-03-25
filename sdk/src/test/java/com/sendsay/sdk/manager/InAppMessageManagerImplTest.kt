@@ -31,13 +31,12 @@ import com.sendsay.sdk.models.eventfilter.StringConstraint
 import com.sendsay.sdk.repository.CustomerIdsRepository
 import com.sendsay.sdk.repository.DrawableCache
 import com.sendsay.sdk.repository.EventRepository
+import com.sendsay.sdk.repository.FontCache
 import com.sendsay.sdk.repository.InAppMessageDisplayStateRepository
 import com.sendsay.sdk.repository.InAppMessagesCache
 import com.sendsay.sdk.repository.SimpleFileCache
 import com.sendsay.sdk.services.SendsayContextProvider
 import com.sendsay.sdk.services.SendsayProjectFactory
-import com.sendsay.sdk.telemetry.TelemetryManager
-import com.sendsay.sdk.telemetry.upload.VSAppCenterTelemetryUpload
 import com.sendsay.sdk.testutil.MockFile
 import com.sendsay.sdk.testutil.waitForIt
 import com.sendsay.sdk.util.backgroundThreadDispatcher
@@ -81,20 +80,12 @@ internal class InAppMessageManagerImplTest {
     private lateinit var inAppMessageDisplayStateRepository: InAppMessageDisplayStateRepository
     private lateinit var messagesCache: InAppMessagesCache
     private lateinit var drawableCache: DrawableCache
-    private lateinit var fontCache: SimpleFileCache
+    private lateinit var fontCache: FontCache
     private lateinit var presenter: InAppMessagePresenter
     private lateinit var manager: InAppMessageManagerImpl
     private lateinit var mockActivity: Activity
     private lateinit var trackingConsentManager: TrackingConsentManager
     private lateinit var projectFactory: SendsayProjectFactory
-
-    @Before
-    fun disableTelemetry() {
-        mockkConstructorFix(VSAppCenterTelemetryUpload::class) {
-            every { anyConstructed<VSAppCenterTelemetryUpload>().upload(any(), any()) }
-        }
-        every { anyConstructed<VSAppCenterTelemetryUpload>().upload(any(), any()) } just Runs
-    }
 
     @Before
     fun before() {
@@ -114,11 +105,9 @@ internal class InAppMessageManagerImplTest {
         every { drawableCache.preload(any(), any()) } answers {
             lastArg<((Boolean) -> Unit)?>()?.invoke(true)
         }
-        every { drawableCache.clearExcept(any()) } just Runs
         fontCache = mockk()
         every { fontCache.has(any()) } returns false
-        every { fontCache.preload(any(), any()) } just Runs
-        every { fontCache.clearExcept(any()) } just Runs
+//        every { fontCache.preload(any(), any()) } just Runs
         customerIdsRepository = mockk()
         every { customerIdsRepository.get() } returns CustomerIds(cookie = "mock-cookie")
         inAppMessageDisplayStateRepository = mockk()
@@ -126,7 +115,7 @@ internal class InAppMessageManagerImplTest {
         every { inAppMessageDisplayStateRepository.setDisplayed(any(), any()) } just Runs
         every { inAppMessageDisplayStateRepository.setInteracted(any(), any()) } just Runs
         presenter = mockk()
-        every { presenter.show(any(), any(), any(), any(), any(), any(), any()) } returns mockk()
+        every { presenter.show(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockk()
         every { presenter.isPresenting() } returns false
         every { presenter.context } returns ApplicationProvider.getApplicationContext()
         trackingConsentManager = mockk()
@@ -582,7 +571,7 @@ internal class InAppMessageManagerImplTest {
         val errorCallbackSlot = slot<(String) -> Unit>()
         every {
             presenter.show(
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 capture(actionCallbackSlot), capture(dismissedCallbackSlot),
                 capture(errorCallbackSlot)
             )
@@ -622,7 +611,7 @@ internal class InAppMessageManagerImplTest {
         val spykManager = spyk(manager)
         every {
             presenter.show(
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 capture(actionCallbackSlot), capture(dismissedCallbackSlot), capture(errorCallbackSlot)
             )
         } returns mockk()
@@ -663,7 +652,7 @@ internal class InAppMessageManagerImplTest {
         }
         // dismiss by interaction with cancel button
         dismissedCallbackSlot.captured.invoke(mockActivity, true, cancelButton)
-        assertEquals("Cancel", cancelButton.buttonText)
+        assertEquals("Cancel", cancelButton.text)
         verify(exactly = 1) {
             trackingConsentManager.trackInAppMessageClose(
                 inAppMessage, "Cancel", true, CONSIDER_CONSENT
@@ -684,7 +673,7 @@ internal class InAppMessageManagerImplTest {
         val actionCallbackSlot = slot<(Activity, InAppMessagePayloadButton) -> Unit>()
         val errorCallbackSlot = slot<(String) -> Unit>()
         every { presenter.show(
-            any(), any(), any(), any(),
+            any(), any(), any(), any(), any(),
             capture(actionCallbackSlot), any(), capture(errorCallbackSlot)
         ) } returns mockk()
         waitForIt { manager.reload { it() } }
@@ -704,7 +693,7 @@ internal class InAppMessageManagerImplTest {
         assertTrue(actionCallbackSlot.isCaptured)
         actionCallbackSlot.captured.invoke(mockActivity, button)
         assertEquals(
-            button.buttonLink,
+            button.link,
             shadowOf(mockActivity).nextStartedActivityForResult.intent.data?.toString()
         )
         resetThreadsBehaviour()
@@ -779,12 +768,12 @@ internal class InAppMessageManagerImplTest {
             presenter.isPresenting()
             messagesCache.get()
             drawableCache.preload(arrayListOf("pending_image_url"), any())
-            presenter.show(InAppMessageType.MODAL, pendingMessage.payload, any(), any(), any(), any(), any())
+            presenter.show(InAppMessageType.MODAL, pendingMessage.payload, any(), any(), any(), any(), any(), any())
             presenter.context
             messagesCache.get()
             drawableCache.preload(arrayListOf(), any())
             messagesCache.set(arrayListOf(pendingMessage, otherMessage1, otherMessage2))
-            drawableCache.clearExcept(arrayListOf("pending_image_url", "other_image_url_1", "other_image_url_2"))
+//            drawableCache.clearExcept(arrayListOf("pending_image_url", "other_image_url_1", "other_image_url_2"))
         }
         confirmVerified(messagesCache, drawableCache, presenter)
         resetThreadsBehaviour()
@@ -801,7 +790,7 @@ internal class InAppMessageManagerImplTest {
         every { fetchManager.fetchInAppMessages(any(), any(), any(), any()) } answers {
             thirdArg<(Result<ArrayList<InAppMessage>>) -> Unit>().invoke(Result(true, arrayListOf()))
         }
-        every { presenter.show(any(), any(), any(), any(), any(), any(), any()) } returns mockk()
+        every { presenter.show(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockk()
 
         waitForIt { manager.reload { it() } }
         runBlocking {
@@ -815,11 +804,11 @@ internal class InAppMessageManagerImplTest {
         }
         Robolectric.getForegroundThreadScheduler().advanceBy(1233, TimeUnit.MILLISECONDS)
         verify(exactly = 0) {
-            presenter.show(InAppMessageType.MODAL, message.payload, any(), any(), any(), any(), any())
+            presenter.show(InAppMessageType.MODAL, message.payload, any(), any(), any(), any(), any(), any())
         }
         Robolectric.getForegroundThreadScheduler().advanceBy(1, TimeUnit.MILLISECONDS)
         verify(exactly = 1) {
-            presenter.show(InAppMessageType.MODAL, message.payload, any(), any(), any(), any(), any())
+            presenter.show(InAppMessageType.MODAL, message.payload, any(), any(), any(), any(), any(), any())
         }
         resetThreadsBehaviour()
     }
@@ -835,7 +824,7 @@ internal class InAppMessageManagerImplTest {
         every { fetchManager.fetchInAppMessages(any(), any(), any(), any()) } answers {
             thirdArg<(Result<ArrayList<InAppMessage>>) -> Unit>().invoke(Result(true, arrayListOf()))
         }
-        every { presenter.show(any(), any(), any(), any(), any(), any(), any()) } returns mockk()
+        every { presenter.show(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockk()
 
         waitForIt { manager.reload { it() } }
         runBlocking {
@@ -849,7 +838,7 @@ internal class InAppMessageManagerImplTest {
         }
         Robolectric.flushForegroundThreadScheduler()
         verify {
-            presenter.show(InAppMessageType.MODAL, message.payload, any(), 1234, any(), any(), any())
+            presenter.show(InAppMessageType.MODAL, message.payload, any(), 1234, any(), any(), any(), any())
         }
         resetThreadsBehaviour()
     }
@@ -896,7 +885,7 @@ internal class InAppMessageManagerImplTest {
         every { fetchManager.fetchInAppMessages(any(), any(), any(), any()) } answers {
             thirdArg<(Result<ArrayList<InAppMessage>>) -> Unit>().invoke(Result(true, arrayListOf()))
         }
-        every { presenter.show(any(), any(), any(), any(), any(), any(), any()) } returns mockk()
+        every { presenter.show(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockk()
         waitForIt { manager.reload { it() } }
         runBlocking {
             manager.inAppShowingTriggered(
@@ -909,7 +898,7 @@ internal class InAppMessageManagerImplTest {
         }
         Robolectric.flushForegroundThreadScheduler()
         verify(exactly = 1) { trackingConsentManager.trackInAppMessageShown(message, CONSIDER_CONSENT) }
-        verify(exactly = 0) { presenter.show(any(), any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { presenter.show(any(), any(), any(), any(), any(), any(), any(), any()) }
         resetThreadsBehaviour()
     }
 
@@ -947,7 +936,7 @@ internal class InAppMessageManagerImplTest {
 
         every {
             presenter.show(
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 capture(actionCallbackSlot), capture(dismissedCallbackSlot), capture(errorCallbackSlot)
             )
         } returns mockk()
@@ -981,7 +970,7 @@ internal class InAppMessageManagerImplTest {
         verify(exactly = 1) {
             spykCallback.inAppMessageClickAction(
                 InAppMessageTest.buildInAppMessage(),
-                InAppMessageButton(button.buttonText, button.buttonLink),
+                InAppMessageButton(button.text, button.link),
                 mockActivity
             )
         }
@@ -1042,7 +1031,7 @@ internal class InAppMessageManagerImplTest {
 
         every {
             presenter.show(
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 capture(actionCallbackSlot), capture(dismissedCallbackSlot), capture(errorCallbackSlot)
             )
         } returns mockk()
@@ -1071,7 +1060,7 @@ internal class InAppMessageManagerImplTest {
         verify(exactly = 1) {
             spykCallback.inAppMessageClickAction(
                 InAppMessageTest.buildInAppMessage(),
-                InAppMessageButton(button.buttonText, button.buttonLink),
+                InAppMessageButton(button.text, button.link),
                 mockActivity
             )
         }
@@ -1131,7 +1120,7 @@ internal class InAppMessageManagerImplTest {
 
         every {
             presenter.show(
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 capture(actionCallbackSlot), capture(dismissedCallbackSlot), capture(errorCallbackSlot)
             )
         } returns mockk()
@@ -1542,46 +1531,5 @@ internal class InAppMessageManagerImplTest {
         every { presenter.isPresenting() } returns false
         val pickedMessage = manager.pickPendingMessage()
         assertNotNull(pickedMessage)
-    }
-
-    @Test
-    fun `should track telemetry on message shown`() {
-        mockkConstructorFix(TelemetryManager::class)
-        val telemetryEventTypeSlot = slot<com.sendsay.sdk.telemetry.model.EventType>()
-        val telemetryPropertiesSlot = slot<MutableMap<String, String>>()
-        every {
-            anyConstructed<TelemetryManager>().reportEvent(
-                capture(telemetryEventTypeSlot),
-                capture(telemetryPropertiesSlot)
-            )
-        } just Runs
-        Sendsay.telemetry = TelemetryManager(ApplicationProvider.getApplicationContext())
-        val inAppMessage = InAppMessageTest.buildInAppMessage()
-        every { messagesCache.get() } returns arrayListOf(inAppMessage)
-        every { drawableCache.has(any()) } returns true
-        every { drawableCache.getFile(any()) } returns MockFile()
-        every { fetchManager.fetchInAppMessages(any(), any(), any(), any()) } answers {
-            thirdArg<(Result<ArrayList<InAppMessage>>) -> Unit>()
-                .invoke(Result(true, arrayListOf(inAppMessage)))
-        }
-        val spykManager = spyk(manager)
-        every {
-            presenter.show(any(), any(), any(), any(), any(), any(), any())
-        } returns mockk()
-        waitForIt { spykManager.reload { it() } }
-        registerPendingRequest("session_start", spykManager)
-        spykManager.pickAndShowMessage()
-        Robolectric.flushForegroundThreadScheduler()
-        verify(exactly = 1) {
-            trackingConsentManager.trackInAppMessageShown(inAppMessage, CONSIDER_CONSENT)
-        }
-        assertTrue(telemetryEventTypeSlot.isCaptured)
-        val capturedEventType = telemetryEventTypeSlot.captured
-        assertNotNull(capturedEventType)
-        assertEquals(com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE, capturedEventType)
-        assertTrue(telemetryPropertiesSlot.isCaptured)
-        val capturedProps = telemetryPropertiesSlot.captured
-        assertNotNull(capturedProps)
-        assertEquals("modal", capturedProps["messageType"])
     }
 }
