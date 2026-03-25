@@ -99,7 +99,7 @@ android {
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
 //            def formattedDate = new Date().format('yyyyMMdd_HHmm')
-            def apkName = "SandsayApp_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
+            def apkName = "SandsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
             output.outputFileName = apkName
         }
     }
