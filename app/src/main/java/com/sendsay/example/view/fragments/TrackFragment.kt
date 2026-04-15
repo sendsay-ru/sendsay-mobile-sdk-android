@@ -1,12 +1,8 @@
 package com.sendsay.example.view.fragments
 
 import TokenTracker
-import TokenTracker.Companion.LOG_TAG
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +12,6 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.lifecycle.lifecycleScope
 import com.sendsay.example.App
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
@@ -34,10 +28,6 @@ import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
-import com.sendsay.sdk.util.copyToClipboard
-import ru.rustore.sdk.core.tasks.OnCompletionListener
-import ru.rustore.sdk.pushclient.RuStorePushClient
-import ru.rustore.sdk.pushclient.messaging.model.TestNotificationPayload
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -83,8 +73,8 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun initListeners() {
         viewBinding.listView.onItemClickListener = this
 
-        viewBinding.buttonGetToken.setOnClickListener { context?.let { getRsmToken(it) } }
-        viewBinding.buttonTestPush.setOnClickListener { testRsmLocalPush() }
+        viewBinding.buttonGetToken.setOnClickListener { context?.let { getToken(it) } }
+        viewBinding.buttonTestPush.setOnClickListener { context?.let { testLocalPush(it) } }
 
         viewBinding.buttonTrackClicked.setOnClickListener { trackPushClicked() }
         viewBinding.buttonTrackDelivered.setOnClickListener { trackPushDelivered() }
@@ -116,49 +106,17 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     }
 
     /**
-     * Method to handle "get RuStore Token" button
+     * Method to handle "getToken" button (RuStore only?)
      */
-    private fun getRsmToken(context: Context) {
-//        this.lifecycleScope.launch{
-        RuStorePushClient.getToken()
-            .addOnSuccessListener { token ->
-                // Check the token is empty.
-                if (!TextUtils.isEmpty(token)) {
-                    context.copyToClipboard(token)
-                }
-                Logger.d(LOG_TAG, "getToken onSuccess token = $token")
-            }
-            .addOnFailureListener { throwable ->
-                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT).show()
-                Logger.e(LOG_TAG, "getToken onFailure", throwable)
-            }
-//        }
+    private fun getToken(context: Context): String {
+        return TokenTracker().getToken(context)
     }
 
     /**
      * Method to handle "test RuStore push (Local)" button
      */
-    private fun testRsmLocalPush() {
-        context?.let { TokenTracker().checkPushAvailability(it) }
-
-        val testNotificationPayload = TestNotificationPayload(
-            title = "RuStore Push Title",
-            body = "testRsmLocalPush-Puck-Serenk",
-            imgUrl = "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg",
-            data = mapOf("some_key" to "some_value")
-        )
-
-        RuStorePushClient.sendTestNotification(testNotificationPayload)
-            .addOnCompletionListener {
-                Logger.d(LOG_TAG, "Test Local Push Completed")
-            }.addOnSuccessListener {
-                Toast.makeText(context, "Пуш отправлен!", Toast.LENGTH_SHORT).show()
-                Logger.d(LOG_TAG, "Test Local Push Sended")
-            }.addOnFailureListener { throwable ->
-                Toast.makeText(context, "Пуш сломался =(", Toast.LENGTH_SHORT).show()
-                Logger.e(LOG_TAG, "Test Local Push onFailure", throwable)
-            }
-//            .await()
+    private fun testLocalPush(context: Context?) {
+        TokenTracker().testLocalPush(context)
     }
 
     /**

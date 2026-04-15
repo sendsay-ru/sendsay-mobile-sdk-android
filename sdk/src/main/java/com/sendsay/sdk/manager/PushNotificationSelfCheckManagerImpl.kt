@@ -11,7 +11,6 @@ import com.sendsay.sdk.network.SendsayService
 import com.sendsay.sdk.repository.CustomerIdsRepository
 import com.sendsay.sdk.repository.PushTokenRepository
 import com.sendsay.sdk.services.SendsayProjectFactory
-import com.sendsay.sdk.telemetry.model.EventType
 import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.TokenType
@@ -80,7 +79,6 @@ internal class PushNotificationSelfCheckManagerImpl(
     }
 
     suspend fun startInternal() {
-        Sendsay.telemetry?.reportEvent(EventType.SELF_CHECK, hashMapOf("step" to "0"))
         Logger.i(this, "Waiting for push token.")
         val pushToken = waitForPushToken()
         if (pushToken == null) {
@@ -92,7 +90,6 @@ internal class PushNotificationSelfCheckManagerImpl(
             )
             return
         }
-        Sendsay.telemetry?.reportEvent(EventType.SELF_CHECK, hashMapOf("step" to "1"))
         Logger.i(this, "Requesting self-check push notification.")
         if (!requestSelfCheckPush(pushToken, tokenRepository.getLastTokenType())) {
             showResult(
@@ -102,7 +99,6 @@ internal class PushNotificationSelfCheckManagerImpl(
             )
             return
         }
-        Sendsay.telemetry?.reportEvent(EventType.SELF_CHECK, hashMapOf("step" to "2"))
         Logger.i(this, "Waiting for self-check push notification.")
         if (!waitForSelfCheckPushReceived()) {
             showResult(
@@ -114,7 +110,6 @@ internal class PushNotificationSelfCheckManagerImpl(
             )
             return
         }
-        Sendsay.telemetry?.reportEvent(EventType.SELF_CHECK, hashMapOf("step" to "3"))
         showResult(3, "You are now ready to receive push notifications from Sendsay.")
     }
 

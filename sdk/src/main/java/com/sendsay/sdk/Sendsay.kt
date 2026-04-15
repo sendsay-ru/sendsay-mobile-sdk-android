@@ -75,7 +75,6 @@ import com.sendsay.sdk.services.SendsayDeintegrateManager
 import com.sendsay.sdk.services.SendsayInitManager
 import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_MAX_MESSAGES_COUNT
 import com.sendsay.sdk.services.inappcontentblock.ContentBlockCarouselViewController.Companion.DEFAULT_SCROLL_DELAY
-import com.sendsay.sdk.telemetry.TelemetryManager
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.OnForegroundStateListener
 import com.sendsay.sdk.util.TokenType
@@ -102,7 +101,6 @@ object Sendsay {
     private lateinit var application: Application
     private lateinit var configuration: SendsayConfiguration
     private lateinit var component: SendsayComponent
-    internal var telemetry: TelemetryManager? = null
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     internal var isStopped = false
@@ -429,12 +427,6 @@ object Sendsay {
         if (Looper.myLooper() == null)
             Looper.prepare()
 
-        telemetry = TelemetryManager(context.applicationContext as Application).apply {
-            deintegration.registerForIntegrationStopped(this)
-        }
-        telemetry?.start()
-        telemetry?.reportInitEvent(configuration)
-
         this.configuration = configuration
         SendsayConfigRepository.set(context, configuration)
         initializeSdk(context)
@@ -531,7 +523,6 @@ object Sendsay {
                 onSuccess = onSuccess,
                 onFailure = onFailure
             )
-            telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.FETCH_CONSENTS)
         }
     }.logOnException()
 
@@ -557,7 +548,6 @@ object Sendsay {
                 onSuccess = onSuccess,
                 onFailure = onFailure
             )
-            telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.FETCH_RECOMMENDATION)
         }
     }.logOnException()
 
@@ -931,13 +921,6 @@ object Sendsay {
         deintegration.registerForIntegrationStopped(component.inAppMessagePresenter)
         deintegration.registerForIntegrationStopped(component.initConfigManager)
 
-        ensureOnBackgroundThread {
-            telemetry?.reportEvent(
-                com.sendsay.sdk.telemetry.model.EventType.EVENT_COUNT,
-                hashMapOf("count" to component.eventRepository.count().toString())
-            )
-        }
-
         initWorkManager(context)
 
         if (flushMode == PERIOD) startPeriodicFlushService()
@@ -1132,7 +1115,6 @@ object Sendsay {
                     sendsayProject ?: component.projectFactory.mainSendsayProject,
                     projectRouteMap ?: configuration.projectRouteMap
                 )
-                telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.ANONYMIZE)
             }
         )
     }.logOnException()
@@ -1380,7 +1362,6 @@ object Sendsay {
     fun fetchAppInbox(callback: ((List<MessageItem>?) -> Unit)) = runCatching {
         initGate.waitForInitialize {
             component.appInboxManager?.fetchAppInbox(callback)
-            telemetry?.reportEvent(com.sendsay.sdk.telemetry.model.EventType.TRACK_INBOX_FETCH)
         }
     }.logOnException()
 
@@ -1659,7 +1640,7 @@ object Sendsay {
 
     internal fun processPushNotificationClickInternally(openedPushDataIntent: Intent) {
         val action =
-            openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO) as? NotificationAction?
+            openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO,NotificationAction::class.java)
         Logger.d(this, "Interaction: $action")
         val notifActionType = when (openedPushDataIntent.action) {
             SendsayExtras.ACTION_DEEPLINK_CLICKED -> SendsayNotificationActionType.DEEPLINK
@@ -1667,9 +1648,9 @@ object Sendsay {
             else -> SendsayNotificationActionType.APP
         }
         val data =
-            openedPushDataIntent.getParcelableExtra(SendsayExtras.EXTRA_DATA) as NotificationData?
+            openedPushDataIntent.getParcelableExtra(SendsayExtras.EXTRA_DATA, NotificationData::class.java)
         val payloadRawData = openedPushDataIntent
-            .getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA) as? HashMap<String, String>
+            .getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA, HashMap::class.java) as? HashMap<String, String>
         val deliveredTimestamp =
             openedPushDataIntent.getDoubleExtra(SendsayExtras.EXTRA_DELIVERED_TIMESTAMP, 0.0)
         val payload = payloadRawData?.let {
@@ -1706,7 +1687,7 @@ object Sendsay {
                 broadcastIntent.putExtra(SendsayExtras.EXTRA_DATA, data)
                 broadcastIntent.putExtra(
                     SendsayExtras.EXTRA_CUSTOM_DATA,
-                    openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA)
+                    openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA, HashMap::class.java)
                 )
                 broadcastIntent.`package` = context.packageName
                 PendingIntent.getBroadcast(

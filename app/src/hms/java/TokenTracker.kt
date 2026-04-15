@@ -6,6 +6,10 @@ import com.huawei.hms.aaid.HmsInstanceId
 import com.huawei.hms.common.ApiException
 
 class TokenTracker {
+    companion object {
+        const val LOG_TAG = "TokenTracker"
+    }
+
     fun trackToken(context: Context?) {
         object : Thread() {
             override fun run() {
@@ -26,5 +30,22 @@ class TokenTracker {
                 }
             }
         }.start()
+    }
+
+    fun getToken(context: Context?) {
+        return HmsInstanceId.getInstance(context).getToken(appId, tokenScope)
+    }
+
+    fun testLocalPush(context: Context?) {
+        if (lastToken == "wait and try again") return
+
+        val testNotificationPayload = RemoteMessage.Builder(getToken(context))
+            .addData("title", "RuStore Push Title")
+            .addData("body", "testRsmLocalPush-Puck-Serenk")
+            .addData("imgUrl", "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg")
+            .addData("some_key", "some_value")
+            .build()
+
+        FirebaseMessaging.getInstance().send(testNotificationPayload)
     }
 }

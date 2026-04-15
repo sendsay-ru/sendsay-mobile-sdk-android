@@ -1,6 +1,5 @@
 package com.sendsay.sdk.services
 
-import android.app.Application
 import android.content.Context
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.manager.SessionManagerImpl
@@ -11,7 +10,6 @@ import com.sendsay.sdk.repository.CustomerIdsRepositoryImpl
 import com.sendsay.sdk.repository.DeviceInitiatedRepositoryImpl
 import com.sendsay.sdk.repository.DrawableCacheImpl
 import com.sendsay.sdk.repository.EventRepositoryImpl
-import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.FontCacheImpl
 import com.sendsay.sdk.repository.HtmlNormalizedCacheImpl
 import com.sendsay.sdk.repository.InAppContentBlockDisplayStateRepositoryImpl
@@ -19,12 +17,10 @@ import com.sendsay.sdk.repository.InAppMessageDisplayStateRepositoryImpl
 import com.sendsay.sdk.repository.InAppMessagesCacheImpl
 import com.sendsay.sdk.repository.PushTokenRepositoryProvider
 import com.sendsay.sdk.repository.SegmentsCacheImpl
+import com.sendsay.sdk.repository.SendsayConfigRepository
 import com.sendsay.sdk.repository.UniqueIdentifierRepositoryImpl
-import com.sendsay.sdk.telemetry.TelemetryManager
-import com.sendsay.sdk.telemetry.storage.FileTelemetryStorage
-import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.Logger
-import com.sendsay.sdk.util.logOnException
+import com.sendsay.sdk.util.SendsayGson
 import com.sendsay.sdk.util.logOnException
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -85,14 +81,7 @@ class SendsayDeintegrateManager {
             clearResourcesCaches(it)
             clearCookieRepository(it)
             clearCustomerIdsRepository(it)
-            clearTelemetry(it)
         }
-    }
-
-    private fun clearTelemetry(context: Context) {
-        val application = context.applicationContext as Application
-        FileTelemetryStorage(application).clear()
-        TelemetryManager.getSharedPreferences(application).edit().clear().apply()
     }
 
     private fun clearCustomerIdsRepository(context: Context) {

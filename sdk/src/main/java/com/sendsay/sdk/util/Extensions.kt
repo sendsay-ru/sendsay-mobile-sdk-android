@@ -162,7 +162,6 @@ fun <T> Result<T>.returnOnException(mapThrowable: (e: Throwable) -> T): T {
             // cannot log problem, swallowing
         }
         if (Sendsay.safeModeEnabled) {
-            Sendsay.telemetry?.reportCaughtException(it)
             // `function` is internal and has to return T value
             // if error occurs here, let throw it, nothing more we can do
             return mapThrowable(it)
@@ -182,8 +181,6 @@ fun Result<Unit>.logOnException() {
         }
         if (!Sendsay.safeModeEnabled) {
             throw exception
-        } else {
-            Sendsay.telemetry?.reportCaughtException(exception)
         }
     }
 }
@@ -198,8 +195,6 @@ fun <T> Result<T>.logOnExceptionWithResult(): Result<T> {
         }
         if (!Sendsay.safeModeEnabled) {
             throw exception
-        } else {
-            Sendsay.telemetry?.reportCaughtException(exception)
         }
     }
     return this

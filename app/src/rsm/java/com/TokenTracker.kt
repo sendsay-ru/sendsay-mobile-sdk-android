@@ -80,6 +80,46 @@ class TokenTracker {
         }.start()
     }
 
+    fun getToken(context: Context?) {
+//        this.lifecycleScope.launch{
+        RuStorePushClient.getToken()
+            .addOnSuccessListener { token ->
+                // Check the token is empty.
+                if (!TextUtils.isEmpty(token)) {
+                    context.copyToClipboard(token)
+                }
+                Logger.d(LOG_TAG, "getToken onSuccess token = $token")
+            }
+            .addOnFailureListener { throwable ->
+                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT).show()
+                Logger.e(LOG_TAG, "getToken onFailure", throwable)
+            }
+//        }
+    }
+
+    fun testLocalPush() {
+        context?.let { checkPushAvailability(it) }
+
+        val testNotificationPayload = TestNotificationPayload(
+            title = "RuStore Push Title",
+            body = "testRsmLocalPush-Puck-Serenk",
+            imgUrl = "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg",
+            data = mapOf("some_key" to "some_value")
+        )
+
+        RuStorePushClient.sendTestNotification(testNotificationPayload)
+            .addOnCompletionListener {
+                Logger.d(LOG_TAG, "Test Local Push Completed")
+            }.addOnSuccessListener {
+                Toast.makeText(context, "Пуш отправлен!", Toast.LENGTH_SHORT).show()
+                Logger.d(LOG_TAG, "Test Local Push Sended")
+            }.addOnFailureListener { throwable ->
+                Toast.makeText(context, "Пуш сломался =(", Toast.LENGTH_SHORT).show()
+                Logger.e(LOG_TAG, "Test Local Push onFailure", throwable)
+            }
+//            .await()
+    }
+
     @RequiresApi(Build.VERSION_CODES.N)
     private fun showAlertDialogWithUrl(context: Context) {
         val url = "https://www.rustore.ru/instruction"
