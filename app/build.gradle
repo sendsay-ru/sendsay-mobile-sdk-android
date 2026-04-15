@@ -43,13 +43,11 @@ android {
         }
         release {
             if (System.getenv("CI") == "true") { // Check for CI environment
-//                googleFile System.getenv("GOOGLE_SERVICES_JSON_B64")
-//                huaweiFile System.getenv("AGCONNECT_SERVICES_JSON_B64")
-//                storeFile System.getenv("SENDSAY_JKS_B64")
+                storeFile System.getenv("SENDSAY_JKS_B64")
                 storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("ANDROID_KEY_ALIAS")
                 keyPassword System.getenv("ANDROID_KEY_PASSWORD")
-            } else {  // incase local machine environment
+            } else {  // in case local machine environment
                 keyAlias localProperties['keyAlias'] as String
                 keyPassword localProperties['keyPassword'] as String
                 def sf = localProperties['storeFile']
