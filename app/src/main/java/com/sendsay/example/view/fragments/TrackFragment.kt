@@ -166,7 +166,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     }
 
     /**
-     * Method to handle push delivered event tracking"
+     * Method to handle push delivered event tracking
      */
     private fun trackPushDelivered() {
         Sendsay.trackDeliveredPush(

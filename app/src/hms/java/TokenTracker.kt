@@ -4,22 +4,23 @@ import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.Logger
 import com.huawei.hms.aaid.HmsInstanceId
 import com.huawei.hms.common.ApiException
+import com.huawei.hms.push.RemoteMessage
 
 class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
+
+        // Obtain the app ID from the agconnect-service.json file.
+        const val APP_ID = "114729999"
+        // Set tokenScope to HCM.
+        const val TOKEN_SCOPE = "HCM"
     }
 
     fun trackToken(context: Context?) {
         object : Thread() {
             override fun run() {
                 try {
-                    // Obtain the app ID from the agconnect-service.json file.
-                    val appId = "114729999"
-
-                    // Set tokenScope to HCM.
-                    val tokenScope = "HCM"
-                    val token = HmsInstanceId.getInstance(context).getToken(appId, tokenScope)
+                    val token = HmsInstanceId.getInstance(context).getToken(APP_ID, TOKEN_SCOPE)
 
                     // Check whether the token is empty.
                     if (!TextUtils.isEmpty(token)) {
@@ -32,20 +33,20 @@ class TokenTracker {
         }.start()
     }
 
-    fun getToken(context: Context?) {
-        return HmsInstanceId.getInstance(context).getToken(appId, tokenScope)
+    fun getToken(context: Context?): String {
+        return HmsInstanceId.getInstance(context).getToken(APP_ID, TOKEN_SCOPE)
     }
 
     fun testLocalPush(context: Context?) {
-        if (lastToken == "wait and try again") return
+//        if (lastToken == "wait and try again") return
 
-        val testNotificationPayload = RemoteMessage.Builder(getToken(context))
-            .addData("title", "RuStore Push Title")
-            .addData("body", "testRsmLocalPush-Puck-Serenk")
-            .addData("imgUrl", "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg")
-            .addData("some_key", "some_value")
-            .build()
+//        val testNotificationPayload = RemoteMessage.Builder(getToken(context))
+//            .addData("title", "RuStore Push Title")
+//            .addData("body", "testRsmLocalPush-Puck-Serenk")
+//            .addData("imgUrl", "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg")
+//            .addData("some_key", "some_value")
+//            .build()
 
-        FirebaseMessaging.getInstance().send(testNotificationPayload)
+//        HmsInstanceId.getInstance(context).sendNotif(testNotificationPayload)
     }
 }

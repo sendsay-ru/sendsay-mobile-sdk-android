@@ -4,20 +4,26 @@ import android.text.Html
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.Logger
+import com.sendsay.sdk.util.copyToClipboard
 import ru.rustore.sdk.core.exception.RuStoreException
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult
 import ru.rustore.sdk.pushclient.RuStorePushClient
 import ru.rustore.sdk.pushclient.utils.resolveForPush
+import ru.rustore.sdk.core.tasks.OnCompletionListener
+import ru.rustore.sdk.pushclient.messaging.model.TestNotificationPayload
 
 class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
     }
+
+    var lastToken = "wait and try again"
 
     fun checkPushAvailability(context: Context) : Boolean {
         val isInstalled = try {
@@ -27,7 +33,7 @@ class TokenTracker {
             val result = false
             Logger.d(LOG_TAG, "RuStore installed = $result!")
             showAlertDialogWithUrl(context)
-            return result
+            result
         }
         Logger.d(LOG_TAG, "RuStore installed = $isInstalled")
 
@@ -80,13 +86,14 @@ class TokenTracker {
         }.start()
     }
 
-    fun getToken(context: Context?) {
+    fun getToken(context: Context?): String {
 //        this.lifecycleScope.launch{
         RuStorePushClient.getToken()
             .addOnSuccessListener { token ->
                 // Check the token is empty.
                 if (!TextUtils.isEmpty(token)) {
-                    context.copyToClipboard(token)
+                    lastToken = token
+                    context?.copyToClipboard(token)
                 }
                 Logger.d(LOG_TAG, "getToken onSuccess token = $token")
             }
@@ -95,9 +102,10 @@ class TokenTracker {
                 Logger.e(LOG_TAG, "getToken onFailure", throwable)
             }
 //        }
+        return lastToken
     }
 
-    fun testLocalPush() {
+    fun testLocalPush(context: Context?) {
         context?.let { checkPushAvailability(it) }
 
         val testNotificationPayload = TestNotificationPayload(
