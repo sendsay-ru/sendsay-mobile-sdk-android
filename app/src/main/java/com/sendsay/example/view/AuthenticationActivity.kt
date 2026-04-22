@@ -33,7 +33,7 @@ class AuthenticationActivity : AppCompatActivity() {
     var authorizationToken =
         "Token ${defaultProperties.authToken ?: ""}"
     var advancedPublicKey = defaultProperties.publicKey ?: "PK"
-    var registeredIds = defaultProperties.customerIds?.values?.last() ?: ""
+    var registeredIds = defaultProperties.customerIds?.values?.lastOrNull() ?: ""
 
     private lateinit var viewBinding: ActivityAuthenticationBinding
 
