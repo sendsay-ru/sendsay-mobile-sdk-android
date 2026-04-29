@@ -1,7 +1,11 @@
 package com.sendsay.example
 
 import android.app.Application
+import android.view.LayoutInflater
+import android.widget.TextView
 import com.sendsay.example.managers.RegisteredIdManager
+import com.sendsay.example.view.fragments.TrackFragment.Companion.mockItems
+import com.sendsay.sdk.BuildConfig
 
 class App : Application() {
     companion object {

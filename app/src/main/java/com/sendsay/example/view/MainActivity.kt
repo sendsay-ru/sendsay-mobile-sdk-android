@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,7 @@ import com.sendsay.example.view.NavigationItem.Fetch
 import com.sendsay.example.view.NavigationItem.InAppContentBlock
 import com.sendsay.example.view.NavigationItem.Manual
 import com.sendsay.example.view.NavigationItem.Track
+import com.sendsay.sdk.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.InAppMessage
 import com.sendsay.sdk.models.InAppMessageButton
@@ -83,6 +85,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(viewBinding.root)
         setSupportActionBar(viewBinding.toolbar)
         supportActionBar?.title = "Examples"
+//        if (BuildConfig.DEBUG) {
+//            viewBinding.debugBanner.text = BuildConfig.BUILD_TYPE
+//        }
 
         ViewCompat.setOnApplyWindowInsetsListener(viewBinding.toolbar) { v, insets ->
             val bars = insets.getInsets(

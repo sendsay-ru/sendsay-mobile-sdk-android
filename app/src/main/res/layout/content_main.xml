@@ -50,4 +50,26 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Debug Banner -->
+    <TextView
+        android:id="@+id/debugBanner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="-20dp"
+        android:background="@color/design_default_color_error"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:rotation="45"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:tint="@color/colorAccent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="DEBUG"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

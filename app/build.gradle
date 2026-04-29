@@ -21,7 +21,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.sendsay.example"
+//        applicationId "com.sendsay.example"
 //        archivesBaseName = "${applicationId.substring(4)}-v$versionCode($versionName)"
         minSdkVersion 23
         targetSdk 35
@@ -61,6 +61,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig = true
     }
     buildTypes {
         debug {
@@ -68,6 +69,7 @@ android {
 //            matchingFallbacks += listOf("debug")
             debuggable(true)
             minifyEnabled false
+//            applicationIdSuffix ".debug"
         }
         release {
 //            applicationIdSuffix = ".release"
@@ -84,14 +86,34 @@ android {
         flavorDimensions "messagingService"
         fcm {
             dimension "messagingService"
+            applicationIdSuffix ".fcm"
             // custom fields, for example:
-//            buildConfigField("String", "API_ENDPOINT", "\"https://api.staging.com\"")
+            buildConfigField("String", "FLAVOR", "\"FCM\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_fcm",
+                    appIconRound: "@mipmap/ic_launcher_fcm_round",
+                    appName: "@string/app_name_fcm"
+            ]
         }
         hms {
             dimension "messagingService"
+            applicationIdSuffix ".hms"
+            buildConfigField("String", "FLAVOR", "\"HMS\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_hms",
+                    appIconRound: "@mipmap/ic_launcher_hms_round",
+                    appName: "@string/app_name_hms"
+            ]
         }
         rsm {
             dimension "messagingService"
+            applicationIdSuffix ".rsm"
+            buildConfigField("String", "FLAVOR", "\"RSM\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_rsm",
+                    appIconRound: "@mipmap/ic_launcher_rsm_round",
+                    appName: "@string/app_name_rsm"
+            ]
         }
     }
     applicationVariants.configureEach { variant ->

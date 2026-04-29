@@ -125,7 +125,6 @@ class TokenTracker {
                 Toast.makeText(context, "Пуш сломался =(", Toast.LENGTH_SHORT).show()
                 Logger.e(LOG_TAG, "Test Local Push onFailure", throwable)
             }
-//            .await()
     }
 
     @RequiresApi(Build.VERSION_CODES.N)

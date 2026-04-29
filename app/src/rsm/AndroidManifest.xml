@@ -13,7 +13,7 @@
         </service>
         <meta-data
             android:name="ru.rustore.sdk.pushclient.default_notification_icon"
-            android:resource="@mipmap/ic_launcher_foreground" />
+            android:resource="@mipmap/ic_launcher_fcm_foreground" />
         <meta-data
             android:name="ru.rustore.sdk.pushclient.default_notification_color"
             android:resource="@color/colorPrimary" />

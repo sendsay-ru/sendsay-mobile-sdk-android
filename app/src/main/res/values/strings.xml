@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">Sdk Example</string>
+    <string name="app_name_fcm">Sdk Example (FCM)</string>
+    <string name="app_name_hms">Sdk Example (HMS)</string>
+    <string name="app_name_rsm">Sdk Example (RSM)</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
     <string name="purchase">Purchase</string>
