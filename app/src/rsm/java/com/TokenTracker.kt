@@ -6,17 +6,16 @@ import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.sendsay.example.services.RuStorePushClientParams
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.copyToClipboard
 import ru.rustore.sdk.core.exception.RuStoreException
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult
 import ru.rustore.sdk.pushclient.RuStorePushClient
-import ru.rustore.sdk.pushclient.utils.resolveForPush
-import ru.rustore.sdk.core.tasks.OnCompletionListener
 import ru.rustore.sdk.pushclient.messaging.model.TestNotificationPayload
+import ru.rustore.sdk.pushclient.utils.resolveForPush
 
 class TokenTracker {
     companion object {
@@ -25,7 +24,8 @@ class TokenTracker {
 
     var lastToken = "wait and try again"
 
-    fun checkPushAvailability(context: Context) : Boolean {
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun checkPushAvailability(context: Context): Boolean {
         val isInstalled = try {
             context.packageManager.getPackageInfo("ru.vk.store", 0)
             true
@@ -60,71 +60,84 @@ class TokenTracker {
     }
 
     fun trackToken(context: Context?) {
-        var isPushAvailable : Boolean? = null
-        // Проверяем установлен ли RuStore или другой VkCore на устройстве:
-        context?.let { isPushAvailable = checkPushAvailability(it) }
+        context?.let {
+            // Проверяем установлен ли RuStore или другой VkCore на устройстве:
+            if (checkPushAvailability(it)) object : Thread() {
+                override fun run() {
+                    try {
+                        val token = RuStorePushClient.getToken()
+                            .addOnSuccessListener { result ->
+                                Logger.d(LOG_TAG, "getToken onSuccess token = $result")
+                            }
+                            .addOnFailureListener { throwable ->
+                                Logger.e(LOG_TAG, "getToken onFailure", throwable)
+                            }.await()
 
-        if (isPushAvailable == true) object : Thread() {
-            override fun run() {
-                try {
-                    val token = RuStorePushClient.getToken()
-                        .addOnSuccessListener { result ->
-                            Logger.d(LOG_TAG, "getToken onSuccess token = $result")
+                        // Check whether the token is empty.
+                        if (!TextUtils.isEmpty(token)) {
+                            Sendsay.trackRsmPushToken(token)
                         }
-                        .addOnFailureListener { throwable ->
-                            Logger.e(LOG_TAG, "getToken onFailure", throwable)
-                        }.await()
-
-                    // Check whether the token is empty.
-                    if (!TextUtils.isEmpty(token)) {
-                        Sendsay.trackRsmPushToken(token)
+                    } catch (e: RuStoreException) {
+                        Logger.e(this, "get rustore push token failed, $e")
                     }
-                } catch (e: RuStoreException) {
-                    Logger.e(this, "get rustore push token failed, $e")
                 }
-            }
-        }.start()
+            }.start()
+        }
     }
 
     fun getToken(context: Context?): String {
+        context?.let {
+            // Проверяем установлен ли RuStore или другой VkCore на устройстве:
+            if (checkPushAvailability(it)) {
 //        this.lifecycleScope.launch{
-        RuStorePushClient.getToken()
-            .addOnSuccessListener { token ->
-                // Check the token is empty.
-                if (!TextUtils.isEmpty(token)) {
-                    lastToken = token
-                    context?.copyToClipboard(token)
-                }
-                Logger.d(LOG_TAG, "getToken onSuccess token = $token")
+                RuStorePushClient.getToken()
+                    .addOnSuccessListener { token ->
+                        // Check the token is empty.
+                        if (!TextUtils.isEmpty(token)) {
+                            lastToken = token
+                            context.copyToClipboard(token)
+                        }
+                        Logger.d(LOG_TAG, "getToken onSuccess token = $token")
+                    }
+                    .addOnFailureListener { throwable ->
+                        Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT).show()
+                        Logger.e(LOG_TAG, "getToken onFailure", throwable)
+                    }
             }
-            .addOnFailureListener { throwable ->
-                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT).show()
-                Logger.e(LOG_TAG, "getToken onFailure", throwable)
-            }
-//        }
+        }
         return lastToken
     }
 
     fun testLocalPush(context: Context?) {
-        context?.let { checkPushAvailability(it) }
-
-        val testNotificationPayload = TestNotificationPayload(
-            title = "RuStore Push Title",
-            body = "testRsmLocalPush-Puck-Serenk",
-            imgUrl = "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg",
-            data = mapOf("some_key" to "some_value")
-        )
-
-        RuStorePushClient.sendTestNotification(testNotificationPayload)
-            .addOnCompletionListener {
-                Logger.d(LOG_TAG, "Test Local Push Completed")
-            }.addOnSuccessListener {
-                Toast.makeText(context, "Пуш отправлен!", Toast.LENGTH_SHORT).show()
-                Logger.d(LOG_TAG, "Test Local Push Sended")
-            }.addOnFailureListener { throwable ->
-                Toast.makeText(context, "Пуш сломался =(", Toast.LENGTH_SHORT).show()
-                Logger.e(LOG_TAG, "Test Local Push onFailure", throwable)
+        context?.let {
+            if (!checkPushAvailability(it)) {
+                Toast.makeText(it, "Пуш недоступен, подробнее в логах", Toast.LENGTH_SHORT).show()
+                return
             }
+
+            if (!RuStorePushClientParams(context).getTestModeEnabled()) {
+                Toast.makeText(it, "Требуется getTestModeEnabled = true", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val testNotificationPayload = TestNotificationPayload(
+                title = "RuStore Push Title",
+                body = "testRsmLocalPush-Puck-Serenk",
+                imgUrl = "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg",
+                data = mapOf("some_key" to "some_value")
+            )
+
+            RuStorePushClient.sendTestNotification(testNotificationPayload)
+                .addOnCompletionListener {
+                    Logger.d(LOG_TAG, "Test Local Push Completed")
+                }.addOnSuccessListener {
+                    Toast.makeText(context, "Пуш отправлен!", Toast.LENGTH_SHORT).show()
+                    Logger.d(LOG_TAG, "Test Local Push Sended")
+                }.addOnFailureListener { throwable ->
+                    Toast.makeText(context, "Пуш сломался =(", Toast.LENGTH_SHORT).show()
+                    Logger.e(LOG_TAG, "Test Local Push onFailure", throwable)
+                }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
