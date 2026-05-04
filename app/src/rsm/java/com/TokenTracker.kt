@@ -20,9 +20,10 @@ import ru.rustore.sdk.pushclient.utils.resolveForPush
 class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
+
+        @Volatile var lastToken = "wait and try again"
     }
 
-    var lastToken = "wait and try again"
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun checkPushAvailability(context: Context): Boolean {
@@ -96,6 +97,7 @@ class TokenTracker {
                         if (!TextUtils.isEmpty(token)) {
                             lastToken = token
                             context.copyToClipboard(token)
+                            Toast.makeText(context, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
                         }
                         Logger.d(LOG_TAG, "getToken onSuccess token = $token")
                     }

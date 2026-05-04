@@ -54,12 +54,22 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:text="Get RuStore Token"
+        android:text="Get Device Token"
         android:theme="@style/AppButton"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/tokenText"
         app:layout_constraintTop_toBottomOf="@+id/textView5"
         app:layout_constraintEnd_toStartOf="@+id/buttonAuthorizePush"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tokenText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Last Token Value:"
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="@+id/buttonTestPush"
+        app:layout_constraintStart_toStartOf="@+id/buttonGetToken"  />
 
     <Button
         android:id="@+id/buttonTestPush"
@@ -68,9 +78,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:text="Test RuStore Push (Local)"
+        android:text="Test Local Push\n(RSM only)"
         android:theme="@style/AppButton"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/tokenText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonGetToken" />
 

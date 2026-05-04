@@ -28,6 +28,7 @@ import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
+import com.sendsay.sdk.util.copyToClipboard
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -73,7 +74,17 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     private fun initListeners() {
         viewBinding.listView.onItemClickListener = this
 
-        viewBinding.buttonGetToken.setOnClickListener { context?.let { getToken(it) } }
+        viewBinding.buttonGetToken.setOnClickListener {
+            context?.let {
+                viewBinding.tokenText.text = getToken(it)
+            }
+        }
+        viewBinding.tokenText.setOnClickListener {
+            context?.let {
+                it.copyToClipboard(viewBinding.tokenText.text)
+                Toast.makeText(context, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
+            }
+        }
         viewBinding.buttonTestPush.setOnClickListener { context?.let { testLocalPush(it) } }
 
         viewBinding.buttonTrackClicked.setOnClickListener { trackPushClicked() }

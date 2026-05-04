@@ -17,7 +17,7 @@ import kotlin.math.abs
  * It is in your own interest to provide proper token generating and handling of its cache, expiration and secured storing.
  */
 class CustomerTokenStorage(
-    private var networkManager: NetworkManager = NetworkManager(),
+    private var networkManager: NetworkManager = NetworkManager(App.instance.applicationContext),
     private val gson: Gson = Gson(),
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(App.instance)
 ) {

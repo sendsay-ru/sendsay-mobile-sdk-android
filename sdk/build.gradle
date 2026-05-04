@@ -134,6 +134,8 @@ dependencies {
     testImplementation "io.mockk:mockk:1.12.8"
     // WorkManager testing
     testImplementation 'androidx.work:work-testing:2.4.0'
+    // Chucker debug intent
+    debugImplementation "com.github.chuckerteam.chucker:library:4.1.0"
 }
 
 shadowAar {

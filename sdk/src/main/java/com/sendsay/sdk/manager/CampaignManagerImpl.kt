@@ -32,7 +32,7 @@ internal class CampaignManagerImpl(
             val customerIdsRepository = CustomerIdsRepositoryImpl(
                 SendsayGson.instance, uniqueIdentifierRepository, preferences
             )
-            val networkManager = NetworkHandlerImpl(configuration)
+            val networkManager = NetworkHandlerImpl(configuration, context)
             val sendsayService = SendsayServiceImpl(SendsayGson.instance, networkManager)
             val connectionManager = ConnectionManagerImpl(context)
             val flushManager = FlushManagerImpl(

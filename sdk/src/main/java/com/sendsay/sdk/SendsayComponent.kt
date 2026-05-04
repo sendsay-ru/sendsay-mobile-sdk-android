@@ -124,7 +124,7 @@ internal class SendsayComponent(
         InAppMessageDisplayStateRepositoryImpl(preferences, SendsayGson.instance)
 
     // Network Handler
-    internal val networkManager: NetworkHandler = NetworkHandlerImpl(sendsayConfiguration)
+    internal val networkManager: NetworkHandler = NetworkHandlerImpl(sendsayConfiguration, context)
 
     // Api Service
     internal val sendsayService: SendsayService = SendsayServiceImpl(SendsayGson.instance, networkManager)
