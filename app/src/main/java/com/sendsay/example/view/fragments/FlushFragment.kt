@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sendsay.example.databinding.FragmentFlushBinding
 import com.sendsay.example.models.Constants
 import com.sendsay.example.view.base.BaseFragment
+import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
 
 class FlushFragment : BaseFragment() {
@@ -30,8 +31,10 @@ class FlushFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.subtitle = "flush"
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.settingsScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.settingsScreen)
+        }
 
         viewBinding.settingsBtnFlush.setOnClickListener {
             viewBinding.progressBar.visibility = View.VISIBLE

@@ -11,6 +11,7 @@ import com.sendsay.example.databinding.FragmentAnonymizeBinding
 import com.sendsay.example.models.Constants
 import com.sendsay.example.view.AuthenticationActivity
 import com.sendsay.example.view.base.BaseFragment
+import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
 
 class AnonymizeFragment : BaseFragment() {
@@ -29,8 +30,10 @@ class AnonymizeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.anonymizeScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.anonymizeScreen)
+        }
 
         (activity as AppCompatActivity).supportActionBar?.subtitle = "anonymize"
         viewBinding.btnAnonymize.setOnClickListener {

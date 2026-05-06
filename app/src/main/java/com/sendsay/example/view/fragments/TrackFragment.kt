@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.sendsay.example.App
+import com.sendsay.example.BuildConfig
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.models.Constants
@@ -66,8 +67,10 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.subtitle = "tracking"
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.purchaseScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.purchaseScreen)
+        }
 
         viewBinding.listView.adapter = Adapter()
 

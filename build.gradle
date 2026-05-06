@@ -5,6 +5,7 @@ buildscript {
     ext.jacoco_version = '0.8.12'
     ext.room_version = '2.6.1'
     ext.dokka_version = '2.1.0'
+    ext.okhttp3_version = '5.0.0'
 
     repositories {
         google()

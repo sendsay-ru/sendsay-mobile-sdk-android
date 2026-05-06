@@ -16,6 +16,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.logging.HttpLoggingInterceptor
 
@@ -33,7 +34,7 @@ internal class NetworkHandlerImpl(
 
     private fun getNetworkInterceptor(): Interceptor {
         return Interceptor {
-            var request = it.request()
+            val request = it.request()
 
             Logger.d(this, "Server address: ${request.url.host}")
 
@@ -43,13 +44,13 @@ internal class NetworkHandlerImpl(
                 // Sometimes the request can fail due to SSL problems crashing the app. When that
                 // happens, we return a dummy failed request
                 Logger.w(this, e.toString())
-                val message = "Error: request canceled by $e"
+                val message = "(FAKE)Error: request canceled by $e"
                 Response.Builder()
                     .code(400)
                     .protocol(Protocol.HTTP_2)
                     .message(message)
                     .request(it.request())
-                    .body(ResponseBody.create("text/plain".toMediaTypeOrNull(), message))
+                    .body(message.toResponseBody("text/plain".toMediaTypeOrNull()))
                     .build()
             }
         }
