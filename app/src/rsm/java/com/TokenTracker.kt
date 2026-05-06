@@ -14,6 +14,7 @@ import com.sendsay.sdk.util.copyToClipboard
 import ru.rustore.sdk.core.exception.RuStoreException
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult
 import ru.rustore.sdk.pushclient.RuStorePushClient
+import ru.rustore.sdk.pushclient.RuStorePushClient.checkPushAvailability
 import ru.rustore.sdk.pushclient.messaging.model.TestNotificationPayload
 import ru.rustore.sdk.pushclient.utils.resolveForPush
 
@@ -21,7 +22,8 @@ class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
 
-        @Volatile var lastToken = "wait and try again"
+        @Volatile
+        var lastToken = "wait and try again"
     }
 
 
@@ -60,24 +62,32 @@ class TokenTracker {
         return isInstalled
     }
 
-    fun trackToken(context: Context?) {
+    fun getToken(context: Context?, onGetLastToken: (String) -> Unit) {
         context?.let {
             // Проверяем установлен ли RuStore или другой VkCore на устройстве:
             if (checkPushAvailability(it)) object : Thread() {
                 override fun run() {
                     try {
-                        val token = RuStorePushClient.getToken()
-                            .addOnSuccessListener { result ->
-                                Logger.d(LOG_TAG, "getToken onSuccess token = $result")
+                        RuStorePushClient.getToken()
+                            .addOnSuccessListener { token ->
+                                // Check the token is empty.
+                                if (!TextUtils.isEmpty(token)) {
+                                    onGetLastToken.invoke(token)
+                                    context.copyToClipboard(token)
+                                    Toast.makeText(
+                                        context,
+                                        "Скопировано в буфер обмена",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
+                                }
+                                Logger.d(LOG_TAG, "getToken onSuccess token = $token")
                             }
                             .addOnFailureListener { throwable ->
+                                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT)
+                                    .show()
                                 Logger.e(LOG_TAG, "getToken onFailure", throwable)
-                            }.await()
-
-                        // Check whether the token is empty.
-                        if (!TextUtils.isEmpty(token)) {
-                            Sendsay.trackRsmPushToken(token)
-                        }
+                            }
                     } catch (e: RuStoreException) {
                         Logger.e(this, "get rustore push token failed, $e")
                     }
@@ -86,29 +96,12 @@ class TokenTracker {
         }
     }
 
-    fun getToken(context: Context?): String {
-        context?.let {
-            // Проверяем установлен ли RuStore или другой VkCore на устройстве:
-            if (checkPushAvailability(it)) {
-//        this.lifecycleScope.launch{
-                RuStorePushClient.getToken()
-                    .addOnSuccessListener { token ->
-                        // Check the token is empty.
-                        if (!TextUtils.isEmpty(token)) {
-                            lastToken = token
-                            context.copyToClipboard(token)
-                            Toast.makeText(context, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
-                        }
-                        Logger.d(LOG_TAG, "getToken onSuccess token = $token")
-                    }
-                    .addOnFailureListener { throwable ->
-                        Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT).show()
-                        Logger.e(LOG_TAG, "getToken onFailure", throwable)
-                    }
-            }
+    fun trackToken(context: Context?) {
+        getToken(context) { token ->
+            Sendsay.trackRsmPushToken(token)
         }
-        return lastToken
     }
+
 
     fun testLocalPush(context: Context?) {
         context?.let {

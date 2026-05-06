@@ -21,8 +21,6 @@ android {
     compileSdk 35
 
     defaultConfig {
-//        applicationId "com.sendsay.example"
-//        archivesBaseName = "${applicationId.substring(4)}-v$versionCode($versionName)"
         minSdkVersion 23
         targetSdk 35
         versionCode 14

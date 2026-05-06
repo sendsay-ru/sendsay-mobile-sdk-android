@@ -17,7 +17,10 @@ class SendsayRsmMessageService : RuStoreMessagingService() {
 
     fun <T> T.serializeToSendsayMap(): Map<String, Any> {
         val json = gson.toJson(this)
-        val map = gson.fromJson<MutableMap<String, Any>>(json, object : TypeToken<Map<String, Any>>() {}.type).also {
+        val map = gson.fromJson<MutableMap<String, Any>>(
+            json,
+            object : TypeToken<Map<String, Any>>() {}.type
+        ).also {
             it["source"] = "xnpe_platform"
         }
         return map
@@ -26,7 +29,6 @@ class SendsayRsmMessageService : RuStoreMessagingService() {
     private val notificationManager by lazy {
         getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     }
-
 
 
     override fun onNewToken(token: String) {
@@ -39,13 +41,13 @@ class SendsayRsmMessageService : RuStoreMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         /** backend or gorush logic */
-        Sendsay.handleRemoteMessage(applicationContext, message.data, notificationManager)
+//        Sendsay.handleRemoteMessage(applicationContext, message.data, notificationManager)
         /**  tests from web console and local */
-//        Sendsay.handleRemoteMessage(
-//            applicationContext,
-//            message.notification?.serializeToSendsayMap() as? Map<String, String>,
-//            notificationManager
-//        )
+        Sendsay.handleRemoteMessage(
+            applicationContext,
+            message.notification?.serializeToSendsayMap() as? Map<String, String>,
+            notificationManager
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.N)

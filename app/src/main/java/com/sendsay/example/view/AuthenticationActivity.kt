@@ -29,7 +29,8 @@ class AuthenticationActivity : AppCompatActivity() {
     val defaultProperties = CustomerTokenStorage.INSTANCE
 
     var projectToken = defaultProperties.projectToken ?: ""
-    var apiUrl = defaultProperties.host ?: "https://mobi.sendsay.ru/xnpe/v100"
+    var apiUrl = defaultProperties.host?.ifBlank { SendsayConfiguration().baseURL }
+        ?: SendsayConfiguration().baseURL
     var authorizationToken =
         "Token ${defaultProperties.authToken ?: ""}"
     var advancedPublicKey = defaultProperties.publicKey ?: "PK"
@@ -59,7 +60,7 @@ class AuthenticationActivity : AppCompatActivity() {
                 !viewBinding.editTextAuthCode.isValid() ||
                 !viewBinding.editTextApiUrl.isVaildUrl()
             ) {
-                Toast.makeText(this, "Empty field", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Authenticate please", Toast.LENGTH_SHORT).show()
             } else {
                 initSdk()
             }
@@ -72,6 +73,7 @@ class AuthenticationActivity : AppCompatActivity() {
 
     private fun initSdk() {
         val configuration = SendsayConfiguration()
+        apiUrl = apiUrl.dropLastWhile { !it.isLetterOrDigit() }
         // Saving current field state
         configuration.defaultProperties["projectToken"] = projectToken
         configuration.defaultProperties["apiUrl"] = apiUrl
@@ -91,7 +93,6 @@ class AuthenticationActivity : AppCompatActivity() {
 //        configuration.defaultProperties["thisIsADefaultIntProperty"] = 1
         configuration.automaticPushNotification = true
         configuration.tokenTrackFrequency = EVERY_LAUNCH
-//        configuration.pushChannelId = "Push channel (Sendsay)"
         configuration.pushChannelId = getString(R.string.pushes_notification_channel_id)
 
         // Prepare Example Advanced Auth
@@ -105,7 +106,7 @@ class AuthenticationActivity : AppCompatActivity() {
         )
 
         // Set our customer registration id
-        if (viewBinding.editTextRegisteredIds.isValid()) {
+        if (viewBinding.editTextRegisteredIds.text?.isNotEmpty() ?: false) {
             App.instance.registeredIdManager.registeredID = registeredIds
             CustomerTokenStorage.INSTANCE.configure(
                 customerIds = hashMapOf(

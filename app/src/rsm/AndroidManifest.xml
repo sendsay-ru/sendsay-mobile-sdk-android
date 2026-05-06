@@ -23,9 +23,6 @@
         <meta-data
             android:name="ru.rustore.sdk.pushclient.project_id"
             android:value="qwkU4rJKqHFToKcBJQEQaTK8RSQUrsKP" />
-<!--        <meta-data-->
-<!--            android:name="ru.rustore.sdk.pushclient.project_id"-->
-<!--            android:value="5wMx3yKO3O8BjElsOO2-RKZtytVfWiBr" />-->
         <meta-data
             android:name="ru.rustore.sdk.pushclient.params_class"
             android:value="com.sendsay.example.services.RuStorePushClientParams" />

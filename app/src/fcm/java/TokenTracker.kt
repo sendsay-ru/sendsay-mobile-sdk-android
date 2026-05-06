@@ -1,4 +1,6 @@
 import android.content.Context
+import android.text.TextUtils
+import android.widget.Toast
 import com.sendsay.sdk.Sendsay
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.NotificationParams
@@ -10,25 +12,37 @@ import com.sendsay.sdk.util.copyToClipboard
 class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
+
+        @Volatile
+        var lastToken = "wait and try again"
     }
 
-    var lastToken = "wait and try again"
+    fun getToken(context: Context?, onGetTokenComplete: (String) -> Unit) {
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+
+                // Check whether the token is empty.
+                if (!TextUtils.isEmpty(token)) {
+                    lastToken = token
+                    context?.copyToClipboard(lastToken)
+                    onGetTokenComplete.invoke(lastToken)
+                    Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
+                }
+            }.addOnFailureListener { throwable ->
+                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT)
+                    .show()
+                Logger.e(LOG_TAG, "getToken onFailure", throwable)
+            }
+    }
 
     fun trackToken(context: Context?) {
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+        getToken(context) { token ->
             Sendsay.trackPushToken(token)
-            lastToken = token
         }
     }
 
-    fun getToken(context: Context?): String {
-        trackToken(context)
-        context?.copyToClipboard(lastToken)
-        Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
-        return lastToken
-    }
-
     fun testLocalPush(context: Context?) {
+        Toast.makeText(context, "RSM only!", Toast.LENGTH_SHORT).show()
 //        if (lastToken == "wait and try again") return
 //
 //        val testNotificationPayload = RemoteMessage.Builder(getToken(context))

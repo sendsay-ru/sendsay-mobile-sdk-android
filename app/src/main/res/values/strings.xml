@@ -15,9 +15,9 @@
     <string name="pushes_notification_channel_id">"Push channel (Sendsay)"</string>
 
     <string name="hint_custids">Customer Id</string>
-    <string name="hint_auth_code">Authentication Token (optional)</string>
+    <string name="hint_auth_code">Authentication Token</string>
     <string name="hint_project_token">Project Id / Account Id</string>
-    <string name="hint_registered">Registered Ids</string>
+    <string name="hint_registered">Registered Ids (optional)</string>
     <string name="hint_example">ex. email@adderess.com</string>
     <string name="hint_api_url">API Url</string>
     <string name="action_authenticate">Authenticate</string>

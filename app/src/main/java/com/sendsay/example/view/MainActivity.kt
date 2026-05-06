@@ -88,7 +88,9 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(viewBinding.toolbar)
         supportActionBar?.title = "Examples"
         if (BuildConfig.DEBUG) {
-            viewBinding.debugBanner.text = BuildConfig.FLAVOR
+            viewBinding.debugBanner.text =
+                "${BuildConfig.FLAVOR}\n" +
+                        "v${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
             viewBinding.debugBanner.visibility = View.VISIBLE
         }
 

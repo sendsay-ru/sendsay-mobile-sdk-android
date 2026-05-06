@@ -12,6 +12,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.sendsay.example.App
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
@@ -29,9 +30,12 @@ import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.copyToClipboard
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.coroutineContext
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -76,7 +80,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
         viewBinding.buttonGetToken.setOnClickListener {
             context?.let {
-                viewBinding.tokenText.text = getToken(it)
+                getToken(it) { token -> viewBinding.tokenText.text = token }
             }
         }
         viewBinding.tokenText.setOnClickListener {
@@ -119,8 +123,8 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     /**
      * Method to handle "getToken" button (RuStore only?)
      */
-    private fun getToken(context: Context): String {
-        return TokenTracker().getToken(context)
+    private fun getToken(context: Context, onComplete: (String) -> Unit) {
+        return TokenTracker().getToken(context, onComplete)
     }
 
     /**

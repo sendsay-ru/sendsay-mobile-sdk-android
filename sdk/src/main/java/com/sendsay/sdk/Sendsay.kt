@@ -938,9 +938,9 @@ object Sendsay {
         component.initConfigManager.fetchInitConfig(onSuccess = {
             Logger.i(this, "Init config fetched successfully")
             isInAppMessagesEnabled =
-                it?.first()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
-            isInAppCBEnabled = it?.first()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
-            isAppInboxEnabled = it?.first()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
+                it?.firstOrNull()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
+            isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
+            isAppInboxEnabled = it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled

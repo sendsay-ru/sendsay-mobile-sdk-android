@@ -24,7 +24,7 @@ class TokenTracker {
         var lastToken = "wait and try again"
     }
 
-    fun trackToken(context: Context?) {
+    fun getToken(context: Context?, onGetTokenComplete: (String) -> Unit) {
         object : Thread() {
             override fun run() {
                 try {
@@ -33,7 +33,9 @@ class TokenTracker {
                     // Check whether the token is empty.
                     if (!TextUtils.isEmpty(token)) {
                         lastToken = token
-                        Sendsay.trackHmsPushToken(token)
+                        context?.copyToClipboard(lastToken)
+                        onGetTokenComplete.invoke(lastToken)
+                        Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
                     }
                 } catch (e: ApiException) {
                     Logger.e(this, "get hms token failed, $e")
@@ -42,25 +44,10 @@ class TokenTracker {
         }.start()
     }
 
-    fun getToken(context: Context?): String {
-        object : Thread() {
-            override fun run() {
-                try {
-                    val token = HmsInstanceId.getInstance(context).getToken(APP_ID, TOKEN_SCOPE)
-
-                    // Check whether the token is empty.
-                    if (!TextUtils.isEmpty(token)) {
-                        lastToken = token
-                    }
-                } catch (e: ApiException) {
-                    Logger.e(this, "get hms token failed, $e")
-                }
-            }
-        }.start().also {
-            context?.copyToClipboard(lastToken)
-            Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
+    fun trackToken(context: Context?) {
+        getToken(context) { token ->
+            Sendsay.trackHmsPushToken(token)
         }
-        return lastToken
     }
 
     fun testLocalPush(context: Context?) {

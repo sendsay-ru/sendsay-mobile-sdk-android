@@ -91,6 +91,10 @@ internal class SendsayMockService(
         return if (success) mockSuccessCall() else mockFailCall()
     }
 
+    override fun fetchInitConfig(sendsayProject: SendsayProject): Call {
+        return if (success) mockSuccessCall() else mockFailCall()
+    }
+
     override fun fetchStaticInAppContentBlocks(sendsayProject: SendsayProject): Call {
         return if (success) mockSuccessCall() else mockFailCall()
     }

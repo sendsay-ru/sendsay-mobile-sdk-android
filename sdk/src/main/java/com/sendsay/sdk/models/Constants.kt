@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 internal object Constants {
     // Network
     object Repository {
-        val baseURL: String = "https://api.sendsay.com"
+        val baseURL: String = "https://mobi.sendsay.ru/xnpe/v100"
     }
 
     // SDK Info
