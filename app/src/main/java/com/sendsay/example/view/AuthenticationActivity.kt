@@ -99,7 +99,11 @@ class AuthenticationActivity : AppCompatActivity() {
         CustomerTokenStorage.INSTANCE.configure(
             host = apiUrl,
             projectToken = projectToken,
-            authToken = authorizationToken.split(" ").last(),
+            authToken = authorizationToken
+                .trim()
+                .replace("\n", "")
+                .replace("\r", "")
+                .split(" ").last(),
             publicKey = advancedPublicKey,
             customerIds = null,
             expiration = null
