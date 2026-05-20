@@ -1,8 +1,8 @@
 ---
-title: Отслеживание
-excerpt: Отслеживайте клиентов и события с помощью Android SDK
-slug: android-sdk-tracking
-categorySlug: integrations
+title: Отслеживание\
+excerpt: Отслеживайте клиентов и события с помощью Android SDK\
+slug: android-sdk-tracking\
+categorySlug: integrations\
 parentDocSlug: android-sdk
 ---
 
@@ -11,7 +11,7 @@ parentDocSlug: android-sdk
 По умолчанию SDK автоматически отслеживает определенные события, включая:
 
 * Установку (после установки приложения и после вызова [anonymize](#anonymize))
-* Начало и окончание пользовательской сессии
+* Начало и окончание пользовательской сессии 
 
 Кроме того, вы можете отслеживать пользовательские события, связанные с вашими бизнес-процессами.
 
@@ -36,7 +36,7 @@ parentDocSlug: android-sdk
 Обратитесь к документации [События модуля "Продажи"](https://docs.sendsay.ru/ecom/how-to-configure-data-transfer).
 Там указаны требования к обязательным полям [TrackSSECDataCore](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECBuilders.kt) для заполнения к каждому типу [TrackingSSECType](../sdk/src/main/java/com/sendsay/sdk/models/TrackingSSECType.kt)
 
-## Пример с помощью TrackSSECDataBuilder(рекомендуется, чтобы избежать ошибок):
+## Пример с помощью TrackSSECDataBuilder (рекомендуется, чтобы избежать ошибок):
 ```kotlin
 fun trackClearBasket() {
     // Получение текущего времени с использованием SimpleDateFormat
@@ -241,12 +241,10 @@ val customerIds = CustomerIds().withId("registered","jane.doe@example.com")
 ```kotlin
 val properties = PropertiesList(
     hashMapOf(
-        "member_set" to hashMapOf(
-            "datakey" to [
-                ["propertyName", "set/update/delete"+".copy"(optional), "value/newValue"], // пример возможных(не всех) значений установки/обновления/удаления строкового свойства
-                ["anotherProperty", "update.copy", 123] // рабойчи пример обновления числового свойства
-            ]
-        )
+        "datakey" to [
+            ["propertyName", "set/update/delete"+".copy"(optional), "value/newValue"], // пример возможных(не всех) значений установки/обновления/удаления строкового свойства
+            ["anotherProperty", "update.copy", 123] // рабочий пример обновления числового свойства
+        ]
     )
 )
 ```

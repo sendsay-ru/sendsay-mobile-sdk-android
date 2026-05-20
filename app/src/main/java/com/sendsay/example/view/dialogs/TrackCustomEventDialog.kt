@@ -26,7 +26,6 @@ class TrackCustomEventDialog : DialogFragment() {
         "property key" to "some value" as Any,
         "cce" to "{any-key: test-value}".trimIndent() as Any
     )
-    private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
 
     private val spinnerList = listOf<String>(
@@ -105,8 +104,7 @@ class TrackCustomEventDialog : DialogFragment() {
                     )
                 )
                 Log.d("DATAKEY", datakey.joinToString())
-                member_set["datakey"] = datakey
-                propsMap["member_set"] = member_set
+                propsMap["datakey"] = datakey
                 Log.d(TAG, propsMap.toString())
                 propsTextView.text = propsMap.asJson()
             }
