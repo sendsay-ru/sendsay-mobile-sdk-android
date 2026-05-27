@@ -2,23 +2,36 @@
 
 Включение и отслеживание Android App Links в вашем приложении с помощью Android SDK
 
-Android App Links (иногда называемые Universal Links) позволяют ссылкам, которые вы отправляете клиенту, открываться непосредственно в вашем мобильном приложении без каких-либо перенаправлений, которые могут помешать пользовательскому опыту.
+Android App Links позволяют ссылкам, которые вы отправляете через CDP Sendsay, открываться напрямую в вашем мобильном приложении без каких-либо перенаправлений, которые могут ухудшить пользовательский опыт.
 
-Подробности о том, как работают Android App Links и как они могут улучшить пользовательский опыт, см. в разделе [Universal Links](app-links.md) в документации.
+Ниже описаны шаги, необходимые для поддержки и отслеживания App Links в вашем приложении с помощью Android SDK Sendsay.
 
-Эта страница описывает шаги, необходимые для поддержки и отслеживания входящих Android App Links в вашем приложении с помощью Android SDK.
+> 📘
+>
+> Подробнее о том, как работают App Links и зачем они нужны, смотрите в разделе [Universal Links](app-links.md) документации.
 
 ## Включение Android App Links
 
-Чтобы поддерживать Android App Links в вашем приложении, необходимо создать двустороннюю связь между вашим приложением и веб-сайтом и указать URL-адреса, которые обрабатывает ваше приложение. Для этого необходимо добавить intent filter в манифест Android вашего приложения и разместить файл Digital Asset Link JSON на вашем домене.
+Для поддержки App Links необходимо создать двустороннюю связь между вашим приложением и вашим доменом, а также указать URL-адреса, которые приложение будет обрабатывать.
+
+Для этого нужно:
+1. Добавить `intent-filter` в `AndroidManifest.xml`.
+2. Разместить файл **Digital Asset Links** JSON на вашем веб-сайте.
 
 ### Добавление intent filter в манифест Android
 
-[App Links Assistant в Android Studio](https://developer.android.com/studio/write/app-link-indexing.html#intent) может помочь вам создать intent filters в вашем манифесте и сопоставить существующие URL-адреса с вашего веб-сайта с активностями в вашем приложении. App Links Assistant также добавляет шаблонный код в каждую соответствующую активность для обработки intent.
+Вы можете использовать [App Links Assistant в Android Studio](https://developer.android.com/studio/write/app-link-indexing.html#intent), который поможет: 
+- добавить `intent-filter`,
+- сопоставить URL-адреса сайта с активностями в приложении,
+- сгенерировать обработчик `intent`.
 
-Альтернативно, вы можете настроить это вручную, следуя инструкциям в разделе [Проверка Android App Links](https://developer.android.com/training/app-links/verify-android-applinks) в официальной документации Android.
+Вы можете настроить это вручную, следуя инструкциям в разделе [Проверка Android App Links](https://developer.android.com/training/app-links/verify-android-applinks) в официальной документации Android.
 
-Убедитесь, что intent filter содержит атрибут `android:autoVerify="true"`, чтобы сигнализировать системе Android, что она должна проверить ваш Digital Asset Link JSON и автоматически обрабатывать App Links.
+Убедитесь, что ваш `intent filter` содержит атрибут: 
+```xml
+android:autoVerify="true"
+``` 
+Этот атрибут сообщает Android, что система должна проверить ваш JSON-файл **Digital Asset Links** и автоматически обрабатывать App Links.
 
 Пример:
 
@@ -35,17 +48,15 @@ Android App Links (иногда называемые Universal Links) позво
 </activity>
 ```
 
-### Добавление Digital Asset Link JSON на ваш домен
+### Размещение файла Digital Asset Link JSON на сайте
 
-Необходимо объявить связь между вашим веб-сайтом и intent filters, разместив файл [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) JSON в следующем местоположении:
+Файл [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) JSON должен находиться по адресу:
 
 ```
 https://domain.name/.well-known/assetlinks.json
 ```
 
-Опять же, [App Links Assistant в Android Studio](https://developer.android.com/studio/write/app-link-indexing.html#associatesite) может помочь сгенерировать файл для вас.
-
-Альтернативно, вы можете сделать это вручную, следуя инструкциям в разделе [Объявление связей веб-сайта](https://developer.android.com/training/app-links/verify-android-applinks#web-assoc) в официальной документации Android.
+[App Links Assistant](https://developer.android.com/studio/write/app-link-indexing.html#associatesite) в Android Studio может сгенерировать файл автоматически, либо вы можете создать его вручную, следуя инструкции: [Объявление связей веб-сайта](https://developer.android.com/training/app-links/verify-android-applinks#web-assoc) в официальной документации Android.
 
 Пример:
 
@@ -59,16 +70,32 @@ https://domain.name/.well-known/assetlinks.json
   }
 }]
 ```
+После добавления `intent filter` и размещения файла, App Links должны открывать ваше приложение.
+
+> 👍
+>
+> Самый простой способ протестировать App Links — отправить себе письмо или сообщение со ссылкой и открыть её в браузере на устройстве. 
 
 ## Отслеживание Android App Links
 
-SDK может автоматически определить, является ли intent, который открыл ваше приложение, App Link. Все, что требуется, это вызов `Sendsay.handleCampaignIntent(intent, applicationContext)`.
+Когда приложение открывается через App Link, Android передаёт его через `intent`. Android SDK Sendsay может автоматически определить, является ли входящий `intent` App Link, и корректно отследить параметры кампании.
 
-Параметры App Link автоматически отслеживаются в событиях `session_start`, когда для данного клика Universal Link запускается новая сессия. Если ваше приложение запускает новую сессию, параметры кампании (`utm_source`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_term` и `xnpe_cmp`) отправляются в параметрах сессии, чтобы вы могли приписать новую сессию клику App Link.
+Чтобы это работало, вызовите:
+```
+Sendsay.handleCampaignIntent(intent, applicationContext)
+```
 
-Если App Link содержит параметр `xnpe_cmp`, то отслеживается дополнительное событие `campaign`. Параметр `xnpe_cmp` представляет идентификатор кампании, обычно генерируемый для кампаний Email или SMS.
+### Важные моменты отслеживания
 
-Чтобы отслеживать события сессии с параметрами App Link, необходимо вызвать `Sendsay.handleCampaignIntent` **до** того, как будет вызван метод `onResume` вашей Activity. В идеале сделайте вызов в методе `.onCreate` вашей MainActivity.
+- Параметры App Link автоматически включаются в событие `session_start`, если клик по ссылке открывает новую сессию.
+- Параметры кампании (`utm_source`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_term`, `xnpe_cmp`) будут переданы в CDP Sendsay как часть параметров сессии.
+- Если App Link содержит параметр `xnpe_cmp` (идентификатор, обычно генерируется для Email или SMS кампаний), дополнительно отслеживается событие `campaign`.
+
+### Где вызывать handleCampaignIntent
+
+Чтобы отслеживать события сессии с параметрами App Link, необходимо вызвать `Sendsay.handleCampaignIntent` **до** того, как будет вызван метод `onResume` вашей Activity. 
+
+Рекомендуемое место — метод `.onCreate` вашей MainActivity.
 
 Пример:
 
@@ -83,4 +110,4 @@ SDK может автоматически определить, является
 
 > 👍
 >
-> Обратите внимание, что `handleCampaignIntent` заботится только об отслеживании. Вы все еще должны прочитать данные из intent и использовать их для определения соответствующего содержимого приложения для отображения. Это выходит за рамки SDK.
+> `handleCampaignIntent` отвечает только за отслеживание. Логика навигации — что именно открыть в приложении — остаётся на стороне приложения и должна быть реализована отдельно.

@@ -1,37 +1,44 @@
 # Firebase Cloud Messaging
 
-Интеграция Firebase Cloud Messaging в ваше приложение для поддержки push-уведомлений Sendsay на Android-устройствах
-
-Чтобы иметь возможность отправлять [push-уведомления](push-notifications.md) с платформы CDP Sendsay и получать их в вашем приложении на Android-устройствах, необходимо настроить проект Firebase, реализовать Firebase messaging в вашем приложении и настроить интеграцию Firebase Cloud Messaging в веб-приложении CDP Sendsay.
+Интеграция Firebase Cloud Messaging (FCM) позволяет вашему Android-приложению получать [push-уведомления](push-notifications.md) с платформы CDP Sendsay. Для этого необходимо в веб-приложении CDP Sendsay:
+- добавить новое приложение/выбрать существующее.
+- настроить проект Firebase.
+- реализовать обработку сообщений FCM в вашем приложении.
+- настроить интеграцию Firebase Cloud Messaging.
 
 > 👍
 >
-> SDK предоставляет функцию самопроверки настройки push-уведомлений, чтобы помочь разработчикам успешно настроить push-уведомления. Самопроверка попытается отследить push-токен, запросить у backend'а CDP Sendsay отправку беззвучного push-уведомления на устройство и проверить, готово ли приложение открывать push-уведомления.
+> SDK поддерживает самопроверку настройки push: она отследит push-токен и запросит у CDP Sendsay отправку тихого пуша на устройство, для подтверждения его готовности принимать уведомления.
 >
-> Чтобы включить проверку настройки, установите `Sendsay.checkPushSetup = true` перед [инициализацией SDK](setup.md#инициализация-sdk).
+> Чтобы включить самопроверку, установите `Sendsay.checkPushSetup = true` **перед** [инициализацией SDK](setup.md#инициализация-sdk).
 >
-> Мы предлагаем включить функцию самопроверки при первой реализации push-уведомлений или если вам нужно провести диагностику.
+> Рекомендуем включать самопроверку при первой реализации push-уведомлений или для диагностики.
 
 ## Настройка Firebase
 
-Сначала необходимо настроить проект Firebase. Для пошаговых инструкций обратитесь к разделу [Добавление Firebase в ваш Android-проект](https://firebase.google.com/docs/android/setup#console) в официальной документации Firebase.
+Начните с подготовки проекта Firebase. Подробная инструкция доступна в разделе: [Добавление Firebase в ваш Android-проект](https://firebase.google.com/docs/android/setup#console) в официальной документации Firebase.
 
-Вкратце, вы создадите проект с помощью консоли Firebase, скачаете сгенерированный файл конфигурации `google-services.json` и добавите его в свое приложение, а также обновите скрипты сборки Gradle в вашем приложении.
+Краткие шаги:
+1. Создайте проект в Firebase Console.
+2. Скачайте файл `google-services.json`.
+3. Добавьте файл в модуль вашего приложения.
+4. Обновите конфигурацию Gradle.
 
-#### Чек-лист:
-- [ ] Файл `google-services.json`, скачанный из консоли Firebase, находится в папке вашего **приложения**, например, *my-project/app/google-services.json*.
-- [ ] Файл сборки Gradle вашего **приложения** (например, *my-project/app/build.gradle*) содержит `apply plugin: 'com.google.gms.google-services'`.
-- [ ] Ваш **верхнего уровня** файл сборки Gradle (например, *my-project/build.gradle*) имеет `classpath 'com.google.gms:google-services:X.X.X'` в зависимостях скрипта сборки.
+#### Чек-лист настройки Firebase:
+- [ ] Файл `google-services.json` размещён в папке **приложения**, например: *my-project/app/google-services.json*.
+- [ ] В файл сборки Gradle **приложения** (например, *my-project/app/build.gradle*) добавлено: `apply plugin: 'com.google.gms.google-services'`.
+- [ ] Ваш файл сборки Gradle **верхнего уровня** (например, *my-project/build.gradle*) имеет `classpath 'com.google.gms:google-services:X.X.X'` в зависимостях скрипта сборки.
 
 ## Реализация Firebase messaging в вашем приложении
 
-Далее необходимо создать и зарегистрировать сервис, который расширяет `FirebaseMessagingService`. Автоматическое отслеживание SDK зависит от того, что ваше приложение предоставляет эту реализацию.
+SDK не включает собственную реализацию `FirebaseMessagingService`, поэтому вы должны добавить её в приложение вручную. Это необходимо для автоматического отслеживания push-токенов и обработки входящих push-уведомлений.
 
 > 👍
 >
-> Эта реализация не включена в SDK, чтобы сохранить его как можно меньшим и избежать включения библиотек, которые не являются существенными для его функциональности. Вы можете скопировать приведенный ниже пример кода и использовать его в своем приложении.
+> Эта реализация не включена в SDK, чтобы сохранить его как можно меньшим и избежать включения библиотек, которые не являются существенными для его функциональности. Вы можете скопировать приведённый ниже пример кода и использовать его в своём приложении.
 
-1. Создайте сервис:
+### 1. Создайте сервис FCM
+
    ```kotlin
     import android.app.NotificationManager  
     import android.content.Context  
@@ -58,7 +65,8 @@
         }
     }
    ```
-2. Зарегистрируйте сервис в `AndroidManifest.xml`:
+### 2. Зарегистрируйте сервис в AndroidManifest.xml
+
    ```xml
     <service android:name="MyFirebaseMessagingService" android:exported="false" >  
         <intent-filter> 
@@ -67,74 +75,108 @@
     </service>   
    ```
 
-SDK будет обрабатывать только сообщения push-уведомлений, отправленные с платформы CDP Sendsay. Также предоставляется вспомогательный метод `Sendsay.isSendsayPushNotification()`.
+После этого SDK будет автоматически обрабатывать push-уведомления, отправленные с платформы CDP Sendsay. Дополнительно доступен вспомогательный метод: `Sendsay.isSendsayPushNotification()`.
 
-Если вы запустите приложение, SDK должен отследить push-токен на платформе CDP Sendsay. Если вы включили самопроверку, она сообщит вам об этом. Альтернативно, вы можете найти клиента в веб-приложении CDP Sendsay и проверить свойство клиента `google_push_notification_id`.
+### Проверка получения push-токена
 
-Push-токен обычно генерируется при первом запуске приложения, но у него есть свой жизненный цикл. Ваша реализация `FirebaseMessagingService` срабатывает только если токен создан или его значение изменилось. Пожалуйста, проверьте свои ожидания в соответствии с определенными [триггерами обновления токена](https://firebase.google.com/docs/cloud-messaging/android/client#sample-register)
+Если всё настроено корректно:
+
+- при запуске приложения SDK отслеживает push-токен,
+- в самопроверке отображается успешное получение токена,
+- в профиле клиента в веб-приложении CDP Sendsay появилось свойство `google_push_notification_id`.
+
+Push-токен обновляется согласно правилам Firebase. Полный список триггеров обновления токена смотрите в [документации](https://firebase.google.com/docs/cloud-messaging/android/client#sample-register) Firebase.
+
+### Разрешение на уведомления в Android 13+
+
+Начиная с Android 13 (API 33):
+1. Разрешение на уведомления должно быть зарегистрировано в вашем `AndroidManifest.xml`.
+2. Пользователь должен явно предоставить разрешение. 
+3. SDK регистрирует разрешение, но запросить его должно ваше приложение вызвав: 
+```
+Sendsay.requestPushAuthorization(context)
+``` 
+
+Подробнее — в разделе [Запрос разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации CDP Sendsay.
+
+Если ваш маркетинговый сценарий требует отправлять только обычные push-уведомления, настройте SDK для отслеживания только авторизованных push-токенов: установите [requirePushAuthorization](push-notifications.md) = `true` в конфигурации SDK. 
+
+Подробнее — в разделе [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации Engagement.
+
+
+### Если FCM-токен не обновляется
 
 > ❗️
 >
-> Начиная с Android 13 (уровень API 33), разрешение на уведомления времени выполнения должно быть зарегистрировано в вашем `AndroidManifest.xml` и также должно быть предоставлено пользователем для того, чтобы ваше приложение могло показывать push-уведомления. SDK заботится о регистрации разрешения. Однако ваше приложение должно запросить разрешение на уведомления у пользователя, вызвав `Sendsay.requestPushAuthorization(context)`. Обратитесь к разделу [Запрос разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) для получения подробностей.
->
-> Если ваш маркетинговый поток строго требует использования обычных push-уведомлений, настройте SDK для отслеживания только авторизованных push-токенов, установив [requirePushAuthorization](push-notifications.md) в `true`. Обратитесь к разделу [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) для получения подробностей.
+> Если вы интегрируете новый проект Firebase в существующий проект или полностью меняете проект Firebase, вы можете столкнуться с проблемой, при которой сервис `FirebaseMessagingService` не вызывается автоматически.
+
+В этом случае запросите токен вручную:
+
+```kotlin
+ import android.app.Application
+ import com.sendsay.sdk.Sendsay
+ import com.google.firebase.installations.FirebaseMessaging
+ 
+ class SendsayApp : Application() {
+     override fun onCreate() {
+        super.onCreate()
+        FirebaseMessaging.getInstance().token.addOnSuccessListener {
+            Sendsay.handleNewToken(applicationContext, it)
+        }
+     }
+ }
+ ```
+
+### Использование методов до инициализации SDK
 
 > ❗️
 >
-> Если вы интегрируете новый проект Firebase в существующий проект или полностью меняете проект Firebase, вы можете столкнуться с проблемой, что ваш 'FirebaseMessagingService' не вызывается автоматически.
->
-> Чтобы получить свежий FCM токен, рассмотрите возможность запроса токена вручную как можно скорее после инициализации Firebase:
->
-> ```kotlin
-> import android.app.Application
-> import com.sendsay.sdk.Sendsay
-> import com.google.firebase.installations.FirebaseMessaging
+> `Sendsay.handleNewToken` и `Sendsay.handleRemoteMessage` можно вызывать до инициализации SDK, если она уже выполнялась ранее.
+В этом случае данные будут отправлены с конфигурацией последней инициализации.
 > 
-> class SendsayApp : Application() {
->     override fun onCreate() {
->        super.onCreate()
->        FirebaseMessaging.getInstance().token.addOnSuccessListener {
->            Sendsay.handleNewToken(applicationContext, it)
->        }
->     }
-> }
-> ```
-
-> ❗️
->
-> Методы `Sendsay.handleNewToken` и `Sendsay.handleRemoteMessage` могут использоваться до инициализации SDK, если предыдущая инициализация была выполнена. В таком случае каждый метод будет отслеживать события с конфигурацией последней инициализации. Рассмотрите возможность инициализации SDK в `Application::onCreate`, чтобы убедиться, что свежая конфигурация применяется в случае обновления приложения.
+> Чтобы избежать неактуальных конфигураций — инициализируйте SDK в `Application.onCreate()`.
 
 ## Настройка интеграции Firebase Cloud Messaging в CDP Sendsay
 
-Наконец, необходимо настроить интеграцию Firebase Cloud Messaging в CDP Sendsay, чтобы платформа могла использовать ее для отправки push-уведомлений.
+Чтобы CDP Sendsay мог отправлять push-уведомления через FCM:
 
-Настройка требует использования приватного ключа из Service Account, который вы создаете в Google Cloud, а затем копируете этот ключ в аутентификацию интеграции в CDP Sendsay.
+1. **Создайте service account** в Google Cloud: 
+    
+    Google Cloud > `Service Accounts` > *ваш проект* > **Create Service Account**. Можно использовать роли для определения более детального доступа.
 
-Следуйте шагам ниже:
+2. **Сгенерируйте новый приватный ключ**: 
 
-1. **Создайте service account.** Чтобы создать новый service account в Google Cloud, перейдите в `Service Accounts` и выберите свой проект. На странице Service Accounts выберите `Create Service Account`. Можно использовать роли для определения более детального доступа.
+    Откройте созданный аккаунт и выберите **Actions** > **Manage Keys** > **Add Key** > **Create new key**. Скачайте файл ключа JSON.
 
-2. **Сгенерируйте новый приватный ключ**. Найдите FCM service account, который вы создали на предыдущем шаге, затем выберите `Actions` > `Manage Keys`. Выберите `Add Key` > `Create new key`. Скачайте файл ключа JSON.
+3. **Добавьте интеграцию FCM в CDP Sendsay**:
 
-3. **Добавьте интеграцию Firebase Cloud Messaging** в ваш проект CDP Sendsay. В CDP Sendsay перейдите в `Data & Assets` > `Integration`. Нажмите на `Add new integration` и выберите `Firebase Cloud Messaging` для отправки push-уведомлений через узел push-уведомлений. Обратите внимание, что если вы хотите отправлять push-уведомления через webhooks, вместо этого необходимо выбрать `Firebase Service Account Authentication`.
-![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-1.png)
+    - В CDP Sendsay перейдите в **Подписчики** > **Мобильное приложение** > **Выберите из списка нужное** > **Настройки приложение и импорта**
+    - Нажмите **Подключить** напротив надписи **Firebase**.
 
-4. **Вставьте ключ из шага 2** на страницу настроек интеграции Firebase Cloud Messaging в поле `Service Account JSON Credentials`. Нажмите на `Save integration`.
-![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-2.png)
+    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-1.png)
 
-5. **Выберите интеграцию Firebase Cloud Messaging** в `Project Settings` > `Channels` > `Push notifications` > `Firebase Cloud Messaging integration`. Нажмите на `Save changes`.
+4. **Вставьте JSON-ключ в Service Account JSON Credentials** 
 
-Платформа CDP Sendsay теперь должна быть способна отправлять push-уведомления на Android-устройства через узел push-уведомлений.
+    - Впишите значение из **Firebase Console → Project Settings → General → Project ID**, в поле **Project ID**. 
+    - Добавьте JSON-ключ из шага 2 на страницу настроек интеграции Firebase Cloud Messaging, в поле **Service Account key (JSON)**. 
+    - Нажмите «Сохранить».
 
-#### Чек-лист
+    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-2.png)
 
-- [ ] Если вы запустите приложение, самопроверка должна быть способна отправить и получить беззвучное push-уведомление.
+Теперь CDP Sendsay может отправлять push-уведомления на устройства Android.
+
+#### Чек-лист интеграции
+
+- [ ] Самопроверка способна отправить и принять «тихий» push
+
   ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/self-check.png)
-- [ ] Теперь вы должны быть способны отправлять push-уведомления с помощью веб-приложения CDP Sendsay и получать их в вашем приложении. Обратитесь к разделу [Мобильные push-уведомления](https://docs.sendsay.ru/other-channels/mobile-push/how-to-create-mobile-push-campaign), чтобы узнать, как создавать push-уведомления в веб-приложении CDP Sendsay.
-- [ ] Отправьте тестовое push-уведомление из CDP Sendsay на устройство и нажмите на него. Ваш broadcast receiver должен быть вызван.
+
+- [ ] Приложение получает push-уведомления, отправленные с помощью веб-приложения Engagement. 
+
+Как создавать push-уведомления в веб-приложении Engagement смотрите в разделе документации: [Мобильные push-уведомления](https://docs.sendsay.ru/other-channels/mobile-push/how-to-create-mobile-push-campaign).
+
+- [ ] Тестовый пуш из Engagement открывается, а ваш *broadcast receiver* вызывается корректно.
 
 > 👍
 >
-> Сервису CDP Sendsay для отправки push-уведомлений и соединению Firebase может потребоваться минута, чтобы правильно запуститься. Если отправка push-уведомления не удается, попробуйте перезапустить приложение. Если проблема сохраняется после 2-3 попыток, пересмотрите вашу настройку.
-
-Теперь вы должны быть способны использовать push-уведомления CDP Sendsay. Вы можете отключить самопроверку или оставить ее включенной для проверки настройки push-уведомлений при каждом запуске отладочной сборки.
+> Иногда FCM и сервис CDP Sendsay запускаются не сразу. Если push не приходит — перезапустите приложение. Если после 2–3 попыток проблема сохраняется — перепроверьте настройку.
