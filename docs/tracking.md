@@ -245,6 +245,11 @@ val customerIds = CustomerIds().withId("registered","jane.doe@example.com")
 ```kotlin
 val properties = PropertiesList(
     hashMapOf(
+        "dk" to {
+            "key-1" to "val-1"
+            "key-1" to "val-1"
+            "key-1" to "val-1"
+        },
         "datakey" to [
             ["propertyName", "set/update/delete"+".copy"(optional), "value/newValue"], // пример возможных(не всех) значений установки/обновления/удаления строкового свойства
             ["anotherProperty", "update.copy", 123] // рабочий пример обновления числового свойства
@@ -252,6 +257,12 @@ val properties = PropertiesList(
     )
 )
 ```
+
+> ❗️
+> Оба способа - и dk и datakey - можно использовать как по отдельности так и вместе
+>
+> Указанное в datakey исполняется после указанного в dk
+> Любая ошибка при изменении данных приводит к тому, что они не меняются вообще.
 
 Созданные словари нужно передать в `identifyCustomer()`:
 
