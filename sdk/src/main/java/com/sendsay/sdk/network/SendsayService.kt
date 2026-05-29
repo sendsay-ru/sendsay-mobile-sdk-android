@@ -36,12 +36,12 @@ internal interface SendsayService {
 
     fun fetchSegments(
         sendsayProject: SendsayProject,
-        engagementCookieId: String
+        sendsayCookieId: String
     ): Call
 
     fun linkIdsToCookie(
         sendsayProject: SendsayProject,
-        engagementCookieId: String,
+        sendsayCookieId: String,
         externalIds: HashMap<String, String?>
     ): Call
 }

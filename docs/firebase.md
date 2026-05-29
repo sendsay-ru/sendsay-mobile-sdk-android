@@ -101,7 +101,7 @@ Sendsay.requestPushAuthorization(context)
 
 Если ваш маркетинговый сценарий требует отправлять только обычные push-уведомления, настройте SDK для отслеживания только авторизованных push-токенов: установите [requirePushAuthorization](push-notifications.md) = `true` в конфигурации SDK. 
 
-Подробнее — в разделе [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации Engagement.
+Подробнее — в разделе [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации CDP Sendsay.
 
 
 ### Если FCM-токен не обновляется
@@ -171,11 +171,11 @@ Sendsay.requestPushAuthorization(context)
 
   ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/self-check.png)
 
-- [ ] Приложение получает push-уведомления, отправленные с помощью веб-приложения Engagement. 
+- [ ] Приложение получает push-уведомления, отправленные с помощью веб-приложения CDP Sendsay. 
 
-Как создавать push-уведомления в веб-приложении Engagement смотрите в разделе документации: [Мобильные push-уведомления](https://docs.sendsay.ru/other-channels/mobile-push/how-to-create-mobile-push-campaign).
+Как создавать push-уведомления в веб-приложении CDP Sendsay смотрите в разделе документации: [Мобильные push-уведомления](https://docs.sendsay.ru/other-channels/mobile-push/how-to-create-mobile-push-campaign).
 
-- [ ] Тестовый пуш из Engagement открывается, а ваш *broadcast receiver* вызывается корректно.
+- [ ] Тестовый пуш из CDP Sendsay открывается, а ваш *broadcast receiver* вызывается корректно.
 
 > 👍
 >

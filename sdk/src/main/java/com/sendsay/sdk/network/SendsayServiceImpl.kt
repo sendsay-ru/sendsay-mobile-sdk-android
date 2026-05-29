@@ -180,13 +180,13 @@ internal class SendsayServiceImpl(
 
     override fun fetchSegments(
         sendsayProject: SendsayProject,
-        engagementCookieId: String
+        sendsayCookieId: String
     ): Call {
         return doPost(
             sendsayProject,
             ApiEndPoint.forName(ApiEndPoint.EndPointName.SEGMENTS)
                 .withToken(sendsayProject.projectToken)
-                .withQueryParam("cookie", engagementCookieId)
+                .withQueryParam("cookie", sendsayCookieId)
                 .toString(),
             null
         )
@@ -194,7 +194,7 @@ internal class SendsayServiceImpl(
 
     override fun linkIdsToCookie(
         sendsayProject: SendsayProject,
-        engagementCookieId: String,
+        sendsayCookieId: String,
         externalIds: HashMap<String, String?>
     ): Call {
         val reqBody = hashMapOf(
@@ -204,7 +204,7 @@ internal class SendsayServiceImpl(
             sendsayProject,
             ApiEndPoint.forName(ApiEndPoint.EndPointName.LINK_CUSTOMER_IDS)
                 .withToken(sendsayProject.projectToken)
-                .withPathParam(ApiEndPoint.COOKIE_ID_PATH_PARAM, engagementCookieId)
+                .withPathParam(ApiEndPoint.COOKIE_ID_PATH_PARAM, sendsayCookieId)
                 .toString(),
             reqBody
         )

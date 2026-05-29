@@ -290,13 +290,13 @@ internal class FetchManagerImpl(
         onSuccess: (Result<SegmentationCategories>) -> Unit,
         onFailure: (Result<FetchError>) -> Unit
     ) {
-        val engagementCookieId = customerIds.cookie
-        if (engagementCookieId.isNullOrEmpty()) {
+        val sendsayCookieId = customerIds.cookie
+        if (sendsayCookieId.isNullOrEmpty()) {
             Logger.w(this, "Fetch of segments for no cookie ID is forbidden")
             onFailure(Result(false, FetchError(null, "No cookie ID found")))
             return
         }
-        api.fetchSegments(sendsayProject, engagementCookieId).enqueue(
+        api.fetchSegments(sendsayProject, sendsayCookieId).enqueue(
             getFetchRawCallback(
 //                resultType = object : TypeToken<Map<String, ArrayList<Map<String, String>>>?>() {},
                 resultType = object : TypeToken<Result<Map<String, ArrayList<Map<String, String>>>>?>() {},
@@ -328,14 +328,14 @@ internal class FetchManagerImpl(
         sendsayProject: SendsayProject,
         customerIds: CustomerIds
     ): Result<out Any?> {
-        val engagementCookieId = customerIds.cookie
-        if (engagementCookieId.isNullOrEmpty()) {
+        val sendsayCookieId = customerIds.cookie
+        if (sendsayCookieId.isNullOrEmpty()) {
             Logger.w(this, "Fetch of segments for no cookie ID is forbidden")
             return Result(false, FetchError(null, "No cookie ID found"))
         }
         val externalIds = customerIds.externalIds
         val call = api.linkIdsToCookie(
-            sendsayProject, engagementCookieId, externalIds
+            sendsayProject, sendsayCookieId, externalIds
         )
         var response: Response? = null
         try {

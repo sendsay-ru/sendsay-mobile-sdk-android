@@ -45,32 +45,32 @@ SDK не включает собственную реализацию `HmsMessag
 
 ### 1. Создайте сервис HMS
 
-    ``` kotlin
-    import android.app.NotificationManager  
-    import android.content.Context  
-    import com.sendsay.sdk.Sendsay  
-    import com.huawei.hms.push.HmsMessageService  
-    import com.huawei.hms.push.RemoteMessage
-
-    class MyHmsMessagingService: HmsMessageService() {
-
-        private val notificationManager by lazy {
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        }
-
-        override fun onMessageReceived(message: RemoteMessage) {
-            super.onMessageReceived(message)
-            if (!Sendsay.handleRemoteMessage(applicationContext, message.dataOfMap, notificationManager)) {
-                // push-уведомление от другого провайдера push-уведомлений
-            }
-        }
-
-        override fun onNewToken(token: String) {
-            super.onNewToken(token)
-            Sendsay.handleNewHmsToken(applicationContext, token)
-        }
-    }
-    ```
+   ```kotlin
+   import android.app.NotificationManager  
+   import android.content.Context  
+   import com.sendsay.sdk.Sendsay  
+   import com.huawei.hms.push.HmsMessageService  
+   import com.huawei.hms.push.RemoteMessage
+   
+   class MyHmsMessagingService: HmsMessageService() {
+   
+     private val notificationManager by lazy {
+         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+     }
+   
+     override fun onMessageReceived(message: RemoteMessage) {
+         super.onMessageReceived(message)
+         if (!Sendsay.handleRemoteMessage(applicationContext, message.dataOfMap, notificationManager)) {
+             // push-уведомление от другого провайдера push-уведомлений
+         }
+     }
+   
+     override fun onNewToken(token: String) {
+         super.onNewToken(token)
+         Sendsay.handleNewHmsToken(applicationContext, token)
+     }
+   }
+   ```
 
 2. ### Зарегистрируйте сервис в AndroidManifest.xml
 
@@ -109,7 +109,7 @@ Sendsay.requestPushAuthorization(context)
 
 Если ваш маркетинговый сценарий требует отправлять только обычные push-уведомления, настройте SDK для отслеживания только авторизованных push-токенов: установите [requirePushAuthorization](push-notifications.md#запрос-разрешения-на-уведомления) = `true` в конфигурации SDK.
 
-Подробнее — в разделе [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации Engagement.
+Подробнее — в разделе [Требование разрешения на уведомления](push-notifications.md#запрос-разрешения-на-уведомления) документации CDP Sendsay.
 
 ### Если HmsMessageService не вызывается
 
@@ -130,28 +130,24 @@ Sendsay.requestPushAuthorization(context)
 
 ## Настройка интеграции Huawei Push Service в CDP Sendsay
 
-Чтобы Engagement мог отправлять push-уведомления через Huawei Push Service:
+Чтобы CDP Sendsay мог отправлять push-уведомления через Huawei Push Service:
 
 1. **Получите Client ID и Client Secret**:
 
-    - В *Huawei App Gallery Connect* перейдите в **Project settings** > **App information** > **OAuth 2.0 client ID**. 
+    - В **Huawei App Gallery Connect** перейдите в **Project settings** > **App information** > **OAuth 2.0 client ID**. 
     - Скопируйте `Client ID` и `Client secret`. Они понадобятся для дальнейшей настройки интеграции.
 
    ![HMS - Client ID и Client secret](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei1.png)
 
 2. **Добавьте интеграцию**:
 
-    - Откройте веб-приложение CDP Sendsay и перейдите в **Data & Assets** > **Integrations**. 
-    - Нажмите «+ Add new integration».
-
-3. Найдите **Huawei Push Service** и нажмите «+ Add integration».
+    - В CDP Sendsay перейдите в **Подписчики** > **Мобильное приложение** > **Выберите из списка нужное** > **Настройки приложение и импорта**
+    - Нажмите **Подключить** напротив надписи **Huawei**.
 
    ![Интеграции CDP Sendsay - Выберите интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei2.png)
 
-4. Введите значения `Client ID` и `Client secret` и нажмите «Save integration» .
+3. Введите значения `Client ID` и `Client secret` и нажмите «Сохранить».
 
    ![Интеграции CDP Sendsay - Настройте интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei3.png)
 
-5. **Выберите интеграцию для Android push-уведомлений**:
-    - Перейдите в **Settings** > **Project settings** > **Channels** > **Push notifications** > **Android Notifications**. 
-    - Установите `Huawei integration` в `Huawei Push Service`.
+Теперь CDP Sendsay может отправлять push-уведомления на устройства Android использующих системы Huawei.

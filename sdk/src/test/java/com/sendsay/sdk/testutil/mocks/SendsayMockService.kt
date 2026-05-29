@@ -124,13 +124,13 @@ internal class SendsayMockService(
         return if (success) mockSuccessCall() else mockFailCall()
     }
 
-    override fun fetchSegments(sendsayProject: SendsayProject, engagementCookieId: String): Call {
+    override fun fetchSegments(sendsayProject: SendsayProject, sendsayCookieId: String): Call {
         return if (success) mockSuccessCall() else mockFailCall()
     }
 
     override fun linkIdsToCookie(
         sendsayProject: SendsayProject,
-        engagementCookieId: String,
+        sendsayCookieId: String,
         externalIds: HashMap<String, String?>
     ): Call {
         return if (success) mockSuccessCall() else mockFailCall()
