@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentCallbacks2
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -16,6 +17,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -296,6 +298,15 @@ fun Context.copyToClipboard(text: CharSequence, label: String = "label") {
     val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java) as ClipboardManager
     val clip = ClipData.newPlainText(label, text)
     clipboard.setPrimaryClip(clip)
+}
+
+fun Context.findActivity(): ComponentActivity? {
+    var currentContext = this
+    while (currentContext is ContextWrapper) {
+        if (currentContext is ComponentActivity) return currentContext
+        currentContext = currentContext.baseContext
+    }
+    return null
 }
 
 internal var mainThreadDispatcher = CoroutineScope(Dispatchers.Main)

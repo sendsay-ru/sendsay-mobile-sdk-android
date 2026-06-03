@@ -9,11 +9,13 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
 import com.sendsay.sdk.manager.CampaignManager
 import com.sendsay.sdk.manager.CampaignManagerImpl
@@ -81,7 +83,6 @@ import com.sendsay.sdk.util.TokenType
 import com.sendsay.sdk.util.VersionChecker
 import com.sendsay.sdk.util.addAppStateCallbacks
 import com.sendsay.sdk.util.currentTimeSeconds
-import com.sendsay.sdk.util.ensureOnBackgroundThread
 import com.sendsay.sdk.util.handleClickedPushUpdate
 import com.sendsay.sdk.util.handleReceivedPushUpdate
 import com.sendsay.sdk.util.isViewUrlIntent
@@ -93,20 +94,51 @@ import com.sendsay.sdk.view.ContentBlockCarouselView
 import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
 import com.sendsay.sdk.view.InAppMessagePresenter
 import com.sendsay.sdk.view.InAppMessageView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 
 //@SuppressLint("StaticFieldLeak")
 object Sendsay {
 
     private lateinit var application: Application
+    private lateinit var sendsaySdkScope: CoroutineScope
     private lateinit var configuration: SendsayConfiguration
     private lateinit var component: SendsayComponent
+    private var adInfo: AdvertisingIdClient.Info? = null
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     internal var isStopped = false
     var isInAppMessagesEnabled = false
     var isInAppCBEnabled = false
     var isAppInboxEnabled = false
+    var isGAIDEnabled = false
+
+    /**
+     * Returns GAID if it is enabled in init config and user has not limited ad tracking, otherwise returns null.
+     */
+    fun getGAID(): String? = runCatching {
+        Log.d(
+            "GAID_LOG",
+            "Текущий GAID: ${adInfo?.id}, isLimitAdTrackingEnabledByUser: ${adInfo?.isLimitAdTrackingEnabled}"
+        )
+        adInfo?.let {
+            if (it.isLimitAdTrackingEnabled) {
+                Logger.w(this, "Получение GAID ограничено пользователем")
+                return null
+            } else {
+                return it.id
+            }
+        }
+        Logger.w(
+            this,
+            "GAID не был запрошен, инициализируйте запрос GAID с помощью метода '''Sendsay.initGAID(context)''' "
+        )
+        return null
+    }.logOnExceptionWithResult().getOrNull()
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -410,6 +442,8 @@ object Sendsay {
     @Synchronized
     fun init(context: Context, configuration: SendsayConfiguration) = runCatching {
         this.application = context.applicationContext as Application
+
+        sendsaySdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         if (isInitialized) {
             Logger.e(this, "Sendsay SDK is already initialized!")
             return
@@ -924,6 +958,12 @@ object Sendsay {
         initWorkManager(context)
 
         if (flushMode == PERIOD) startPeriodicFlushService()
+        /**
+         * GAID is needed for better targeting and personalization,
+         * so we initialize it on app start in debug mode.
+         * In release mode, it will be initialized only if the developer explicitly calls initGAID or if init config enables it.
+         */
+        if (BuildConfig.DEBUG) initGAID(context)
 
         trackInstallEvent()
 
@@ -940,12 +980,15 @@ object Sendsay {
             isInAppMessagesEnabled =
                 it?.firstOrNull()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
             isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
-            isAppInboxEnabled = it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
+            isAppInboxEnabled =
+                it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
+            isGAIDEnabled = it?.firstOrNull()?.isGAIDEnabled ?: configuration.isGAIDEnabled
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
             isInAppCBEnabled = configuration.isInAppCBEnabled
             isAppInboxEnabled = configuration.isAppInboxEnabled
+            isGAIDEnabled = configuration.isGAIDEnabled
         })
 
 
@@ -981,6 +1024,30 @@ object Sendsay {
         val device = Build.DEVICE ?: ""
         val product = Build.PRODUCT ?: ""
         return device == "robolectric" && product == "robolectric"
+    }
+
+    fun initGAID(context: Context) {
+        if (!isGAIDEnabled) {
+            Logger.w(this, "Getting GAID is disabled by init config")
+            return
+        }
+//        (context.findActivity())?.let { it.lifecycleScope }?.let { lifecycleScope ->
+        sendsaySdkScope.launch {
+            adInfo = fetchGAID(context)
+        }
+    }
+
+    suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
+        return withContext(Dispatchers.IO) {
+            try {
+                Logger.w(this, "GAID fetching started")
+                AdvertisingIdClient.getAdvertisingIdInfo(context)
+            } catch (e: Exception) {
+                Logger.e(this, "Failed to fetch GAID with message: ${e.message}")
+                e.printStackTrace()
+                null
+            }
+        }
     }
 
     /**
@@ -1640,7 +1707,10 @@ object Sendsay {
 
     internal fun processPushNotificationClickInternally(openedPushDataIntent: Intent) {
         val action =
-            openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_ACTION_INFO,NotificationAction::class.java)
+            openedPushDataIntent.getSerializableExtra(
+                SendsayExtras.EXTRA_ACTION_INFO,
+                NotificationAction::class.java
+            )
         Logger.d(this, "Interaction: $action")
         val notifActionType = when (openedPushDataIntent.action) {
             SendsayExtras.ACTION_DEEPLINK_CLICKED -> SendsayNotificationActionType.DEEPLINK
@@ -1648,9 +1718,15 @@ object Sendsay {
             else -> SendsayNotificationActionType.APP
         }
         val data =
-            openedPushDataIntent.getParcelableExtra(SendsayExtras.EXTRA_DATA, NotificationData::class.java)
+            openedPushDataIntent.getParcelableExtra(
+                SendsayExtras.EXTRA_DATA,
+                NotificationData::class.java
+            )
         val payloadRawData = openedPushDataIntent
-            .getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA, HashMap::class.java) as? HashMap<String, String>
+            .getSerializableExtra(
+                SendsayExtras.EXTRA_CUSTOM_DATA,
+                HashMap::class.java
+            ) as? HashMap<String, String>
         val deliveredTimestamp =
             openedPushDataIntent.getDoubleExtra(SendsayExtras.EXTRA_DELIVERED_TIMESTAMP, 0.0)
         val payload = payloadRawData?.let {
@@ -1687,7 +1763,10 @@ object Sendsay {
                 broadcastIntent.putExtra(SendsayExtras.EXTRA_DATA, data)
                 broadcastIntent.putExtra(
                     SendsayExtras.EXTRA_CUSTOM_DATA,
-                    openedPushDataIntent.getSerializableExtra(SendsayExtras.EXTRA_CUSTOM_DATA, HashMap::class.java)
+                    openedPushDataIntent.getSerializableExtra(
+                        SendsayExtras.EXTRA_CUSTOM_DATA,
+                        HashMap::class.java
+                    )
                 )
                 broadcastIntent.`package` = context.packageName
                 PendingIntent.getBroadcast(

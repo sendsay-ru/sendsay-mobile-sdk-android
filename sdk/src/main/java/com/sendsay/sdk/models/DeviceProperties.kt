@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import com.sendsay.sdk.BuildConfig
+import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.getAppVersion
 import java.io.BufferedReader
 import java.io.IOException
@@ -16,11 +17,13 @@ internal data class DeviceProperties(
     val sdkVersion: String,
     val deviceModel: String,
     val deviceType: String,
-    val appVersion: String
+    val appVersion: String,
+    val gaid: String?
 ) {
     companion object {
         private fun getDeviceType(context: Context): String {
-            val deviceSize = context.resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
+            val deviceSize =
+                context.resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
             return if (deviceSize >= Configuration.SCREENLAYOUT_SIZE_LARGE) "tablet" else "mobile"
         }
 
@@ -52,16 +55,23 @@ internal data class DeviceProperties(
         sdkVersion = BuildConfig.SENDSAY_VERSION_NAME,
         deviceModel = Build.MODEL,
         deviceType = getDeviceType(context),
-        appVersion = context.getAppVersion(context)
+        appVersion = context.getAppVersion(context),
+        gaid = Sendsay.getGAID()
     )
 
-    fun toHashMap(): HashMap<String, Any> = hashMapOf(
-        "os_name" to osName,
-        "os_version" to osVersion,
-        "sdk" to sdk,
-        "sdk_version" to sdkVersion,
-        "device_model" to deviceModel,
-        "device_type" to deviceType,
-        "app_version" to appVersion
-    )
+    fun toHashMap(): HashMap<String, Any> {
+        val map: HashMap<String, Any> = hashMapOf(
+            "os_name" to osName,
+            "os_version" to osVersion,
+            "sdk" to sdk,
+            "sdk_version" to sdkVersion,
+            "device_model" to deviceModel,
+            "device_type" to deviceType,
+            "app_version" to appVersion
+        )
+        if (gaid != null) {
+            map["gaid"] = gaid
+        }
+        return map
+    }
 }

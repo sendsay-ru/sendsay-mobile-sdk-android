@@ -137,17 +137,17 @@ Sendsay.requestPushAuthorization(context)
     - В **Huawei App Gallery Connect** перейдите в **Project settings** > **App information** > **OAuth 2.0 client ID**. 
     - Скопируйте `Client ID` и `Client secret`. Они понадобятся для дальнейшей настройки интеграции.
 
-   ![HMS - Client ID и Client secret](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei1.png)
+   ![HMS - Client ID и Client secret](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/images/huawei1.png)
 
 2. **Добавьте интеграцию**:
 
     - В CDP Sendsay перейдите в **Подписчики** > **Мобильное приложение** > **Выберите из списка нужное** > **Настройки приложение и импорта**
     - Нажмите **Подключить** напротив надписи **Huawei**.
 
-   ![Интеграции CDP Sendsay - Выберите интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei2.png)
+   ![Интеграции CDP Sendsay - Выберите интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/images/huawei2.png)
 
 3. Введите значения `Client ID` и `Client secret` и нажмите «Сохранить».
 
-   ![Интеграции CDP Sendsay - Настройте интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/huawei3.png)
+   ![Интеграции CDP Sendsay - Настройте интеграцию Firebase Cloud Messaging](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/images/huawei3.png)
 
 Теперь CDP Sendsay может отправлять push-уведомления на устройства Android использующих системы Huawei.
