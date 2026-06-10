@@ -36,7 +36,7 @@ parentDocSlug: android-sdk
 
 Там указаны требования к обязательным полям [TrackSSECDataCore](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECBuilders.kt) для заполнения к каждому типу [TrackingSSECType](../sdk/src/main/java/com/sendsay/sdk/models/TrackingSSECType.kt)
 
-## Пример (рекомендуемый способ — TrackSSECDataBuilder)
+## Пример (рекомендуемый способ — интерфейс [TrackSSECBuilders](../sdk/src/main/java/com/sendsay/sdk/models/TrackSSECBuilders.kt))
 ```kotlin
 fun trackClearBasket() {
     // Получение текущего времени с использованием SimpleDateFormat

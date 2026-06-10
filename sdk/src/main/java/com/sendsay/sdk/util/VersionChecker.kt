@@ -55,7 +55,7 @@ internal class VersionChecker(
                         val itemType = object : TypeToken<List<GitHubReleaseResponse>>() {}.type
                         val parsedResponse: List<GitHubReleaseResponse> =
                             SendsayGson.instance.fromJson(
-                                response.body?.string(),
+                                response.body.string(),
                                 itemType
                             )
                         val lastVersion = parsedResponse.first().name
