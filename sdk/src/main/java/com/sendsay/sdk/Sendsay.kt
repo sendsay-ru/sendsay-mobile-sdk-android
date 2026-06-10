@@ -115,30 +115,7 @@ object Sendsay {
     var isInAppMessagesEnabled = false
     var isInAppCBEnabled = false
     var isAppInboxEnabled = false
-    var isGAIDEnabled = false
-
-    /**
-     * Returns GAID if it is enabled in init config and user has not limited ad tracking, otherwise returns null.
-     */
-    fun getGAID(): String? = runCatching {
-        Log.d(
-            "GAID_LOG",
-            "Текущий GAID: ${adInfo?.id}, isLimitAdTrackingEnabledByUser: ${adInfo?.isLimitAdTrackingEnabled}"
-        )
-        adInfo?.let {
-            if (it.isLimitAdTrackingEnabled) {
-                Logger.w(this, "Получение GAID ограничено пользователем")
-                return null
-            } else {
-                return it.id
-            }
-        }
-        Logger.w(
-            this,
-            "GAID не был запрошен, инициализируйте запрос GAID с помощью метода '''Sendsay.initGAID(context)''' "
-        )
-        return null
-    }.logOnExceptionWithResult().getOrNull()
+    var isADTrackEnabled = false
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -804,6 +781,29 @@ object Sendsay {
     }.logOnException()
 
     /**
+     * Returns GAID if it is enabled in init config and user has not limited ad tracking, otherwise returns null.
+     */
+    fun getGAID(): String? = runCatching {
+        Log.d(
+            "GAID_LOG",
+            "Текущий GAID: ${adInfo?.id}, isLimitAdTrackingEnabledByUser: ${adInfo?.isLimitAdTrackingEnabled}"
+        )
+        adInfo?.let {
+            if (it.isLimitAdTrackingEnabled) {
+                Logger.w(this, "Получение GAID ограничено пользователем")
+                return null
+            } else {
+                return it.id
+            }
+        }
+        Logger.w(
+            this,
+            "GAID не был запрошен, инициализируйте запрос GAID с помощью метода '''Sendsay.trackGAID(context)''' "
+        )
+        return null
+    }.logOnExceptionWithResult().getOrNull()
+
+    /**
      * Handles Sendsay notification payload.
      * Does not handle non-Sendsay notifications, just returns false for them so you can process them yourself.
      * @param applicationContext application context required to check notifications permission
@@ -958,12 +958,13 @@ object Sendsay {
         initWorkManager(context)
 
         if (flushMode == PERIOD) startPeriodicFlushService()
+
         /**
          * GAID is needed for better targeting and personalization,
          * so we initialize it on app start in debug mode.
-         * In release mode, it will be initialized only if the developer explicitly calls initGAID or if init config enables it.
+         * In release mode, it will be initialized only if the developer explicitly calls trackGAID or if init config enables it.
          */
-        if (BuildConfig.DEBUG) initGAID(context)
+        if (BuildConfig.DEBUG) trackGAID(context)
 
         trackInstallEvent()
 
@@ -982,13 +983,13 @@ object Sendsay {
             isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
             isAppInboxEnabled =
                 it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
-            isGAIDEnabled = it?.firstOrNull()?.isGAIDEnabled ?: configuration.isGAIDEnabled
+            isADTrackEnabled = it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
             isInAppCBEnabled = configuration.isInAppCBEnabled
             isAppInboxEnabled = configuration.isAppInboxEnabled
-            isGAIDEnabled = configuration.isGAIDEnabled
+            isADTrackEnabled = configuration.isGAIDEnabled
         })
 
 
@@ -1026,18 +1027,17 @@ object Sendsay {
         return device == "robolectric" && product == "robolectric"
     }
 
-    fun initGAID(context: Context) {
-        if (!isGAIDEnabled) {
+    internal fun trackGAID(context: Context) {
+        if (!isADTrackEnabled) {
             Logger.w(this, "Getting GAID is disabled by init config")
             return
         }
-//        (context.findActivity())?.let { it.lifecycleScope }?.let { lifecycleScope ->
         sendsaySdkScope.launch {
             adInfo = fetchGAID(context)
         }
     }
 
-    suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
+    private suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
         return withContext(Dispatchers.IO) {
             try {
                 Logger.w(this, "GAID fetching started")
