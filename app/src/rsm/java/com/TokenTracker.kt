@@ -116,10 +116,21 @@ class TokenTracker {
             }
 
             val testNotificationPayload = TestNotificationPayload(
-                title = "RuStore Push Title",
-                body = "testRsmLocalPush-Puck-Serenk",
+                title = "Заголовок для 44 в среду",
+                body = "Тело сообщения для 44 в среду 24.06.2026 12.56.04",
                 imgUrl = "https://static.rustore.ru/rustore-strapi/6/logo_color_30_px_2_fa2039288f.svg",
-                data = mapOf("some_key" to "some_value")
+                data = mapOf(
+                    "sendsay_read_url" to "https://read.sdc.test.sndsy.ru/0.gif/3212,,,44,,/20260624125624,",
+                    "message" to "Сообщение для 44 в среду 24.06.2026 12.56.04",
+                    "sendsay_click_url" to "https://pushapp",
+                    "url" to "https://pushapp",
+                    "url_params" to """{"xnpe_force_track":true}""",
+                    "notification_id" to "1782294984",
+                    "data" to """{"sendsay_seq_pass":"","sendsay_letter_id":"","sendsay_member_id":"44","sendsay_issue_id":"","sendsay_seq_id":"","sendsay_letter_luuid":"J26SN7Z1S5usNG7_IYn2vg"}""",
+                    "source" to "xnpe_platform",
+                    "consent_category_tracking" to "Statistics collection",
+                    "has_tracking_consent" to "1"
+                )
             )
 
             RuStorePushClient.sendTestNotification(testNotificationPayload)

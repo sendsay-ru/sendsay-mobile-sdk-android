@@ -124,7 +124,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     }
 
     /**
-     * Method to handle "getToken" button (RuStore only?)
+     * Method to handle "getToken" button
      */
     private fun getToken(context: Context, onComplete: (String) -> Unit) {
         return TokenTracker().getToken(context, onComplete)
