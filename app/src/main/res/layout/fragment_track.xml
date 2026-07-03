@@ -7,9 +7,9 @@
     tools:context=".view.MainActivity">
 
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listView"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -17,19 +17,22 @@
         android:layout_marginStart="@dimen/content_margin"
         android:layout_marginTop="8dp"
         android:background="@drawable/borders_rect"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layoutManager="LinearLayoutManager"
+        app:reverseLayout="false"
+        app:stackFromEnd="true"
+        app:layout_constraintBottom_toTopOf="@+id/textView5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
         android:id="@+id/textView"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/content_margin"
         android:layout_marginTop="@dimen/content_margin"
-        android:text="Payments"
+        android:text="Push Service Logger"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:text="RuStore Messages (RSM)"
+        android:text="Token Service"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonTestPush"
@@ -90,7 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:text="FCM"
+        android:text="Tracking"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonTrackToken"

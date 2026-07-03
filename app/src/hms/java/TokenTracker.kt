@@ -12,7 +12,10 @@ import com.sendsay.sdk.util.Logger
 import com.huawei.hms.aaid.HmsInstanceId
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.push.RemoteMessage
+import com.sendsay.example.BuildConfig
+import com.sendsay.example.LogCollector
 import com.sendsay.sdk.util.copyToClipboard
+import com.sendsay.sdk.util.findActivity
 import kotlin.time.Duration
 
 class TokenTracker {
@@ -22,51 +25,35 @@ class TokenTracker {
         // Obtain the app ID from the agconnect-service.json file.
         const val APP_ID = "117576633"
 
-        // Set tokenScope to HCM.
-        const val TOKEN_SCOPE = "HCM"
+        // Set tokenScope to HMS.
+        const val TOKEN_SCOPE = "HMS"
 
         @Volatile
         var lastToken = "wait and try again"
+
+//        @Volatile
+//        var localLogger = RollerList<String>(100)
     }
 
-//    @RequiresApi(Build.VERSION_CODES.N)
-    fun checkPushAvailability(context: Context): Boolean {
+@RequiresApi(Build.VERSION_CODES.N)
+fun checkPushAvailability(context: Context): Boolean {
         val isInstalled = try {
-            context.packageManager.getPackageInfo("ru.vk.store", 0)
+            context.packageManager.getPackageInfo("com.huawei.hwid", 0)
             true
         } catch (e: Exception) {
             val result = false
-            Logger.d(LOG_TAG, "RuStore installed = $result!")
             showAlertDialogWithUrl(context)
             result
         }
 
-        Logger.d(LOG_TAG, "RuStore installed = $isInstalled")
-
-//        RuStorePushClient.checkPushAvailability()
-//            .addOnSuccessListener { result ->
-//                Logger.i(LOG_TAG, "checkPushAvailability SUCCESS !")
-//                when (result) {
-//                    FeatureAvailabilityResult.Available -> {
-//                        Logger.i(LOG_TAG, "checkPushAvailability -> ! AVAILABLE !")
-//                    }
-//
-//                    is FeatureAvailabilityResult.Unavailable -> {
-//                        Logger.i(LOG_TAG, "checkPushAvailability -> ...UNAVAILABLE...")
-//                        result.cause.resolveForPush(context)
-//                    }
-//                }
-//            }
-//            .addOnFailureListener { throwable ->
-//                showAlertDialogWithUrl(context)
-//                Logger.e(LOG_TAG, "checkPushAvailability onFailure", throwable)
-//            }
+        Logger.d(LOG_TAG, "HMS Core installed = $isInstalled")
 
         return isInstalled
     }
 
     fun getToken(context: Context?, onGetLastToken: (String) -> Unit) {
         context?.let {
+//            it.findActivity()!!.runOnUiThread {
             object : Thread() {
                 override fun run() {
                     try {
@@ -85,10 +72,23 @@ class TokenTracker {
                                 .show()
                             Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
                         }
+
+                        LogCollector.info(
+                            BuildConfig.FLAVOR,
+                            "getToken onSuccess token = $lastToken"
+                        )
                     } catch (e: ApiException) {
                         Logger.e(this, "get hms token failed, $e")
+                        LogCollector.error(
+                            BuildConfig.FLAVOR,
+                            e.stackTraceToString() ?: "Unknown Token error"
+                        )
                     } catch (e: Exception) {
                         Logger.e(this, "Get hms token error, $e")
+                        LogCollector.error(
+                            BuildConfig.FLAVOR,
+                            e.stackTraceToString() ?: "Unknown Token error"
+                        )
                     }
                 }
             }.start()
@@ -115,15 +115,17 @@ class TokenTracker {
 //        HmsInstanceId.getInstance(context).sendNotif(testNotificationPayload)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun showAlertDialogWithUrl(context: Context) {
-        val url = "https://consumer.huawei.com/ru/mobileservices/appgallery/"
-        val linkText = "Скачать AppGallery"
+//        val url = "https://consumer.huawei.com/ru/mobileservices/appgallery/"
+        val url = "https://appgallery.huawei.com/#/app/C10132067"
+        val linkText = "Скачать HMS Core"
 
         // Construct the HTML message string
         val message = "Ссылка на приложение:\n<a href=\"$url\">$linkText</a>"
 
         val builder = MaterialAlertDialogBuilder(context)
-        builder.setTitle("Пожалуйста, установите Huawei AppGallery!\nЧтобы работали пуш-уведомления.")
+        builder.setTitle("Пожалуйста, установите Huawei HMS Core!\nЧтобы работали пуш-уведомления.")
             .setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_COMPACT))
             .setCancelable(false)
             .setPositiveButton("OK") { dialog, _ ->
@@ -138,4 +140,17 @@ class TokenTracker {
         val msgTextView: TextView? = alertDialog.findViewById(android.R.id.message)
         msgTextView?.movementMethod = LinkMovementMethod.getInstance()
     }
+}
+
+class RollerList<T>(private val maxSize: Int) {
+    private val list = mutableListOf<T>()
+
+    fun add(element: T) {
+        if (list.size >= maxSize) {
+            list.removeAt(0) // Remove the oldest element
+        }
+        list.add(element)
+    }
+
+    fun toList(): List<T> = list
 }

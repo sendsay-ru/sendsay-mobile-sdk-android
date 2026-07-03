@@ -121,6 +121,8 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
     // Google AD ID
     implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
+    // Chucker debug intent
+    implementation "com.github.chuckerteam.chucker:library:4.1.0"
 
     // Base Test
     testImplementation 'junit:junit:4.13.2'
@@ -137,8 +139,6 @@ dependencies {
     testImplementation "io.mockk:mockk:1.12.8"
     // WorkManager testing
     testImplementation 'androidx.work:work-testing:2.4.0'
-    // Chucker debug intent
-    debugImplementation "com.github.chuckerteam.chucker:library:4.1.0"
 }
 
 shadowAar {

@@ -117,7 +117,7 @@ android {
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
 //            def formattedDate = new Date().format('yyyyMMdd_HHmm')
-            def apkName = "SandsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
+            def apkName = "SendsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
             output.outputFileName = apkName
         }
     }
@@ -133,12 +133,13 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.9.0'
     fcmImplementation 'com.google.firebase:firebase-messaging:23.1.0'
     fcmImplementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
-    hmsImplementation 'com.huawei.agconnect:agconnect-core:1.7.3.302'
-    hmsImplementation 'com.huawei.hms:push:6.11.0.300'
+    hmsImplementation 'com.huawei.agconnect:agconnect-core:1.8.1.302'
+    hmsImplementation 'com.huawei.hms:push:6.13.0.300'
     rsmImplementation 'ru.rustore.sdk:pushclient:7.2.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.google.code.gson:gson:2.10.1'
-    debugImplementation "com.github.chuckerteam.chucker:library:4.1.0"
+    implementation "com.github.chuckerteam.chucker:library:4.1.0"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
 
     implementation project(path: ':sdk')
 }
