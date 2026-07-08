@@ -6,13 +6,14 @@ categorySlug: integrations
 parentDocSlug: android-sdk
 ---
 
-Android SDK Sendsay включает пример приложения, который вы можете использовать в качестве эталонной реализации. Вы можете собрать и запустить приложение, протестировать функции CDP Sendsay и сравнить код и поведение вашей реализации с ожидаемым поведением и кодом в примере приложения.
+Sendsay Android SDK включает пример приложения, который можно использовать как эталонную реализацию. Вы можете собрать и запустить его, протестировать функции CDP Sendsay и сравнить свой код с ожидаемым поведением и кодом в примере.
 
-## Предварительные требования
+## Требования
 
-У вас должно быть установлено следующее программное обеспечение для сборки и запуска примера приложения:
+Для сборки и запуска примера приложения установите:
 
-- [Android Studio](https://developer.android.com/studio) с настроенным [виртуальным устройством](https://developer.android.com/studio/run/managing-avds)
+- [Android Studio](https://developer.android.com/studio). 
+- Настроенное [виртуальное устройство](https://developer.android.com/studio/run/managing-avds).
 
 ## Сборка и запуск примера приложения
 
@@ -20,67 +21,69 @@ Android SDK Sendsay включает пример приложения, кото
    ```shell
    git clone https://github.com/sendsay-ru/sendsay-mobile-sdk-android.git
    ```
-2. Откройте проект `sendsay-mobile-sdk-android` в Android Studio.
-3. Откройте файл `sdk/build.gradle` и найдите следующую строку:
+2. Откройте проект **sendsay-mobile-sdk-android** в Android Studio.
+3. Откройте файл **sdk/build.gradle** и найдите строку:
    ```
    apply from: 'publish-maven.gradle'
    ```
-   Закомментируйте её, чтобы она выглядела так:
+   Закомментируйте её:
    ```
    //apply from: 'publish-maven.gradle'
    ```
-4. Запустите пример приложения в эмуляторе Android (`Run` > `Run 'app'` или Ctrl + R).
+4. Запустите пример приложения на эмуляторе (**Run** > **Run 'app'** или Ctrl + R).
 
 > 📘
 >
-> Чтобы включить push-уведомления в примере приложения, вы также должны настроить [интеграцию Firebase или интеграцию Huawei](https://docs.sendsay.ru/other-channels/mobile-push/how-to-connect-mobile-push#%D0%BA%D0%B0%D0%BA-%D0%BF%D0%BE%D0%B4%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%D1%82%D1%8C-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B5-sendsay) в веб-приложении Sendsay.
+> Чтобы протестировать push-уведомления, настроите интеграцию через [Firebase](..docs/android-sdk-firebase), [Huawei](..docs/android-sdk-huawei) или [RuStore](..docs/android-sdk-rustore) в веб-приложении Sendsay.
 
 ## Навигация по примеру приложения
 
 ![Экраны примера приложения: конфигурация, получение данных, отслеживание, отслеживание событий](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/android-example-app-1.png)
 
-Когда вы запустите приложение в симуляторе, вы увидите экран **Authentication** (Аутентификация). Введите ваш [токен проекта, API токен и базовый URL API](mobile-sdks-api-access-management). Опционально введите адрес электронной почты hard ID в поле `Registered`, чтобы идентифицировать клиента. Затем нажмите `Authenticate`, чтобы [инициализировать SDK](ios-sdk-setup#initialize-the-sdk).
+После запуска откроется экран **Authentication** (Аутентификация). Введите [токен проекта, API токен и базовый URL API](mobile-sdks-api-access-management). Опционально укажите hard ID (email) в поле **Registered**, чтобы идентифицировать клиента. Нажмите «Authenticate», чтобы [инициализировать SDK](android-sdk-setup#initialize-the-sdk).
 > [`AuthenticationActivity.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/java/com/sendsay/example/view/AuthenticationActivity.kt)
 
 > 👍
 >
-> Убедитесь, что добавили префикс "Token " к вашему API ключу, например:
+> Убедитесь, что добавили префикс **"Token "** к вашему API ключу, например:
 > `Token 0b7uuqicb0fwuv1tqz7ubesxzj3kc3dje3lqyqhzd94pgwnypdiwxz45zqkhjmbf`.
 
-Приложение предоставляет несколько экранов, доступных через нижнюю навигацию, для тестирования различных функций SDK:
+Приложение содержит несколько экранов, доступных через нижнюю навигацию:
 
-- Экран **Fetch** (Получение) позволяет получать рекомендации и согласия, а также открывать inbox приложения.
-  > [`FetchFragment.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/java/com/sendsay/example/view/fragments/FetchFragment.kt)
+[//]: # (- **Fetch** — получение рекомендаций, согласий и открытие почтового ящика.)
+[//]: # (  > [`FetchFragment.kt`]&#40;https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/java/com/sendsay/example/view/fragments/FetchFragment.kt&#41;)
   
-- Экран **Track** (Отслеживание) позволяет тестировать отслеживание различных событий и свойств. Кнопки `Custom Event` и `Identify Customer` ведут к отдельным экранам для ввода тестовых данных.
+- **Track** — тестирование отслеживания событий и свойств. Кнопки «Custom Event» и «Identify Customer» открывают отдельные формы для ввода данных.
   > [`TrackFragment.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/TrackFragment.kt)
   > [`TrackCustomAttributesDialog.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/dialogs/TrackCustomAttributesDialog.kt)
   > [`TrackCustomEventDialog.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/dialogs/TrackCustomEventDialog.kt)
 
-- Экран **Manual Flush** (Ручной сброс) позволяет запустить ручной сброс данных.
+- **Manual Flush** — ручная отправка кэшированных данных в Sendsay.
   > [`FlushFragment.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/FlushFragment.kt)
 
-- Экран **Anonymize** (Анонимизация) позволяет анонимизировать текущего пользователя.
+- **Anonymize** — сброс клиентского состояния и создание нового анонимного профиля.
   > [`AnonymizeFragment.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/AnonymizeFragment.kt)
 
-- Экран **InAppCB** отображает блоки контента внутри приложения. Используйте ID плейсхолдеров `example_top`, `ph_x_example_iOS`, `example_list`, `example_carousel` и `example_carousel_and` в настройках ваших блоков контента внутри приложения.
-  > [`InAppContentBlocksFragment.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/InAppContentBlocksFragment.kt)
-  > [`fragment_inapp_content_blocks.xml`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/res/layout/fragment_inapp_content_blocks.xml)
+[//]: # (- **InAppCB** — отображение блоков контента внутри приложения. Используйте ID плейсхолдеров: `example_top`, `ph_x_example_iOS`, `example_list`, `example_carousel` и `example_carousel_and`.)
+[//]: # (  > [`InAppContentBlocksFragment.kt`]&#40;https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/bf48aba5a58e5632bdc5d963c18ee24d7e200ec9/app/src/main/java/com/sendsay/example/view/fragments/InAppContentBlocksFragment.kt&#41;)
+[//]: # (  > [`fragment_inapp_content_blocks.xml`]&#40;https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/res/layout/fragment_inapp_content_blocks.xml&#41;)
 
-Попробуйте различные функции в приложении, затем найдите профиль клиента в веб-приложении CDP Sendsay (в разделе `Data & Assets` > `Customers`), чтобы увидеть свойства и события, отслеживаемые SDK.
+После тестирования действий в приложении перейдите в раздел **Продажи** > **Просмотр событий** > **Mobile push** веб-интерфейса CDP Sendsay, чтобы увидеть:
+- события, отправленные SDK,
+- свойства клиента,
+- идентификаторы (soft ID / hard ID).
 
-Если вы оставили поле `Registered` пустым, клиент отслеживается анонимно с использованием soft ID cookie. Вы можете найти значение cookie в логах и найти соответствующий профиль в веб-приложении CDP Sendsay.
-
-Если вы ввели hard ID (используйте адрес электронной почты в качестве значения) в поле `Registered`, клиент идентифицируется и может быть найден в веб-приложении CDP Sendsay по его адресу электронной почты.
+Если поле **Registered** оставлено пустым — создаётся анонимный профиль (soft ID cookie). Если указан hard ID — профиль связывается с этим идентификатором (например, email или phone).
 
 > 📘
 >
-> Обратитесь к разделу [Идентификация клиентов](tracking.md#идентификация) для получения дополнительной информации о soft ID и hard ID.
+> Подробнее о soft ID и hard ID — в разделе [Идентификация клиентов](tracking.md#идентификация) документации CDP Sendsay.
 
 ![Экраны примера приложения: идентификация, сброс, анонимизация, блоки контента](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/android-example-app-2.png)
 
 ## Устранение неполадок
 
-Если у вас возникнут проблемы при сборке примера приложения, следующее может помочь:
+Если возникают проблемы со сборкой или запуском:
 
-- В Android Studio выберите `Build` > `Clean Project`, затем `Build` > `Rebuild Project`.
+1. В Android Studio выберите **Build** > **Clean Project**, 
+2. Затем **Build** > **Rebuild Project**.

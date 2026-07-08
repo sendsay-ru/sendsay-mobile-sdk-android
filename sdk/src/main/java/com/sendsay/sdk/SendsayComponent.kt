@@ -124,7 +124,7 @@ internal class SendsayComponent(
         InAppMessageDisplayStateRepositoryImpl(preferences, SendsayGson.instance)
 
     // Network Handler
-    internal val networkManager: NetworkHandler = NetworkHandlerImpl(sendsayConfiguration)
+    internal val networkManager: NetworkHandler = NetworkHandlerImpl(sendsayConfiguration, context)
 
     // Api Service
     internal val sendsayService: SendsayService = SendsayServiceImpl(SendsayGson.instance, networkManager)
@@ -276,6 +276,7 @@ internal class SendsayComponent(
         // Do not use TokenFrequency from the configuration, clear tokens immediately during anonymize
         fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.FCM)
         fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.HMS)
+        fcmManager.trackToken(" ", SendsayConfiguration.TokenFrequency.EVERY_LAUNCH, TokenType.RSM)
         deviceInitiatedRepository.set(false)
         campaignRepository.clear()
         inAppMessageManager?.clear()

@@ -1,20 +1,31 @@
 package com.sendsay.example.view.fragments
 
 import TokenTracker
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.size
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.sendsay.example.App
+import com.sendsay.example.BuildConfig
+import com.sendsay.example.LogCollector
+import com.sendsay.example.R
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.models.Constants
+import com.sendsay.example.utils.addOnItemLongClickListener
+import com.sendsay.example.utils.shareText
+import com.sendsay.example.utils.smoothSnapToPosition
 import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.view.dialogs.TrackCustomAttributesDialog
 import com.sendsay.example.view.dialogs.TrackCustomEventDialog
@@ -27,13 +38,19 @@ import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
+import com.sendsay.sdk.util.copyToClipboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
-class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
+
+class TrackFragment : BaseFragment() {
 
     private lateinit var viewBinding: FragmentTrackBinding
 
@@ -41,7 +58,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         viewBinding = FragmentTrackBinding.inflate(inflater, container, false)
         return viewBinding.root
     }
@@ -60,17 +77,75 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.subtitle = "tracking"
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.purchaseScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.purchaseScreen)
+        }
 
-        viewBinding.listView.adapter = Adapter()
+        viewBinding.listView.adapter = LogsAdapter()
 
         // Init buttons listeners
         initListeners()
     }
 
     private fun initListeners() {
-        viewBinding.listView.onItemClickListener = this
+        val ctx = requireContext();
+
+//        viewBinding.listView.addOnItemTouchListener(this)
+        viewBinding.listView.addOnItemLongClickListener { childView, position ->
+            // Track purchase at position
+//            trackPayment(position)
+//            Toast.makeText(context, "Payment Tracked", Toast.LENGTH_SHORT).show()
+
+            ctx.copyToClipboard(
+                (childView as TextView).text
+            )
+            Toast.makeText(ctx, "Скопировано в буфер", Toast.LENGTH_SHORT)
+                .show()
+
+        }
+
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            LogCollector.instance.logs.collect { logs ->
+                (viewBinding.listView.adapter as LogsAdapter).submitList(
+                    logs
+                        .map {
+                            it.toString().split("\n")
+                                .reversed()
+                                .joinToString("\n")
+                        }
+                ).also {
+                    delay(300.milliseconds)
+                    viewBinding.listView.post {
+                        viewBinding.listView.smoothSnapToPosition(
+                            if (viewBinding.listView.size > 0) viewBinding.listView.size - 1 else viewBinding.listView.size
+                        )
+                    }
+                }
+            }
+        }
+
+        viewBinding.buttonShareLog.setOnClickListener {
+            val log = (viewBinding.listView.adapter as LogsAdapter).currentList
+            if (log.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "Нечего отправлять, лог пустой",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            shareText(requireContext(), log.toString())
+        }
+
+        viewBinding.buttonGetToken.setOnClickListener {
+            getToken(ctx) { token -> viewBinding.tokenText.text = token }
+        }
+        viewBinding.tokenText.setOnClickListener {
+            ctx.copyToClipboard(viewBinding.tokenText.text)
+            Toast.makeText(ctx, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
+        }
+        viewBinding.buttonTestPush.setOnClickListener { testLocalPush(ctx) }
 
         viewBinding.buttonTrackClicked.setOnClickListener { trackPushClicked() }
         viewBinding.buttonTrackDelivered.setOnClickListener { trackPushDelivered() }
@@ -99,6 +174,20 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         Sendsay.requestPushAuthorization(requireContext()) { granted ->
             Logger.i(this, "Push notifications are allowed: $granted")
         }
+    }
+
+    /**
+     * Method to handle "getToken" button
+     */
+    private fun getToken(context: Context, onComplete: (String) -> Unit) {
+        return TokenTracker().getToken(context, onComplete)
+    }
+
+    /**
+     * Method to handle "test RuStore push (Local)" button
+     */
+    private fun testLocalPush(context: Context?) {
+        TokenTracker().testLocalPush(context)
     }
 
     /**
@@ -148,7 +237,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     }
 
     /**
-     * Method to handle push delivered event tracking"
+     * Method to handle push delivered event tracking
      */
     private fun trackPushDelivered() {
         Sendsay.trackDeliveredPush(
@@ -160,7 +249,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
      * Method to handle token tracking
      */
     private fun trackToken() {
-        TokenTracker().trackToken(context)
+        TokenTracker().trackToken(requireContext())
     }
 
 
@@ -381,32 +470,35 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         )
     }
 
-    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+    private class DiffCallback : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
 
-        // Track purchase at position
-        trackPayment(position)
-        Toast.makeText(context, "Payment Tracked", Toast.LENGTH_SHORT).show()
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
     }
 
-    inner class Adapter : BaseAdapter() {
+    inner class LogsAdapter : ListAdapter<String, LogsAdapter.ViewHolder>(DiffCallback()) {
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val inflater = LayoutInflater.from(parent?.context)
-            if (convertView == null) {
-                val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
-                view.findViewById<TextView>(android.R.id.text1).text = mockItems()[position]
-                return view
+        inner class ViewHolder(private val textView: TextView) : RecyclerView.ViewHolder(textView) {
+
+            fun bind(text: String) {
+                textView.text = text
             }
-            convertView.findViewById<TextView>(android.R.id.text1).text = mockItems()[position]
-            return convertView
         }
 
-        override fun getItem(position: Int): Any {
-            return mockItems()[position]
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val textView = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_log, parent, false) as TextView
+
+            return ViewHolder(textView)
         }
 
-        override fun getItemId(position: Int): Long = position.toLong()
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.bind(getItem(position))
+        }
 
-        override fun getCount() = mockItems().size
     }
 }

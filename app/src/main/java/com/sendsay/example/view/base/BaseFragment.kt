@@ -1,5 +1,6 @@
 package com.sendsay.example.view.base
 
+import com.sendsay.sdk.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.PropertiesList
 

@@ -9,4 +9,6 @@ data class ConfigItem(
     var isInAppCBEnabled: Boolean? = false,
     @SerializedName("isAppInboxEnabled")
     var isAppInboxEnabled: Boolean? = false,
+    @SerializedName("isADTrackEnabled")
+    var isADTrackEnabled: Boolean? = false,
 )

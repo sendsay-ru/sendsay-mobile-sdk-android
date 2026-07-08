@@ -6,34 +6,99 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
-
-    <ListView
-        android:id="@+id/listView"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="@dimen/content_margin"
-        android:layout_marginStart="@dimen/content_margin"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/borders_rect"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
     <TextView
         android:id="@+id/textView"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/content_margin"
-        android:layout_marginTop="@dimen/content_margin"
-        android:text="Payments"
+        android:layout_marginTop="@dimen/logo_height"
+        android:text="Push Service Logger"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listView"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="@dimen/logo_width"
+        android:layout_marginStart="@dimen/content_margin"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/borders_rect"
+        app:layoutManager="LinearLayoutManager"
+        app:reverseLayout="false"
+        app:stackFromEnd="true"
+        app:layout_constraintBottom_toTopOf="@+id/textView5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <Button
+        android:id="@+id/buttonShareLog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:text="Share Log"
+        android:theme="@style/AppButton"
+        app:layout_constraintTop_toTopOf="@+id/listView"
+        app:layout_constraintBottom_toBottomOf="@+id/listView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/listView" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:text="Token Service"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/buttonTestPush"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonGetToken"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:text="Get Device Token"
+        android:theme="@style/AppButton"
+        app:layout_constraintBottom_toTopOf="@+id/tokenText"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintEnd_toStartOf="@+id/buttonAuthorizePush"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tokenText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Last Token Value:"
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="@+id/buttonTestPush"
+        app:layout_constraintStart_toStartOf="@+id/buttonGetToken"  />
+
+    <Button
+        android:id="@+id/buttonTestPush"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:text="Test Local Push\n(RSM only)"
+        android:theme="@style/AppButton"
+        app:layout_constraintBottom_toTopOf="@+id/tokenText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonGetToken" />
 
     <TextView
         android:id="@+id/textView2"
@@ -41,7 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:text="FCM"
+        android:text="Tracking"
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonTrackToken"

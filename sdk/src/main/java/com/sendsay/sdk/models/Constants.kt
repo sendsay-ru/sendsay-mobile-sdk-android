@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 internal object Constants {
     // Network
     object Repository {
-        val baseURL: String = "https://api.sendsay.com"
+        val baseURL: String = "https://mobi.sendsay.ru/xnpe/v100"
     }
 
     // SDK Info
@@ -52,8 +52,10 @@ internal object Constants {
         const val source = "xnpe_platform"
         const val fcmTokenProperty = "google_push_notification_id"
         const val hmsTokenProperty = "huawei_push_notification_id"
+        const val rsmTokenProperty = "rustore_push_notification_id"
         const val fcmSelfCheckPlatformProperty = "android"
         const val hmsSelfCheckPlatformProperty = "huawei"
+        const val rsmSelfCheckPlatformProperty = "rustore"
         const val defaultPushAuthorizationRequired = false
     }
 

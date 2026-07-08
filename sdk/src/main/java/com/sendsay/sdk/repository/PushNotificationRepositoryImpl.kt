@@ -60,9 +60,11 @@ internal class PushNotificationRepositoryImpl(
         preferences.setString(KEY_EXTRA_DATA, dataString)
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun setLastDateTimeOnIssueAndLetter(data: Map<String, Any>): Map<String, Any> {
         if (data.entries.any { it.key == KEY_ISSUE || it.key == KEY_LETTER }) {
-            val currentDateTime = Calendar.getInstance().timeInMillis.toString()
+//            val currentDateTime = Calendar.getInstance().timeInMillis.toString()
+            val currentDateTime = Clock.System.now().toEpochMilliseconds()
             return data.plus(KEY_ISSUE_LETTER_DATETIME_DATA_UTC to currentDateTime)
         }
         return data

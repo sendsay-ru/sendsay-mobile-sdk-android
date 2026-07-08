@@ -8,8 +8,6 @@ import com.sendsay.sdk.models.Constants
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.CustomerRecommendation
 import com.sendsay.sdk.models.EventType
-import com.sendsay.sdk.models.SendsayConfiguration
-import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.ExportedEvent
 import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.InAppContentBlock
@@ -20,14 +18,14 @@ import com.sendsay.sdk.models.MessageItem
 import com.sendsay.sdk.models.PropertiesList
 import com.sendsay.sdk.models.Result
 import com.sendsay.sdk.models.SegmentationCategories
+import com.sendsay.sdk.models.SendsayConfiguration
+import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.eventfilter.EventFilter
 import com.sendsay.sdk.network.SendsayServiceImpl
-import com.sendsay.sdk.repository.InAppMessageBitmapCacheImpl
 import com.sendsay.sdk.repository.InAppMessagesCacheImpl
 import com.sendsay.sdk.services.SendsayContextProvider
 import com.sendsay.sdk.testutil.SendsayMockServer
 import com.sendsay.sdk.testutil.SendsaySDKTest
-import com.sendsay.sdk.testutil.MockFile
 import com.sendsay.sdk.testutil.runInSingleThread
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.backgroundThreadDispatcher
@@ -38,11 +36,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.slot
 import io.mockk.verify
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
@@ -55,6 +48,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.LooperMode
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
@@ -137,9 +135,9 @@ internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
 
     @Before
     fun prepareInAppMocks() {
-        mockkConstructorFix(InAppMessageBitmapCacheImpl::class) {
-            every { anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any()) }
-        }
+//        mockkConstructorFix(InAppMessageBitmapCacheImpl::class) {
+//            every { anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any()) }
+//        }
         mockkConstructorFix(InAppMessagesCacheImpl::class)
     }
 
@@ -424,13 +422,13 @@ internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
     }
 
     private fun disableBitmapCache() {
-        every {
-            anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any())
-        } answers {
-            secondArg<((Boolean) -> Unit)?>()?.invoke(false)
-        }
-        every { anyConstructed<InAppMessageBitmapCacheImpl>().getFile(any()) } returns null
-        every { anyConstructed<InAppMessageBitmapCacheImpl>().has(any()) } returns false
+//        every {
+//            anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any())
+//        } answers {
+//            secondArg<((Boolean) -> Unit)?>()?.invoke(false)
+//        }
+//        every { anyConstructed<InAppMessageBitmapCacheImpl>().getFile(any()) } returns null
+//        every { anyConstructed<InAppMessageBitmapCacheImpl>().has(any()) } returns false
     }
 
     private fun prepareMessagesMocks(pendingMessages: ArrayList<InAppMessage>) {
@@ -439,19 +437,19 @@ internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
                 Result(true, pendingMessages)
             )
         }
-        every {
-            anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any())
-        } answers {
-            secondArg<((Boolean) -> Unit)?>()?.invoke(true)
-        }
-        every {
-            anyConstructed<InAppMessageBitmapCacheImpl>().getFile(any())
-        } returns MockFile()
-        every {
-            anyConstructed<InAppMessageBitmapCacheImpl>().has(any())
-        } answers {
-            firstArg<String>() == "pending_image_url"
-        }
+//        every {
+//            anyConstructed<InAppMessageBitmapCacheImpl>().preload(any(), any())
+//        } answers {
+//            secondArg<((Boolean) -> Unit)?>()?.invoke(true)
+//        }
+//        every {
+//            anyConstructed<InAppMessageBitmapCacheImpl>().getFile(any())
+//        } returns MockFile()
+//        every {
+//            anyConstructed<InAppMessageBitmapCacheImpl>().has(any())
+//        } answers {
+//            firstArg<String>() == "pending_image_url"
+//        }
         every { anyConstructed<InAppMessagesCacheImpl>().get() } returns pendingMessages
         every { anyConstructed<InAppMessagesCacheImpl>().set(any()) } just Runs
         every { anyConstructed<InAppMessagesCacheImpl>().clear() } returns true
@@ -474,7 +472,7 @@ internal class InAppMessageManagerFlowTest : SendsaySDKTest() {
         }
         Sendsay.identifyCustomer(
             customerIds = customerIds,
-            properties = PropertiesList(properties)
+            properties = PropertiesList(properties).properties
         )
     }
 

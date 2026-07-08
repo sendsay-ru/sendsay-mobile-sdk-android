@@ -32,7 +32,10 @@ internal class NotificationPayload(val rawData: HashMap<String, String>) {
          * Parse notification data to use for tracking purposes
          */
         private fun parseNotificationData(data: Map<String, String>): NotificationData {
-            val dataMap: HashMap<String, Any> = gson.fromJson(data["data"] ?: data["attributes"] ?: "{}")
+            val dataMap: HashMap<String, Any> = gson
+                .fromJson(data["data"]
+                    ?: data["attributes"]
+                    ?: "{}")
             val campaignMap: Map<String, String> = gson.fromJson(data["url_params"] ?: "{}")
             val consentCategoryTracking: String? = data["consent_category_tracking"]
             val hasTrackingConsent: Boolean = GdprTracking.hasTrackingConsent(data["has_tracking_consent"])

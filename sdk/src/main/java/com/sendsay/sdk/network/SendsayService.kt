@@ -1,4 +1,5 @@
 package com.sendsay.sdk.network
+import android.content.Context
 import com.sendsay.sdk.models.CustomerAttributesRequest
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.Event
@@ -36,12 +37,12 @@ internal interface SendsayService {
 
     fun fetchSegments(
         sendsayProject: SendsayProject,
-        engagementCookieId: String
+        sendsayCookieId: String
     ): Call
 
     fun linkIdsToCookie(
         sendsayProject: SendsayProject,
-        engagementCookieId: String,
+        sendsayCookieId: String,
         externalIds: HashMap<String, String?>
     ): Call
 }

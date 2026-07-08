@@ -48,7 +48,7 @@ object Converters {
                 baseUrl = parts[2],
                 inAppContentBlockPlaceholdersAutoLoad = toStringList(parts.getOrNull(3))
             )
-            return result
+            result
         }
     }
 

@@ -1,9 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.kotlin_version = '2.1.0'
-    ext.ksp_version = '1.0.29'
+    ext.kotlin_version = '2.1.20'
+    ext.ksp_version = '1.0.32'
     ext.jacoco_version = '0.8.12'
     ext.room_version = '2.6.1'
+    ext.dokka_version = '2.1.0'
+    ext.okhttp3_version = '5.0.0'
 
     repositories {
         google()
@@ -14,10 +16,13 @@ buildscript {
         maven {
             url 'https://developer.huawei.com/repo/'
         }
+        maven {
+            url "https://artifactory-external.vkpartner.ru/artifactory/maven/"
+        }
     }
 
     dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.12.0"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
         classpath "org.jacoco:org.jacoco.core:$jacoco_version"
         classpath 'com.android.tools.build:gradle:8.6.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -33,7 +38,7 @@ buildscript {
 plugins {
     // version must match used kotlin, find full version: https://github.com/google/ksp/releases
     id 'com.google.devtools.ksp' version "$kotlin_version-$ksp_version" apply false
-    id 'org.jetbrains.dokka' version "$kotlin_version"
+    id 'org.jetbrains.dokka' version "$dokka_version"
 }
 apply plugin: 'io.codearte.nexus-staging'
 
@@ -42,6 +47,7 @@ allprojects {
         google()
         mavenCentral()
         maven {url 'https://developer.huawei.com/repo/'}
+        maven {url 'https://artifactory-external.vkpartner.ru/artifactory/maven/'}
     }
 }
 

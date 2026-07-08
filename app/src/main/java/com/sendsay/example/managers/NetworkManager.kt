@@ -1,5 +1,9 @@
 package com.sendsay.example.managers
 
+import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.chuckerteam.chucker.api.RetentionManager
 import okhttp3.Call
 import okhttp3.Interceptor
 import okhttp3.MediaType
@@ -13,7 +17,9 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 
-class NetworkManager {
+class NetworkManager(
+    val context: Context
+) {
     private val mediaTypeJson: MediaType = "application/json".toMediaTypeOrNull()!!
     private lateinit var networkClient: OkHttpClient
 
@@ -41,10 +47,45 @@ class NetworkManager {
         }
     }
 
+    private fun getChuckerInterceptor(context: Context): Interceptor {
+
+// Create the Collector
+        val chuckerCollector = ChuckerCollector(
+            context = context,
+            // Toggles visibility of the notification
+            showNotification = true,
+            // Allows to customize the retention period of collected data
+            retentionPeriod = RetentionManager.Period.ONE_DAY
+        )
+
+// Create the Interceptor
+        val chuckerInterceptor = ChuckerInterceptor.Builder(context)
+            // The previously created Collector
+            .collector(chuckerCollector)
+            // The max body content length in bytes, after this responses will be truncated.
+            .maxContentLength(250_000L)
+            // List of headers to replace with ** in the Chucker UI
+            .redactHeaders("Auth-Token", "Bearer")
+            // Read the whole response body even when the client does not consume the response completely.
+            // This is useful in case of parsing errors or when the response body
+            // is closed before being read like in Retrofit with Void and Unit types.
+            .alwaysReadResponseBody(true)
+            // Use decoder when processing request and response bodies. When multiple decoders are installed they
+            // are applied in an order they were added.
+//            .addBodyDecoder(decoder)
+            // Controls Android shortcut creation.
+            .createShortcut(true)
+            .build()
+
+        return chuckerInterceptor
+    }
+
     private fun setupNetworkClient() {
         val networkInterceptor = getNetworkInterceptor()
+        val chuckerInterceptor = getChuckerInterceptor(context)
 
         networkClient = OkHttpClient.Builder()
+            .addInterceptor(chuckerInterceptor)
             .addInterceptor(networkInterceptor)
             .build()
     }

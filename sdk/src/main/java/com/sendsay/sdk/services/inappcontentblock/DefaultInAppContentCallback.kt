@@ -15,10 +15,6 @@ open class DefaultInAppContentCallback(private val context: Context) : InAppCont
     override fun onMessageShown(placeholderId: String, contentBlock: InAppContentBlock) {
         Logger.d(this, "Tracking of InApp Content Block ${contentBlock.id} show")
         Sendsay.trackInAppContentBlockShown(placeholderId, contentBlock)
-        Sendsay.telemetry?.reportEvent(
-            com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE,
-            hashMapOf("messageType" to "content_block")
-        )
     }
 
     override fun onNoMessageFound(placeholderId: String) {

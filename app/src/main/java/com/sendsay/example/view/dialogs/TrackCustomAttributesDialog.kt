@@ -22,7 +22,6 @@ class TrackCustomAttributesDialog : DialogFragment() {
 
     private lateinit var onUpdate: (HashMap<String, Any>) -> Unit
     private val attributes = hashMapOf<String, Any>("cce" to """{test: test-CCE}""" as Any)
-    private val member_set = mutableMapOf<String, Any>()
     private val datakey = arrayListOf<List<String>>()
 
     private val spinnerList = listOf<String>(
@@ -100,8 +99,7 @@ class TrackCustomAttributesDialog : DialogFragment() {
                     )
                 )
                 Log.d("DATAKEY", datakey.joinToString())
-                member_set["datakey"] = datakey
-                attributes["member_set"] = member_set
+                attributes["datakey"] = datakey
                 Log.d(TAG, attributes.toString())
                 propertiesView.text = attributes.asJson()
             }

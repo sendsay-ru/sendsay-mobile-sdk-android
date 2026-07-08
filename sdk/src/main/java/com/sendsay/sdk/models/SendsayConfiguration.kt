@@ -102,6 +102,12 @@ data class SendsayConfiguration(
      * then in-app content blocks is unavailable too.
      */
     var isAppInboxEnabled: Boolean = false,
+    /**
+     * Flag that enables or disables permission to GAID for this session.
+     * Can/Must be overridden by get config from Backend method.
+     * Default value is false, cause if the config was not retrieved from server,
+     */
+    var isGAIDEnabled: Boolean = false,
 ) {
 
     companion object {

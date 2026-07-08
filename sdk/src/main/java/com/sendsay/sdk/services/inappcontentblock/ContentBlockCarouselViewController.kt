@@ -323,10 +323,6 @@ internal class ContentBlockCarouselViewController(
             // will track 'shown' event and manages DisplayStatus
             Logger.d(this, "InAppCbCarousel: Tracking of InApp Content Block ${shownContentBlock.id} show")
             Sendsay.trackInAppContentBlockShown(placeholderId, shownContentBlock)
-            Sendsay.telemetry?.reportEvent(
-                com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE,
-                hashMapOf("messageType" to "content_block_carousel")
-            )
         } else {
             Logger.v(this, "InAppCbCarousel: Content block with ID ${shownContentBlock.id} already tracked as shown")
         }

@@ -21,17 +21,15 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.sendsay.example"
-//        archivesBaseName = "${applicationId.substring(4)}-v$versionCode($versionName)"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdk 35
-        versionCode 12
-        versionName "0.1.2"
+        versionCode 14
+        versionName "0.1.4"
         vectorDrawables.useSupportLibrary = true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     signingConfigs {
         debug {
@@ -43,13 +41,11 @@ android {
         }
         release {
             if (System.getenv("CI") == "true") { // Check for CI environment
-//                googleFile System.getenv("GOOGLE_SERVICES_JSON_B64")
-//                huaweiFile System.getenv("AGCONNECT_SERVICES_JSON_B64")
-//                storeFile System.getenv("SENDSAY_JKS_B64")
+                storeFile System.getenv("SENDSAY_JKS_B64")
                 storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("ANDROID_KEY_ALIAS")
                 keyPassword System.getenv("ANDROID_KEY_PASSWORD")
-            } else {  // incase local machine environment
+            } else {  // in case local machine environment
                 keyAlias localProperties['keyAlias'] as String
                 keyPassword localProperties['keyPassword'] as String
                 def sf = localProperties['storeFile']
@@ -63,6 +59,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig = true
     }
     buildTypes {
         debug {
@@ -70,31 +67,57 @@ android {
 //            matchingFallbacks += listOf("debug")
             debuggable(true)
             minifyEnabled false
+//            applicationIdSuffix ".debug"
         }
         release {
 //            applicationIdSuffix = ".release"
             // Obfuscation and minification can considerably extend the compile time of an Android application
-//            minifyEnabled true
-//            shrinkResources true
+            minifyEnabled true
+            shrinkResources true
             signingConfig signingConfigs.release
 //            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    flavorDimensions "messagingService"
     productFlavors {
+        flavorDimensions "messagingService"
         fcm {
-            dimension = "messagingService"
+            dimension "messagingService"
+            applicationIdSuffix ".fcm"
+            // custom fields, for example:
+            buildConfigField("String", "FLAVOR", "\"FCM\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_fcm",
+                    appIconRound: "@mipmap/ic_launcher_fcm_round",
+                    appName: "@string/app_name_fcm"
+            ]
         }
         hms {
-            dimension = "messagingService"
+            dimension "messagingService"
+            applicationIdSuffix ".hms"
+            buildConfigField("String", "FLAVOR", "\"HMS\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_hms",
+                    appIconRound: "@mipmap/ic_launcher_hms_round",
+                    appName: "@string/app_name_hms"
+            ]
+        }
+        rsm {
+            dimension "messagingService"
+            applicationIdSuffix ".rsm"
+            buildConfigField("String", "FLAVOR", "\"RSM\"")
+            manifestPlaceholders = [
+                    appIcon: "@mipmap/ic_launcher_rsm",
+                    appIconRound: "@mipmap/ic_launcher_rsm_round",
+                    appName: "@string/app_name_rsm"
+            ]
         }
     }
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
 //            def formattedDate = new Date().format('yyyyMMdd_HHmm')
-            def apkName = "SandsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
+            def apkName = "SendsayExample_${variant.flavorName}_${variant.versionName}(${variant.versionCode}).apk"
             output.outputFileName = apkName
         }
     }
@@ -110,10 +133,13 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.9.0'
     fcmImplementation 'com.google.firebase:firebase-messaging:23.1.0'
     fcmImplementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
-    hmsImplementation 'com.huawei.agconnect:agconnect-core:1.7.3.302'
-    hmsImplementation 'com.huawei.hms:push:6.11.0.300'
+    hmsImplementation 'com.huawei.agconnect:agconnect-core:1.8.1.302'
+    hmsImplementation 'com.huawei.hms:push:6.13.0.300'
+    rsmImplementation 'ru.rustore.sdk:pushclient:7.2.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "com.github.chuckerteam.chucker:library:4.1.0"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
 
     implementation project(path: ':sdk')
 }

@@ -22,6 +22,7 @@ import com.sendsay.example.databinding.FragmentInappContentBlocksBinding
 import com.sendsay.example.models.Constants
 import com.sendsay.example.view.MainActivity
 import com.sendsay.example.view.base.BaseFragment
+import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.InAppContentBlock
 import com.sendsay.sdk.models.InAppContentBlockAction
@@ -51,8 +52,10 @@ class InAppContentBlocksFragment : BaseFragment() {
             it.subtitle = "InApp Content Blocks"
         }
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.inAppContentBlocksScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.inAppContentBlocksScreen)
+        }
 
         prepareExampleTopCbPlaceholder()
         prepareExampleAndroidCbPlaceholder()

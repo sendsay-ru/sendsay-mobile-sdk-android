@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sendsay.example.databinding.FragmentCarouselsBinding
 import com.sendsay.example.models.Constants
 import com.sendsay.example.view.base.BaseFragment
+import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.ContentBlockCarouselCallback
 import com.sendsay.sdk.models.ContentBlockSelector
@@ -34,8 +35,10 @@ class CarouselsFragment : BaseFragment() {
             it.subtitle = "InApp Carousels"
         }
 
-        // Track visited screen
-        trackPage(Constants.ScreenNames.inAppContentBlocksScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.inAppContentBlocksScreen)
+        }
 
         prepareExampleDefaultCarouselCbPlaceholder()
         prepareExampleCustomCarouselCbPlaceholder()

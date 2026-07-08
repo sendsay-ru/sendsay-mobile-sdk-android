@@ -519,10 +519,6 @@ internal class InAppMessageManagerImpl(
     private fun trackShowEvent(message: InAppMessage) {
         displayStateRepository.setDisplayed(message, Date())
         eventManager.trackInAppMessageShown(message, CONSIDER_CONSENT)
-        Sendsay.telemetry?.reportEvent(
-            com.sendsay.sdk.telemetry.model.EventType.SHOW_IN_APP_MESSAGE,
-            hashMapOf("messageType" to (message.rawMessageType ?: "null"))
-        )
     }
 
     fun processInAppMessageAction(activity: Activity, button: InAppMessagePayloadButton) {

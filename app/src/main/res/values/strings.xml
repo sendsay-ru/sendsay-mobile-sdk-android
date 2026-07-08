@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">Sdk Example</string>
+    <string name="app_name_fcm">Sdk Example (FCM)</string>
+    <string name="app_name_hms">Sdk Example (HMS)</string>
+    <string name="app_name_rsm">Sdk Example (RSM)</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
     <string name="purchase">Purchase</string>
@@ -10,11 +12,12 @@
     <string name="action_track_event">Track Event</string>
     <string name="action_track_purchase">Track Purchase</string>
     <string name="action_track_install">Track Install</string>
+    <string name="pushes_notification_channel_id">"Push channel (Sendsay)"</string>
 
     <string name="hint_custids">Customer Id</string>
-    <string name="hint_auth_code">Authentication Token (optional)</string>
+    <string name="hint_auth_code">Authentication Token</string>
     <string name="hint_project_token">Project Id / Account Id</string>
-    <string name="hint_registered">Registered Ids</string>
+    <string name="hint_registered">Registered Ids (optional)</string>
     <string name="hint_example">ex. email@adderess.com</string>
     <string name="hint_api_url">API Url</string>
     <string name="action_authenticate">Authenticate</string>

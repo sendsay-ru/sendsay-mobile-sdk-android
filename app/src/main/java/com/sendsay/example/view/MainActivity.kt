@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,22 +19,23 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.transition.Visibility
+import com.sendsay.example.BuildConfig
 import com.sendsay.example.R
 import com.sendsay.example.databinding.ActivityMainBinding
-import com.sendsay.example.services.ExampleAppInboxProvider
 import com.sendsay.example.view.NavigationItem.Anonymize
-import com.sendsay.example.view.NavigationItem.Manual
-import com.sendsay.example.view.NavigationItem.Track
 import com.sendsay.example.view.NavigationItem.Fetch
 import com.sendsay.example.view.NavigationItem.InAppContentBlock
+import com.sendsay.example.view.NavigationItem.Manual
+import com.sendsay.example.view.NavigationItem.Track
 import com.sendsay.sdk.Sendsay
-import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.models.InAppMessage
 import com.sendsay.sdk.models.InAppMessageButton
 import com.sendsay.sdk.models.InAppMessageCallback
 import com.sendsay.sdk.models.PushNotificationDelegate
 import com.sendsay.sdk.models.Segment
 import com.sendsay.sdk.models.SegmentationDataCallback
+import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.isResumedActivity
 import com.sendsay.sdk.util.isViewUrlIntent
@@ -40,7 +43,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlin.collections.mutableSetOf
 
 class MainActivity : AppCompatActivity() {
 
@@ -85,6 +87,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(viewBinding.root)
         setSupportActionBar(viewBinding.toolbar)
         supportActionBar?.title = "Examples"
+        if (BuildConfig.DEBUG) {
+            viewBinding.debugBanner.text =
+                "${BuildConfig.FLAVOR}\n" +
+                        "v${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})"
+            viewBinding.debugBanner.visibility = View.VISIBLE
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(viewBinding.toolbar) { v, insets ->
             val bars = insets.getInsets(
@@ -168,7 +176,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingSuperCall")
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         val deeplinkDestination = resolveDeeplinkDestination(intent)
         if (deeplinkDestination != null) {
@@ -198,7 +206,9 @@ class MainActivity : AppCompatActivity() {
             this.contains("stopAndRestart") -> DeeplinkFlow.StopAndRestart
             else -> null
         }
-        return if (intent.isViewUrlIntent("http")) {
+        return if (intent.isViewUrlIntent("https")) {
+            intent?.data?.path.orEmpty().toDeeplinkDestination()
+        } else if (intent.isViewUrlIntent("app.sendsay")) {
             intent?.data?.path.orEmpty().toDeeplinkDestination()
         } else if (intent.isViewUrlIntent("sendsay")) {
             intent?.data?.path.orEmpty().toDeeplinkDestination()

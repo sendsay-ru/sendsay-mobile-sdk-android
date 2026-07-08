@@ -8,48 +8,53 @@ parentDocSlug: android-sdk
 
 ## Установка SDK
 
-Sendsay Android SDK можно установить или обновить с помощью [Gradle](https://gradle.org/) или [Maven](https://maven.apache.org/). В случае Gradle вы можете использовать Kotlin или Groovy для файлов конфигурации сборки.
+Sendsay Android SDK можно установить или обновить с помощью [Gradle](https://gradle.org/) или [Maven](https://maven.apache.org/). Для Gradle поддерживаются конфигурации на Kotlin и Groovy.
 
 > 📘
 >
-> Обратитесь к https://github.com/prosky/sendsay-android-sdk/releases для получения последней версии Sendsay Android SDK.
+> Актуальная версия Sendsay Android SDK всегда доступна в репозитории: https://github.com/sendsay-ru/sendsay-mobile-sdk-android/releases.
 
 ### Gradle (Kotlin)
 
-1. В файле `build.gradle.kts` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
+1. В файле **build.gradle.kts** вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```kotlin
-   implementation("com.sendsay.sdk:sdk:0.1.0")
+   implementation("com.sendsay.sdk:sdk:0.1.4")
    ```
-2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
+2. Пересоберите проект: **Build** > **Rebuild Project**.
 
 ### Gradle (Groovy)
 
-1. В файле `build.gradle` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
+1. В файле **build.gradle** вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```groovy
-   implementation 'com.sendsay.sdk:sdk:0.1.1'
+   implementation 'com.sendsay.sdk:sdk:0.1.4'
    ```
-2. Пересоберите ваш проект (`Build` > `Rebuild Project`).
+2. Пересоберите проект: **Build** > **Rebuild Project**.
 
 ### Maven
 
-1. В файле `pom.xml` вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `<dependencies> </dependencies>`:
+1. В файл **pom.xml** добавьте `com.sendsay.sdk:sdk` внутри секции `<dependencies> </dependencies>`:
    ```xml
    <dependency>
       <groupId>com.sendsay.sdk</groupId>
       <artifactId>sdk</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.4</version>
       <type>aar</type>  <!---> Опционально, если требуется -->
    </dependency>   
    ```
-2. Пересоберите ваше приложение с помощью Maven.
+2. Пересоберите приложение через Maven.
 
 ## Инициализация SDK
 
-Теперь, когда вы установили SDK в свой проект, вы должны импортировать, настроить и инициализировать SDK в коде вашего приложения.
+После установки SDK вам нужно импортировать его в проект, указать параметры конфигурации и выполнить инициализацию.
 
-Обязательными параметрами конфигурации являются `projectToken`, `authorization` и `baseURL`. Вы можете найти их в личном кабинете CDP Sendsay в разделе `Подписчики` > `Мобильное приложение` > `Настройки приложения`.
+Обязательные параметры конфигурации:
+- `projectToken`
+- `authorization`
+- `baseUrl`
 
-Вы можете настроить SDK в [коде](#using-configuration-in-code) (предпочтительно) или используя [файл конфигурации JSON](#using-a-configuration-file).
+Эти значения можно найти в [личном кабинете](https://app.sendsay.ru/subscribers/apps) CDP Sendsay в разделе **Подписчики** > **Мобильное приложение** > **Настройки приложения**.
+
+SDK можно настроить в [коде](#использование-конфигурации-в-коде) (предпочтительный вариант) или через [JSON-файл конфигурации](#использование-файла-конфигурации).
 
 ### Использование конфигурации в коде
 
@@ -75,7 +80,7 @@ Sendsay.init(this, configuration)
 
 ### Использование файла конфигурации
 
-Создайте файл `sendsay_configuration.json` в папке `assets` вашего приложения как минимум со следующими свойствами конфигурации:
+Создайте файл **sendsay_configuration.json** в папке **assets** вашего приложения и добавьте минимум:
 
 ```json
 {
@@ -85,7 +90,7 @@ Sendsay.init(this, configuration)
 }
 ```
 
-Импортируйте SDK в ваш код:
+Импортируйте SDK:
 
 ```kotlin
 import com.sendsay.sdk.Sendsay
@@ -98,19 +103,17 @@ import com.sendsay.sdk.Sendsay
 Sendsay.init(this)
 ```
 
-SDK прочитает параметры конфигурации из файла конфигурации.
+SDK автоматически прочитает параметры из файла.
 
 > 📘
 >
-> Обратитесь к [`sendsay_configuration.json`](https://github.com/prosky/sendsay-android-sdk/blob/main/app/src/main/assets/sendsay_configuration.json) в [примере приложения](example-app.md) для примера файла конфигурации.
+> Обратитесь к [`sendsay_configuration.json`](https://github.com/prosky/sendsay-android-sdk/blob/main/app/src/main/assets/sendsay_configuration.json) в [примере приложения](example-app.md), чтобы посмотреть пример файла конфигурации.
 
 ### Где разместить код инициализации SDK
 
 #### В подклассе приложения
 
-Метод `onCreate()` вашего [`Application`](https://developer.android.com/reference/android/app/Application) - лучшее место для инициализации - он вызывается только один раз и очень рано в жизненном цикле приложения. Application - это класс для поддержания глобального состояния приложения.
-
-Он должен выглядеть аналогично примеру ниже:
+Наиболее корректное место — метод `onCreate()` класса [`Application`](https://developer.android.com/reference/android/app/Application): он вызывается один раз при запуске и доступен рано в жизненном цикле приложения.
 
 ```kotlin
 class MyApplication : Application() {
@@ -129,7 +132,9 @@ class MyApplication : Application() {
   }
 }
 ```
-Убедитесь, что вы зарегистрировали ваш пользовательский класс приложения в `AndroidManifest.xml`:
+
+Убедитесь, что вы зарегистрировали пользовательский класс приложения в **AndroidManifest.xml**:
+
 ```xml
 <application
    android:name=".MyApplication">
@@ -139,47 +144,48 @@ class MyApplication : Application() {
 
 #### В активности
 
-Вы также можете инициализировать SDK из любой `Activity`, но важно делать это как можно раньше, предпочтительно в методе `onCreate()` вашей активности.
+Инициализацию можно выполнять и в `Activity`, но делать это следует как можно раньше, лучше всего — в `onCreate()`.
 
-SDK подключается к жизненному циклу приложения для отслеживания сессий (среди прочего), поэтому вы должны отслеживать обратные вызовы `onResume` активностей. Если вам нужно инициализировать SDK после возобновления активности, делайте это с контекстом текущей активности.
+SDK отслеживает жизненный цикл приложения, включая события `onResume`, поэтому поздняя инициализация может привести к пропуску части событий.
 
 > ❗️
 >
-> Некоторые методы API могут использоваться до инициализации SDK, если предыдущая инициализация была выполнена.
-> Эти методы API:
+> Если SDK уже инициализировался ранее (например, в предыдущем запуске), некоторые методы могут работать до повторной инициализации:
 > - `Sendsay.handleCampaignIntent`
 > - `Sendsay.handleRemoteMessage`
 > - `Sendsay.handleNewToken`
 > - `Sendsay.handleNewHmsToken`
 >
-> В таком случае каждый метод будет отслеживать события с конфигурацией последней инициализации. Рассмотрите инициализацию SDK в `Application::onCreate`, чтобы убедиться, что свежая конфигурация применяется в случае обновления приложения.
+> В этом случае используется конфигурация предыдущей инициализации. Чтобы всегда применять актуальные настройки, рекомендуется инициализировать SDK в `Application::onCreate()`.
 
-### Готово!
+### Инициализация завершена
 
-На данном этапе SDK активен и теперь должен отслеживать сессии в вашем приложении.
+После инициализации SDK активен и начинает автоматически отслеживать сессии приложения.
 
 ## Другая конфигурация SDK
 
 ### Расширенная конфигурация
 
-SDK можно дополнительно настроить, установив дополнительные свойства объекта `SendsayConfiguration` или файла `sendsay_configuration.json`. Для полного списка доступных параметров конфигурации обратитесь к документации [Конфигурация](docs/configuration).
+SDK можно дополнительно настроить, указав свойства в объекте `SendsayConfiguration` или файле **sendsay_configuration.json**. 
+
+Полный список доступных параметров конфигурации смотрите в разделе документации [Конфигурация](docs/configuration).
 
 ### Уровень логирования
 
-SDK поддерживает следующие уровни логирования, определенные в `com.sendsay.sdk.util.Logger.Level`:
+SDK поддерживает следующие уровни логирования, определённые в `com.sendsay.sdk.util.Logger.Level`:
 
 | Уровень логирования  | Описание |
 | -----------| ----------- |
-| `OFF`    | Отключает все логирование |
-| `ERROR`   | Серьезные ошибки или критические проблемы |
+| `OFF`    | Отключает всё логирование |
+| `ERROR`   | Серьёзные ошибки или критические проблемы |
 | `WARN` | Предупреждения и рекомендации + `ERROR` |
 | `INFO` | Информационные сообщения + `WARN` + `ERROR` |
 | `DEBUG` | Отладочная информация + `INFO` + `WARN` + `ERROR`  |
 | `VERBOSE` | Информация обо всех действиях SDK + `DEBUG` + `INFO` + `WARN` + `ERROR`. |
 
-По умолчанию уровень логирования - `INFO`. При разработке или отладке установка уровня логирования на `VERBOSE` может быть полезной.
+По умолчанию используется уровень `INFO`. При разработке или отладке может быть полезно установить уровень `VERBOSE`.
 
-Вы можете установить уровень логирования во время выполнения следующим образом:
+Чтобы изменить уровень:
 
 ```kotlin
 Sendsay.loggerLevel = Logger.Level.VERBOSE
@@ -189,17 +195,19 @@ Sendsay.loggerLevel = Logger.Level.VERBOSE
 
 ### Ошибка сборки "Manifest merger failed"
 
-Вы можете получить ошибку сборки, похожую на следующую, особенно в новом проекте "empty activity" по умолчанию, созданном Android Studio:
+В новом проекте Android Studio может возникнуть конфликт правил [резервного копирования]((https://developer.android.com/guide/topics/data/autobackup)), поскольку и приложение, и SDK содержат собственные backup_rules.
 
 ```
 Manifest merger failed : Attribute application@fullBackupContent value=(@xml/backup_rules) from AndroidManifest.xml:8:9-54
-	is also present at [com.sendsay.sdk:sdk:0.1.0] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
+	is also present at [com.sendsay.sdk:sdk:0.1.4] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
 ```
 
-SDK и новое приложение, созданное Android Studio, оба включают [функцию автоматического резервного копирования](https://developer.android.com/guide/topics/data/autobackup) в `AndroidManifest.xml`, но каждое со своими правилами резервного копирования. Вам как разработчику необходимо [управлять файлами манифеста](https://developer.android.com/build/manage-manifests) и обеспечить их правильное слияние.
+Вам необходимо [управлять файлами манифеста](https://developer.android.com/build/manage-manifests) и обеспечить их правильное слияние.
 
-Ваши варианты включают:
-- Использовать правила резервного копирования SDK:
+Варианты решения ошибки:
+
+#### 1. Использовать правила резервного копирования SDK
+
   ```xml
   <application
       android:allowBackup="true"
@@ -208,7 +216,11 @@ SDK и новое приложение, созданное Android Studio, об�
   </application>
   ```
   (Удалите `android:fullBackupContent="@xml/backup_rules"`)
-- Определить свои собственные правила резервного копирования в `app/src/main/res/xml/backup_rules.xml` и указать, что они должны заменить правила резервного копирования SDK:
+
+#### 2. Использовать собственные правила и заменить правила SDK
+
+Измените настройки в **app/src/main/res/xml/backup_rules.xml**:
+
   ```xml
   <application
       android:allowBackup="false"
@@ -218,7 +230,9 @@ SDK и новое приложение, созданное Android Studio, об�
       >
   </application>
   ```
-- Отключить автоматическое резервное копирование:
+
+#### 3. Отключить автоматическое резервное копирование
+
   ```xml
   <application
       android:allowBackup="false"

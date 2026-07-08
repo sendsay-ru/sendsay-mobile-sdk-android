@@ -12,6 +12,7 @@ import com.sendsay.example.databinding.FragmentFetchBinding
 import com.sendsay.example.models.Constants
 import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.view.dialogs.FetchRecommendationDialog
+import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.models.CustomerRecommendationOptions
 import com.sendsay.sdk.models.FetchError
@@ -36,8 +37,10 @@ class FetchFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Track visited screen
-        trackPage(Constants.ScreenNames.mainScreen)
+        // Track visited screen (if build not RSM flavor)
+        if (BuildConfig.FLAVOR != "RSM") {
+            trackPage(Constants.ScreenNames.mainScreen)
+        }
         (activity as AppCompatActivity).supportActionBar?.subtitle = "fetching"
 
         // Init listeners

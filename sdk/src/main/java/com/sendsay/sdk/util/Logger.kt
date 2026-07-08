@@ -17,7 +17,6 @@ object Logger {
     var level: Level = Constants.Logger.defaultLoggerLevel
 
     fun e(parent: Any, message: String) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.ERROR.value) {
             return
         }
@@ -25,7 +24,6 @@ object Logger {
     }
 
     fun e(parent: Any, message: String, throwable: Throwable) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.ERROR.value) {
             return
         }
@@ -33,7 +31,6 @@ object Logger {
     }
 
     fun w(parent: Any, message: String) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.WARN.value) {
             return
         }
@@ -41,7 +38,6 @@ object Logger {
     }
 
     fun i(parent: Any, message: String) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.INFO.value) {
             return
         }
@@ -49,7 +45,6 @@ object Logger {
     }
 
     fun d(parent: Any, message: String) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.DEBUG.value) {
             return
         }
@@ -57,7 +52,6 @@ object Logger {
     }
 
     fun v(parent: Any, message: String) {
-        Sendsay.telemetry?.reportLog(parent, message)
         if (level.value > Level.VERBOSE.value) {
             return
         }
