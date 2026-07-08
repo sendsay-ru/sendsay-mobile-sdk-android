@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
+    <TextView
+        android:id="@+id/textView"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/content_margin"
+        android:layout_marginTop="@dimen/logo_height"
+        android:text="Push Service Logger"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listView"
@@ -13,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="@dimen/content_margin"
+        android:layout_marginEnd="@dimen/logo_width"
         android:layout_marginStart="@dimen/content_margin"
         android:layout_marginTop="8dp"
         android:background="@drawable/borders_rect"
@@ -25,18 +37,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:visibility="visible"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/buttonShareLog"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/content_margin"
-        android:layout_marginTop="@dimen/content_margin"
-        android:text="Push Service Logger"
-        android:textColor="@color/colorAccent"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:text="Share Log"
+        android:theme="@style/AppButton"
+        app:layout_constraintTop_toTopOf="@+id/listView"
+        app:layout_constraintBottom_toBottomOf="@+id/listView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/listView" />
 
     <TextView
         android:id="@+id/textView5"

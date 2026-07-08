@@ -29,7 +29,7 @@ class SendsayHmsMessageService : HmsMessageService() {
 
     override fun onTokenError(ex: Exception?) {
         super.onTokenError(ex)
-        LogCollector.error(
+        LogCollector.instance.error(
             BuildConfig.FLAVOR,
             ex?.stackTraceToString() ?: "Unknown Token error"
         )

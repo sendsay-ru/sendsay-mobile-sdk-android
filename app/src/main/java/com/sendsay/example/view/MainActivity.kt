@@ -206,7 +206,9 @@ class MainActivity : AppCompatActivity() {
             this.contains("stopAndRestart") -> DeeplinkFlow.StopAndRestart
             else -> null
         }
-        return if (intent.isViewUrlIntent("http")) {
+        return if (intent.isViewUrlIntent("https")) {
+            intent?.data?.path.orEmpty().toDeeplinkDestination()
+        } else if (intent.isViewUrlIntent("app.sendsay")) {
             intent?.data?.path.orEmpty().toDeeplinkDestination()
         } else if (intent.isViewUrlIntent("sendsay")) {
             intent?.data?.path.orEmpty().toDeeplinkDestination()

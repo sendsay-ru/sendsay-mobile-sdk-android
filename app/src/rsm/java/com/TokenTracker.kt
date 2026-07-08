@@ -7,10 +7,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.sendsay.example.BuildConfig
+import com.sendsay.example.LogCollector
 import com.sendsay.example.services.RuStorePushClientParams
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.copyToClipboard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.rustore.sdk.core.exception.RuStoreException
 import ru.rustore.sdk.core.feature.model.FeatureAvailabilityResult
 import ru.rustore.sdk.pushclient.RuStorePushClient
@@ -21,9 +26,6 @@ import ru.rustore.sdk.pushclient.utils.resolveForPush
 class TokenTracker {
     companion object {
         const val LOG_TAG = "TokenTracker"
-
-        @Volatile
-        var lastToken = "wait and try again"
     }
 
 
@@ -40,7 +42,7 @@ class TokenTracker {
         }
         Logger.d(LOG_TAG, "RuStore installed = $isInstalled")
 
-        RuStorePushClient.checkPushAvailability()
+        checkPushAvailability()
             .addOnSuccessListener { result ->
                 Logger.i(LOG_TAG, "checkPushAvailability SUCCESS !")
                 when (result) {
@@ -62,47 +64,60 @@ class TokenTracker {
         return isInstalled
     }
 
-    fun getToken(context: Context?, onGetLastToken: (String) -> Unit) {
-        context?.let {
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getToken(context: Context, onGetLastToken: (String) -> Unit) {
+        val logger = LogCollector.instance
+
+        CoroutineScope(Dispatchers.IO).launch {
             // Проверяем установлен ли RuStore или другой VkCore на устройстве:
-            if (checkPushAvailability(it)) object : Thread() {
-                override fun run() {
-                    try {
-                        RuStorePushClient.getToken()
-                            .addOnSuccessListener { token ->
-                                // Check the token is empty.
-                                if (!TextUtils.isEmpty(token)) {
-                                    onGetLastToken.invoke(token)
-                                    context.copyToClipboard(token)
-                                    Toast.makeText(
-                                        context,
-                                        "Скопировано в буфер обмена",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                        .show()
-                                }
-                                Logger.d(LOG_TAG, "getToken onSuccess token = $token")
-                            }
-                            .addOnFailureListener { throwable ->
-                                Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT)
+            if (checkPushAvailability(context)) {
+                try {
+                    RuStorePushClient.getToken()
+                        .addOnSuccessListener { token ->
+                            if (!TextUtils.isEmpty(token)) {
+                                onGetLastToken.invoke(token)
+                                context.copyToClipboard(token)
+                                Toast.makeText(
+                                    context,
+                                    "Скопировано в буфер обмена",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
-                                Logger.e(LOG_TAG, "getToken onFailure", throwable)
                             }
-                    } catch (e: RuStoreException) {
-                        Logger.e(this, "get rustore push token failed, $e")
-                    }
+                            Logger.d(LOG_TAG, "getToken onSuccess token = $token")
+                            logger.info(
+                                BuildConfig.FLAVOR,
+                                "getToken onSuccess token = $token"
+                            )
+                        }
+                        .addOnFailureListener { throwable ->
+                            Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT)
+                                .show()
+                            Logger.e(LOG_TAG, "getToken onFailure", throwable)
+                            logger.error(
+                                BuildConfig.FLAVOR,
+                                "getToken onFailure" + throwable.stackTraceToString()
+                            )
+                        }
+                } catch (e: RuStoreException) {
+                    Logger.e(this, "get rustore push token failed, $e")
+                    logger.error(
+                        BuildConfig.FLAVOR,
+                        "get rustore push token failed ," + e.stackTraceToString()
+                    )
                 }
-            }.start()
-        }
+            }
+        }.start()
     }
 
-    fun trackToken(context: Context?) {
+    fun trackToken(context: Context) {
         getToken(context) { token ->
             Sendsay.trackRsmPushToken(token)
         }
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun testLocalPush(context: Context?) {
         context?.let {
             if (!checkPushAvailability(it)) {

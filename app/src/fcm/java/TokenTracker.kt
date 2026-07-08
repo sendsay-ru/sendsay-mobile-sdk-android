@@ -5,6 +5,8 @@ import com.sendsay.sdk.Sendsay
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.NotificationParams
 import com.google.firebase.messaging.RemoteMessage
+import com.sendsay.example.BuildConfig
+import com.sendsay.example.LogCollector
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.copyToClipboard
@@ -17,25 +19,34 @@ class TokenTracker {
         var lastToken = "wait and try again"
     }
 
-    fun getToken(context: Context?, onGetTokenComplete: (String) -> Unit) {
+    fun getToken(context: Context, onGetTokenComplete: (String) -> Unit) {
+        val logger = LogCollector.instance
+
         FirebaseMessaging.getInstance().token
             .addOnSuccessListener { token ->
-
                 // Check whether the token is empty.
                 if (!TextUtils.isEmpty(token)) {
                     lastToken = token
-                    context?.copyToClipboard(lastToken)
+                    context.copyToClipboard(lastToken)
                     onGetTokenComplete.invoke(lastToken)
                     Logger.d(LOG_TAG, "getToken onSuccess token = $lastToken")
+                    logger.info(
+                        BuildConfig.FLAVOR,
+                        "getToken onSuccess token = $lastToken"
+                    )
                 }
             }.addOnFailureListener { throwable ->
                 Toast.makeText(context, "Токен недоступен", Toast.LENGTH_SHORT)
                     .show()
                 Logger.e(LOG_TAG, "getToken onFailure", throwable)
+                logger.error(
+                    BuildConfig.FLAVOR,
+                    "getToken onFailure" + (throwable.stackTraceToString() ?: "Unknown Token error")
+                )
             }
     }
 
-    fun trackToken(context: Context?) {
+    fun trackToken(context: Context) {
         getToken(context) { token ->
             Sendsay.trackPushToken(token)
         }

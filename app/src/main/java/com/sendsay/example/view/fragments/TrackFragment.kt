@@ -5,12 +5,13 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -22,7 +23,9 @@ import com.sendsay.example.R
 import com.sendsay.example.databinding.FragmentTrackBinding
 import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.models.Constants
-import com.sendsay.example.view.MainActivity
+import com.sendsay.example.utils.addOnItemLongClickListener
+import com.sendsay.example.utils.shareText
+import com.sendsay.example.utils.smoothSnapToPosition
 import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.view.dialogs.TrackCustomAttributesDialog
 import com.sendsay.example.view.dialogs.TrackCustomEventDialog
@@ -31,20 +34,23 @@ import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.OrderItem
 import com.sendsay.sdk.models.PropertiesList
+import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.TrackSSEC
 import com.sendsay.sdk.models.TrackingSSECType
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.copyToClipboard
-import com.sendsay.sdk.util.findActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 
-class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
+class TrackFragment : BaseFragment() {
 
     private lateinit var viewBinding: FragmentTrackBinding
 
@@ -57,15 +63,15 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
         return viewBinding.root
     }
 
-//    companion object {
-//        fun mockItems(): ArrayList<String> {
-//            val list = arrayListOf<String>()
-//            for (i in 1..14) {
-//                list.add("Item #$i")
-//            }
-//            return list
-//        }
-//    }
+    companion object {
+        fun mockItems(): ArrayList<String> {
+            val list = arrayListOf<String>()
+            for (i in 1..14) {
+                list.add("Item #$i")
+            }
+            return list
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -78,33 +84,68 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
 
         viewBinding.listView.adapter = LogsAdapter()
 
-        lifecycleScope.launch {
-            LogCollector.logs.collect { logs ->
-                (viewBinding.listView.adapter as LogsAdapter).submitList(
-                    logs.toString().split("\n").reversed()
-                )
-            }
-        }
-
         // Init buttons listeners
         initListeners()
     }
 
     private fun initListeners() {
-//        viewBinding.listView.onItemClickListener = this
+        val ctx = requireContext();
+
+//        viewBinding.listView.addOnItemTouchListener(this)
+        viewBinding.listView.addOnItemLongClickListener { childView, position ->
+            // Track purchase at position
+//            trackPayment(position)
+//            Toast.makeText(context, "Payment Tracked", Toast.LENGTH_SHORT).show()
+
+            ctx.copyToClipboard(
+                (childView as TextView).text
+            )
+            Toast.makeText(ctx, "Скопировано в буфер", Toast.LENGTH_SHORT)
+                .show()
+
+        }
+
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            LogCollector.instance.logs.collect { logs ->
+                (viewBinding.listView.adapter as LogsAdapter).submitList(
+                    logs
+                        .map {
+                            it.toString().split("\n")
+                                .reversed()
+                                .joinToString("\n")
+                        }
+                ).also {
+                    delay(300.milliseconds)
+                    viewBinding.listView.post {
+                        viewBinding.listView.smoothSnapToPosition(
+                            if (viewBinding.listView.size > 0) viewBinding.listView.size - 1 else viewBinding.listView.size
+                        )
+                    }
+                }
+            }
+        }
+
+        viewBinding.buttonShareLog.setOnClickListener {
+            val log = (viewBinding.listView.adapter as LogsAdapter).currentList
+            if (log.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "Нечего отправлять, лог пустой",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            shareText(requireContext(), log.toString())
+        }
 
         viewBinding.buttonGetToken.setOnClickListener {
-            context?.let {
-                getToken(it) { token -> viewBinding.tokenText.text = token }
-            }
+            getToken(ctx) { token -> viewBinding.tokenText.text = token }
         }
         viewBinding.tokenText.setOnClickListener {
-            context?.let {
-                it.copyToClipboard(viewBinding.tokenText.text)
-                Toast.makeText(context, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
-            }
+            ctx.copyToClipboard(viewBinding.tokenText.text)
+            Toast.makeText(ctx, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
         }
-        viewBinding.buttonTestPush.setOnClickListener { context?.let { testLocalPush(it) } }
+        viewBinding.buttonTestPush.setOnClickListener { testLocalPush(ctx) }
 
         viewBinding.buttonTrackClicked.setOnClickListener { trackPushClicked() }
         viewBinding.buttonTrackDelivered.setOnClickListener { trackPushDelivered() }
@@ -208,7 +249,7 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
      * Method to handle token tracking
      */
     private fun trackToken() {
-        TokenTracker().trackToken(context)
+        TokenTracker().trackToken(requireContext())
     }
 
 
@@ -416,57 +457,18 @@ class TrackFragment : BaseFragment(), AdapterView.OnItemClickListener {
     /**
      * Method to manually track customer's purchases
      */
-//    private fun trackPayment(position: Int) {
-//        val purchasedItem = PurchasedItem(
-//            value = 2011.1,
-//            currency = "USD",
-//            paymentSystem = "System",
-//            productId = id.toString(),
-//            productTitle = mockItems()[position]
-//        )
-//        Sendsay.trackPaymentEvent(
-//            purchasedItem = purchasedItem
-//        )
-//    }
-
-    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        // Track purchase at position
-//        trackPayment(position)
-        if (position == 0) return
-        context?.copyToClipboard(view?.findViewById<TextView>(android.R.id.text1)?.text ?: "")
-            .also {
-                Toast.makeText(context, "Скопировано в буфер", Toast.LENGTH_SHORT).show()
-            }
-//        Toast.makeText(context, "Payment Tracked", Toast.LENGTH_SHORT).show()
+    private fun trackPayment(position: Int) {
+        val purchasedItem = PurchasedItem(
+            value = 2011.1,
+            currency = "USD",
+            paymentSystem = "System",
+            productId = id.toString(),
+            productTitle = mockItems()[position]
+        )
+        Sendsay.trackPaymentEvent(
+            purchasedItem = purchasedItem
+        )
     }
-
-//    inner class Adapter : BaseAdapter() {
-//
-//        var logList = mutableListOf<String>()
-//
-//        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-//            val inflater = LayoutInflater.from(parent?.context)
-//            if (convertView == null) {
-//                val view = inflater.inflate(R.layout.simple_list_item_1, parent, false)
-//                view.findViewById<TextView>(R.id.text1).text = logList[position]
-//                return view
-//            }
-//            convertView.findViewById<TextView>(R.id.text1).text = logList[position]
-//            return convertView
-//        }
-//
-//        override fun getItem(position: Int): Any {
-//            return logList[position]
-//        }
-//
-//        fun setItem(log: String) {
-//            logList.addLast(log)
-//        }
-//
-//        override fun getItemId(position: Int): Long = position.toLong()
-//
-//        override fun getCount() = logList.size
-//    }
 
     private class DiffCallback : DiffUtil.ItemCallback<String>() {
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {

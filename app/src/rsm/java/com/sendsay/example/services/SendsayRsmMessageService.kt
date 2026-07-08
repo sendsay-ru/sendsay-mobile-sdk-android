@@ -5,11 +5,14 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.reflect.TypeToken
+import com.sendsay.example.BuildConfig
+import com.sendsay.example.LogCollector
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.util.SendsayGson
 import ru.rustore.sdk.pushclient.messaging.exception.RuStorePushClientException
 import ru.rustore.sdk.pushclient.messaging.model.RemoteMessage
 import ru.rustore.sdk.pushclient.messaging.service.RuStoreMessagingService
+import java.lang.Exception
 
 
 class SendsayRsmMessageService : RuStoreMessagingService() {
@@ -42,7 +45,7 @@ class SendsayRsmMessageService : RuStoreMessagingService() {
         super.onMessageReceived(message)
         /** backend or gorush logic */
         Sendsay.handleRemoteMessage(applicationContext, message.data, notificationManager)
-        /**  tests from web console and local */
+        /** need to handle tests from web console or local app tests */
 //        Sendsay.handleRemoteMessage(
 //            applicationContext,
 //            message.data.serializeToSendsayMap() as? Map<String, String>,
@@ -53,7 +56,14 @@ class SendsayRsmMessageService : RuStoreMessagingService() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onError(errors: List<RuStorePushClientException>) {
         // Получение ошибок, которые могут возникнуть во время работы SDK
-        errors.forEach { error -> error.printStackTrace() }
+        errors.forEach { error ->
+            error.printStackTrace()
+
+            LogCollector.instance.error(
+                BuildConfig.FLAVOR,
+                error.stackTraceToString()
+            )
+        }
     }
 
     // TODO: реализовать позже с бэком
