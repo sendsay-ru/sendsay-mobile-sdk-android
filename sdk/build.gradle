@@ -6,9 +6,16 @@ apply plugin: 'com.panaxeo.shadow-aar'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'androidx.room'
 
+def sendsayVersionName = "0.1.4"
+def sendsayVersionCode = 14
+
+ext {
+    SENDSAY_VERSION_NAME = sendsayVersionName
+}
+
 android {
     namespace 'com.sendsay.sdk'
-    compileSdk 35
+    compileSdk 37
 
     buildFeatures {
         buildConfig = true
@@ -18,8 +25,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdk 35
-        buildConfigField "String", "SENDSAY_VERSION_NAME", '"0.1.4"'
-        buildConfigField "int", "SENDSAY_VERSION_CODE", "14"
+        buildConfigField "String", "SENDSAY_VERSION_NAME", "\"${sendsayVersionName}\""
+        buildConfigField "int", "SENDSAY_VERSION_CODE", "${sendsayVersionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
         testBuildType "unitTesting"
@@ -30,7 +37,6 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-//    kotlinOptions { jvmTarget = "17" }
     kotlin {
         jvmToolchain(21)
     }
@@ -41,10 +47,6 @@ android {
 
     buildTypes {
         release {
-//            minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
-            debuggable false
             minifyEnabled true
             proguardFiles(
                     getDefaultProguardFile("proguard-android.txt"),
