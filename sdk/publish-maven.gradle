@@ -82,8 +82,7 @@ plugins.withId('com.android.library') {
 
                     groupId = 'com.sendsay.sdk'
                     artifactId = 'sdk'
-                    version = android.defaultConfig.buildConfigFields['SENDSAY_VERSION_NAME']
-                            .value.replace('"', '')
+                    version = project.ext.SENDSAY_VERSION_NAME.replace('"', '')
 
                     // artifacts for sources/javadoc jars are now handled by android publishing.singleVariant
 
@@ -160,6 +159,9 @@ final def centralUploadToPortal = tasks.register('centralUploadToPortal') {
 tasks.named("publish") {
     finalizedBy(centralUploadToPortal)
 }
+//tasks.named('publishSdkPublicationToMavenCentralRepository') {
+//    finalizedBy('centralUploadToPortal')
+//}
 
 // ---- signing ----
 signing {

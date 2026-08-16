@@ -24,7 +24,7 @@ buildscript {
     dependencies {
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"
         classpath "org.jacoco:org.jacoco.core:$jacoco_version"
-        classpath 'com.android.tools.build:gradle:8.6.1'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.14'
         classpath "org.jlleitschuh.gradle:ktlint-gradle:9.3.0"

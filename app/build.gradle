@@ -18,7 +18,7 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace 'com.sendsay.example'
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         minSdkVersion 23
@@ -114,6 +114,7 @@ android {
             ]
         }
     }
+    compileSdkMinor 0
     applicationVariants.configureEach { variant ->
         variant.outputs.each { output ->
 //            def formattedDate = new Date().format('yyyyMMdd_HHmm')
