@@ -103,7 +103,7 @@ dependencies {
     // Okhttp HTTP compression interceptor
     implementation "com.squareup.okhttp3:okhttp-brotli:$okhttp3_version"
     // Html handling for in-app freeform messages
-    implementation 'org.jsoup:jsoup:1.15.4'
+    implementation 'org.jsoup:jsoup:1.23.1'
     // Images handling
     implementationEmbed 'io.coil-kt:coil:2.0.0'
     implementationEmbed 'io.coil-kt:coil-base:2.0.0'
