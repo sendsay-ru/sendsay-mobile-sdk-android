@@ -38,7 +38,7 @@ Sendsay Android SDK включает пример приложения, кото
 
 ## Навигация по примеру приложения
 
-![Экраны примера приложения: конфигурация, получение данных, отслеживание, отслеживание событий](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/android-example-app-1.png)
+![Экраны примера приложения: конфигурация, получение данных, отслеживание, отслеживание событий](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/android-example-app-1.png)
 
 После запуска откроется экран **Authentication** (Аутентификация). Введите [токен проекта, API токен и базовый URL API](mobile-sdks-api-access-management). Опционально укажите hard ID (email) в поле **Registered**, чтобы идентифицировать клиента. Нажмите «Authenticate», чтобы [инициализировать SDK](android-sdk-setup#initialize-the-sdk).
 > [`AuthenticationActivity.kt`](https://github.com/sendsay-ru/sendsay-mobile-sdk-android/blob/main/app/src/main/java/com/sendsay/example/view/AuthenticationActivity.kt)
@@ -79,7 +79,7 @@ Sendsay Android SDK включает пример приложения, кото
 >
 > Подробнее о soft ID и hard ID — в разделе [Идентификация клиентов](tracking.md#идентификация) документации CDP Sendsay.
 
-![Экраны примера приложения: идентификация, сброс, анонимизация, блоки контента](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/android-example-app-2.png)
+![Экраны примера приложения: идентификация, сброс, анонимизация, блоки контента](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/android-example-app-2.png)
 
 ## Устранение неполадок
 
