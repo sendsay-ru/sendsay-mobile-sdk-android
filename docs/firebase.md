@@ -144,16 +144,22 @@ Sendsay.requestPushAuthorization(context)
     
     Google Cloud > `Service Accounts` > *ваш проект* > **Create Service Account**. Можно использовать роли для определения более детального доступа.
 
+    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/firebase-config-1.png)
+
 2. **Сгенерируйте новый приватный ключ**: 
 
     Откройте созданный аккаунт и выберите **Actions** > **Manage Keys** > **Add Key** > **Create new key**. Скачайте файл ключа JSON.
+
+   ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/firebase-config-2.png)
+
+   ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/firebase-config-3.png)
 
 3. **Добавьте интеграцию FCM в CDP Sendsay**:
 
     - В CDP Sendsay перейдите в **Подписчики** > **Мобильное приложение** > **Выберите из списка нужное** > **Настройки приложение и импорта**
     - Нажмите **Подключить** напротив надписи **Firebase**.
-
-    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-1.png)
+    
+    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/firebase-2.png)
 
 4. **Вставьте JSON-ключ в Service Account JSON Credentials** 
 
@@ -161,7 +167,7 @@ Sendsay.requestPushAuthorization(context)
     - Добавьте JSON-ключ из шага 2 на страницу настроек интеграции Firebase Cloud Messaging, в поле **Service Account key (JSON)**. 
     - Нажмите «Сохранить».
 
-    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/firebase-2.png)
+    ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/firebase-3.png)
 
 Теперь CDP Sendsay может отправлять push-уведомления на устройства Android.
 
@@ -169,7 +175,7 @@ Sendsay.requestPushAuthorization(context)
 
 - [ ] Самопроверка способна отправить и принять «тихий» push
 
-  ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/Documentation/images/self-check.png)
+  ![](https://raw.githubusercontent.com/sendsay-ru/sendsay-mobile-sdk-android/main/docs/img/self-check.png)
 
 - [ ] Приложение получает push-уведомления, отправленные с помощью веб-приложения CDP Sendsay. 
 
