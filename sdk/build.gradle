@@ -15,21 +15,21 @@ ext {
 
 android {
     namespace 'com.sendsay.sdk'
-    compileSdk 37
+    compileSdk = 37
 
     buildFeatures {
         buildConfig = true
-        viewBinding true
+        viewBinding = true
     }
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdk 35
+        minSdk = 17
+        targetSdk = 35
         buildConfigField "String", "SENDSAY_VERSION_NAME", "\"${sendsayVersionName}\""
         buildConfigField "int", "SENDSAY_VERSION_CODE", "${sendsayVersionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
-        testBuildType "unitTesting"
+        testBuildType("unitTesting")
     }
 
     compileOptions {
@@ -54,7 +54,7 @@ android {
             )
         }
         debug {
-            testCoverageEnabled  true
+            testCoverageEnabled(true)
         }
         unitTesting {
             initWith debug
@@ -83,7 +83,6 @@ dependencies {
     // Database
     implementation("androidx.room:room-runtime:$room_version")
     implementation 'androidx.compose.ui:ui-text-desktop:1.7.0'
-    annotationProcessor("androidx.room:room-compiler:$room_version")
 
     // To use Kotlin symbol processing tool (ksp)
     ksp("androidx.room:room-compiler:$room_version")
@@ -103,7 +102,7 @@ dependencies {
     // Okhttp HTTP compression interceptor
     implementation "com.squareup.okhttp3:okhttp-brotli:$okhttp3_version"
     // Html handling for in-app freeform messages
-    implementation 'org.jsoup:jsoup:1.15.4'
+    implementation 'org.jsoup:jsoup:1.23.1'
     // Images handling
     implementationEmbed 'io.coil-kt:coil:2.0.0'
     implementationEmbed 'io.coil-kt:coil-base:2.0.0'
@@ -149,6 +148,6 @@ shadowAar {
 }
 
 // turn logging for unit tests
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     systemProperty "robolectric.logging", "stdout"
 }
