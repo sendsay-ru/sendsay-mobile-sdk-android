@@ -23,7 +23,7 @@ parentDocSlug: android-sdk-setup
    * Подробную информацию смотрите в разделе [Управление доступом API мобильных SDK](mobile-sdks-api-access-management).
 
 * `baseURL`
-  * Базовый URL мобильного API. По умолчанию: `https://mobi.sendsay.ru/mobi/api/v100`.
+  * Базовый URL мобильного API. По умолчанию: `https://mobi.sendsay.ru/xnpe/v100`.
   * Укажите своё значение, если используйте пользовательский базовый URL.
 
 * `projectRouteMap`
@@ -33,7 +33,7 @@ parentDocSlug: android-sdk-setup
     var projectRouteMap = mapOf<EventType, List<SendsayProject>> (
         EventType.TRACK_CUSTOMER to listOf(
             SendsayProject(
-                "https://mobi.sendsay.ru/mobi/api/v100",
+                "https://mobi.sendsay.ru/xnpe/v100",
                 "YOUR_PROJECT_TOKEN",
                 "Token YOUR_API_KEY"
             )

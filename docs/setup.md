@@ -73,7 +73,7 @@ val configuration = SendsayConfiguration()
 
 configuration.authorization = "YOUR_API_KEY"
 configuration.projectToken = "ID вашего аккаунта в Sendsay"
-configuration.baseURL = "https://mobi.sendsay.ru/mobi/api/v100/json"
+configuration.baseURL = "https://mobi.sendsay.ru/xnpe/v100"
 
 Sendsay.init(this, configuration)
 ```
@@ -86,7 +86,7 @@ Sendsay.init(this, configuration)
 {
   "projectToken": "ID вашего аккаунта в Sendsay",
   "authorization": "YOUR_API_KEY",
-  "baseURL": "https://mobi.sendsay.ru/mobi/api/v100/json"
+  "baseURL": "https://mobi.sendsay.ru/xnpe/v100"
 }
 ```
 
@@ -124,7 +124,7 @@ class MyApplication : Application() {
 
     configuration.authorization = "Token jlk5askvxss99asmnbgayrks333"
     configuration.projectToken = "x_123456"
-    configuration.baseURL = "https://mobi.sendsay.ru/mobi/api/v100/json"
+    configuration.baseURL = "https://mobi.sendsay.ru/xnpe/v100"
 
     // Инициализация SDK
     Sendsay.init(this, configuration)

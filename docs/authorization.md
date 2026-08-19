@@ -15,7 +15,7 @@ class App : Application() {
         val configuration = SendsayConfiguration()
         configuration.authorization = "YOUR_API_KEY"
         configuration.projectToken = "ID вашего аккаунта в Sendsay"
-        configuration.baseURL = "https://mobi.sendsay.ru/mobi/api/v100/json"
+        configuration.baseURL = "https://mobi.sendsay.ru/xnpe/v100"
         Sendsay.init(App.instance, configuration)
     }
 }
