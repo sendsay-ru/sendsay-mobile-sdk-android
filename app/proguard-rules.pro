@@ -29,3 +29,8 @@
 -keep class com.hianalytics.android.**{*;}
 -keep class com.huawei.updatesdk.**{*;}
 -keep class com.huawei.hms.**{*;}
+
+-dontwarn com.huawei.hms.framework.common.**
+# Suppress missing class warnings for Huawei's HwTelephonyManager
+-dontwarn android.telephony.HwTelephonyManager
+
