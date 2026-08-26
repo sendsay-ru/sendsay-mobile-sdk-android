@@ -1,13 +1,20 @@
+import com.android.Version
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 //apply from: 'publish-maven.gradle'
 apply from: '../jacoco.gradle'
 apply plugin: 'com.panaxeo.shadow-aar'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'androidx.room'
 
-def sendsayVersionName = "0.1.4"
-def sendsayVersionCode = 14
+def agpMajor = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0] as int
+if (agpMajor < 9) {
+//    Deprecated and removed completely in AGP 10.0
+    apply plugin: 'kotlin-android'
+}
+def sendsayVersionName = "0.2.0"
+def sendsayVersionCode = 20
 
 ext {
     SENDSAY_VERSION_NAME = sendsayVersionName
@@ -35,10 +42,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
-    }
-
-    kotlin {
-        jvmToolchain(21)
     }
 
     lintOptions {
@@ -74,6 +77,20 @@ android {
     testOptions {
         unitTests.all {
             jvmArgs '-Xmx2g'
+        }
+    }
+}
+
+if (agpMajor >= 9 || project.hasProperty('android.builtInKotlin') && project.property('android.builtInKotlin') == 'true') {
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_21
+        }
+    }
+} else {
+    android {
+        kotlinOptions {
+            jvmTarget = '21'
         }
     }
 }
