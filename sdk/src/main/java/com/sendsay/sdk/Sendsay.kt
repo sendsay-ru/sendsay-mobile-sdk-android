@@ -780,6 +780,14 @@ object Sendsay {
         component.trackingConsentManager.trackSSEC(type, data)
     }.logOnException()
 
+    suspend fun trackGAID(context: Context) {
+        if (!isADTrackEnabled) {
+            Logger.w(this, "Getting GAID is disabled by init config")
+            return
+        }
+        adInfo = fetchGAID(context)
+    }
+
     /**
      * Returns GAID if it is enabled in init config and user has not limited ad tracking, otherwise returns null.
      */
@@ -964,7 +972,7 @@ object Sendsay {
          * so we initialize it on app start in debug mode.
          * In release mode, it will be initialized only if the developer explicitly calls trackGAID or if init config enables it.
          */
-        if (BuildConfig.DEBUG) trackGAID(context)
+        if (BuildConfig.DEBUG) sendsaySdkScope.launch { trackGAID(context) }
 
         trackInstallEvent()
 
@@ -983,7 +991,7 @@ object Sendsay {
             isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
             isAppInboxEnabled =
                 it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
-            isADTrackEnabled = it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
+            isADTrackEnabled = true ?: it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
@@ -1027,17 +1035,7 @@ object Sendsay {
         return device == "robolectric" && product == "robolectric"
     }
 
-    internal fun trackGAID(context: Context) {
-        if (!isADTrackEnabled) {
-            Logger.w(this, "Getting GAID is disabled by init config")
-            return
-        }
-        sendsaySdkScope.launch {
-            adInfo = fetchGAID(context)
-        }
-    }
-
-    private suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
+    internal suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
         return withContext(Dispatchers.IO) {
             try {
                 Logger.w(this, "GAID fetching started")

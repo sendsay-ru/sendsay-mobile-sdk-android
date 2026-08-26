@@ -13,6 +13,9 @@ import com.sendsay.example.view.AuthenticationActivity
 import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.BuildConfig
 import com.sendsay.sdk.Sendsay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AnonymizeFragment : BaseFragment() {
 
@@ -37,8 +40,12 @@ class AnonymizeFragment : BaseFragment() {
 
         (activity as AppCompatActivity).supportActionBar?.subtitle = "anonymize"
         viewBinding.btnAnonymize.setOnClickListener {
-            Sendsay.anonymize()
-            AlertDialog.Builder(context)
+//            Sendsay.anonymize()
+            CoroutineScope(Dispatchers.Default).launch {
+                Sendsay.trackGAID(requireContext())
+            }.invokeOnCompletion { Sendsay.getGAID() }
+
+            AlertDialog.Builder(requireContext())
                 .setTitle("Customer anonymized")
                 .setMessage("Stored customer data cleared.")
                 .setPositiveButton("OK") { _, _ -> }
