@@ -6,8 +6,8 @@ apply plugin: 'com.panaxeo.shadow-aar'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'androidx.room'
 
-def sendsayVersionName = "0.1.4"
-def sendsayVersionCode = 14
+def sendsayVersionName = "0.1.5"
+def sendsayVersionCode = 15
 
 ext {
     SENDSAY_VERSION_NAME = sendsayVersionName
@@ -58,7 +58,7 @@ android {
         }
         unitTesting {
             initWith debug
-            defaultConfig.minSdkVersion 19
+            defaultConfig.minSdkVersion 21
         }
     }
 
@@ -121,9 +121,10 @@ dependencies {
     // Co-Routines
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
     // Google AD ID
-    implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
     // Chucker debug intent
-    implementation "com.github.chuckerteam.chucker:library:4.1.0"
+    debugImplementation "com.github.chuckerteam.chucker:library:4.1.0"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:4.1.0"
 
     // Base Test
     testImplementation 'junit:junit:4.13.2'

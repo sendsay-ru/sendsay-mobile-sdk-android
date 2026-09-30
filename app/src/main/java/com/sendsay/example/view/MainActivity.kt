@@ -111,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         // Set log level before first call to SDK function
         Sendsay.loggerLevel = Logger.Level.VERBOSE
         Sendsay.checkPushSetup = true
+        Sendsay.isChuckerOn = true
         Sendsay.handleCampaignIntent(intent, applicationContext)
         Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
             override fun onSilentPushNotificationReceived(notificationData: Map<String, Any>) {

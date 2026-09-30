@@ -108,6 +108,14 @@ data class SendsayConfiguration(
      * Default value is false, cause if the config was not retrieved from server,
      */
     var isGAIDEnabled: Boolean = false,
+
+    /**
+     * Flag that enables or disables chucker interceptor for debug only purposes.
+     * Help easy to read and debug okhttp requests and responses,
+     * directly on the device by notifications.
+     * Default value is false, but can be enabled by SDK user.
+     */
+    var isChuckerOnDebugEnabled: Boolean = false,
 ) {
 
     companion object {
@@ -116,7 +124,6 @@ data class SendsayConfiguration(
         val BEARER_AUTH_PREFIX = "Bearer "
 
         val ISSUE_LETTER_EXPIRE_DURATION: Long = 24.hours.toLong(DurationUnit.MILLISECONDS)
-//        val ISSUE_LETTER_EXPIRE_DURATION: Long = 15.minutes.toLong(DurationUnit.MILLISECONDS)
     }
 
     enum class HttpLoggingLevel {

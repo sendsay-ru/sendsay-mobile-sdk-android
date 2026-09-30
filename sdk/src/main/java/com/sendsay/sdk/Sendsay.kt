@@ -353,6 +353,12 @@ object Sendsay {
     var checkPushSetup: Boolean = false
 
     /**
+     * Flag that enables or disables chucker interceptor for debug only purposes.
+     * Default value is false, but can be enabled by SDK user while configurate or init sdk.
+     */
+    var isChuckerOn: Boolean = false
+
+    /**
      * Callback is notified for segmentation data updates.
      */
     internal var segmentationDataCallbacks = CopyOnWriteArrayList<SegmentationDataCallback>()
@@ -428,6 +434,10 @@ object Sendsay {
         isStopped = false
 
         configuration.validate()
+
+        if (runDebugMode && isChuckerOn) {
+            configuration.isChuckerOnDebugEnabled = true
+        }
 
 //        isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
 //        isInAppCBEnabled = configuration.isInAppCBEnabled
@@ -1027,7 +1037,7 @@ object Sendsay {
         return device == "robolectric" && product == "robolectric"
     }
 
-    internal fun trackGAID(context: Context) {
+    fun trackGAID(context: Context) {
         if (!isADTrackEnabled) {
             Logger.w(this, "Getting GAID is disabled by init config")
             return
@@ -1709,8 +1719,8 @@ object Sendsay {
         val action =
             openedPushDataIntent.getSerializableExtra(
                 SendsayExtras.EXTRA_ACTION_INFO,
-                NotificationAction::class.java
-            )
+//                NotificationAction::class.java
+            ) as? NotificationAction
         Logger.d(this, "Interaction: $action")
         val notifActionType = when (openedPushDataIntent.action) {
             SendsayExtras.ACTION_DEEPLINK_CLICKED -> SendsayNotificationActionType.DEEPLINK
@@ -1720,12 +1730,12 @@ object Sendsay {
         val data =
             openedPushDataIntent.getParcelableExtra(
                 SendsayExtras.EXTRA_DATA,
-                NotificationData::class.java
-            )
+//                NotificationData::class.java
+            ) as? NotificationData
         val payloadRawData = openedPushDataIntent
             .getSerializableExtra(
                 SendsayExtras.EXTRA_CUSTOM_DATA,
-                HashMap::class.java
+//                HashMap::class.java
             ) as? HashMap<String, String>
         val deliveredTimestamp =
             openedPushDataIntent.getDoubleExtra(SendsayExtras.EXTRA_DELIVERED_TIMESTAMP, 0.0)
@@ -1765,7 +1775,7 @@ object Sendsay {
                     SendsayExtras.EXTRA_CUSTOM_DATA,
                     openedPushDataIntent.getSerializableExtra(
                         SendsayExtras.EXTRA_CUSTOM_DATA,
-                        HashMap::class.java
+//                        HashMap::class.java
                     )
                 )
                 broadcastIntent.`package` = context.packageName
