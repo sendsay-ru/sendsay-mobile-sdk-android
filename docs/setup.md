@@ -18,7 +18,7 @@ Sendsay Android SDK можно установить или обновить с �
 
 1. В файле **build.gradle.kts** вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```kotlin
-   implementation("com.sendsay.sdk:sdk:0.1.4")
+   implementation("com.sendsay.sdk:sdk:0.1.5")
    ```
 2. Пересоберите проект: **Build** > **Rebuild Project**.
 
@@ -26,7 +26,7 @@ Sendsay Android SDK можно установить или обновить с �
 
 1. В файле **build.gradle** вашего приложения добавьте `com.sendsay.sdk:sdk` внутри секции `dependencies { }`:
    ```groovy
-   implementation 'com.sendsay.sdk:sdk:0.1.4'
+   implementation 'com.sendsay.sdk:sdk:0.1.5'
    ```
 2. Пересоберите проект: **Build** > **Rebuild Project**.
 
@@ -37,7 +37,7 @@ Sendsay Android SDK можно установить или обновить с �
    <dependency>
       <groupId>com.sendsay.sdk</groupId>
       <artifactId>sdk</artifactId>
-      <version>0.1.4</version>
+      <version>0.1.5</version>
       <type>aar</type>  <!---> Опционально, если требуется -->
    </dependency>   
    ```
@@ -199,7 +199,7 @@ Sendsay.loggerLevel = Logger.Level.VERBOSE
 
 ```
 Manifest merger failed : Attribute application@fullBackupContent value=(@xml/backup_rules) from AndroidManifest.xml:8:9-54
-	is also present at [com.sendsay.sdk:sdk:0.1.4] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
+	is also present at [com.sendsay.sdk:sdk:0.1.5] AndroidManifest.xml:15:9-70 value=(@xml/sendsay_default_backup_rules).
 ```
 
 Вам необходимо [управлять файлами манифеста](https://developer.android.com/build/manage-manifests) и обеспечить их правильное слияние.
