@@ -34,6 +34,7 @@ import java.io.IOException
 import java.net.URL
 import java.util.Random
 import kotlin.concurrent.thread
+import androidx.core.net.toUri
 
 /**
  * Handles data in scope of Push notifications integration (currently FCM and HMS services).
@@ -460,7 +461,7 @@ internal open class FcmManagerImpl(
         if (MessagingUtils.multiPendingIntentsAllowed()) {
             val urlIntent = Intent(Intent.ACTION_VIEW)
             urlIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-            if (!url.isNullOrEmpty()) urlIntent.data = Uri.parse(url)
+            if (!url.isNullOrEmpty()) urlIntent.data = url.toUri()
             return PendingIntent.getActivities(
                 application,
                 requestCode,

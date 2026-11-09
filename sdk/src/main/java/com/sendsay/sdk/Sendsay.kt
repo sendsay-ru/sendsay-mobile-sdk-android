@@ -237,8 +237,8 @@ object Sendsay {
             if (value == null) {
                 return@runCatching
             }
-            val storeData = component.pushNotificationRepository.getExtraData()
-            if (storeData != null) {
+//            val storeData = component.pushNotificationRepository.getExtraData()
+//            if (storeData != null) {
                 val repository = getPushNotificationRepository()
                 repository?.popDeliveredPushData()?.forEach {
                     value.handleReceivedPushUpdate(it)
@@ -246,9 +246,8 @@ object Sendsay {
                 repository?.popClickedPushData()?.forEach {
                     value.handleClickedPushUpdate(it)
                 }
-
 //                component.pushNotificationRepository.clearExtraData()
-            }
+//            }
         }.logOnException()
 
     /**

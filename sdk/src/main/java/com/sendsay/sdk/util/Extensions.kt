@@ -138,6 +138,7 @@ internal fun String?.adjustUrl(): String? {
 
 fun Intent?.isViewUrlIntent(schemePrefix: String): Boolean {
     // TODO: check if starts with "app.sendsay.." (for example)
+    Logger.v(this!!, this.data.toString())
     return isViewUrlIntent() && this?.data?.scheme?.startsWith(schemePrefix, true) == true
 }
 

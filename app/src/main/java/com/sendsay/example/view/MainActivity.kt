@@ -43,6 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         setSupportActionBar(viewBinding.toolbar)
-        supportActionBar?.title = "Examples"
+
         if (BuildConfig.DEBUG) {
             viewBinding.debugBanner.text =
                 "${BuildConfig.FLAVOR}\n" +
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set log level before first call to SDK function
         Sendsay.loggerLevel = Logger.Level.VERBOSE
-        Sendsay.checkPushSetup = true
+        Sendsay.checkPushSetup = false
         Sendsay.handleCampaignIntent(intent, applicationContext)
         Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
             override fun onSilentPushNotificationReceived(notificationData: Map<String, Any>) {
@@ -169,8 +170,10 @@ class MainActivity : AppCompatActivity() {
         val deeplinkDestination = resolveDeeplinkDestination(intent)
 
         if (deeplinkDestination != null) {
+            Logger.i(this, "deeplinkDestination != null")
             handleDeeplinkDestination(deeplinkDestination)
         } else if (savedInstanceState == null) {
+            Logger.i(this, "deeplinkDestination is null, fI*ck")
             navigateToItem(NavigationItem.Track)
         }
     }
@@ -180,6 +183,7 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         val deeplinkDestination = resolveDeeplinkDestination(intent)
         if (deeplinkDestination != null) {
+            Logger.i(this, "deeplinkDestination != null 2 onNewIntent")
             handleDeeplinkDestination(deeplinkDestination)
         }
     }
@@ -207,24 +211,32 @@ class MainActivity : AppCompatActivity() {
             else -> null
         }
         return if (intent.isViewUrlIntent("https")) {
+            Logger.i(this, "deeplinkDestination != https")
             intent?.data?.path.orEmpty().toDeeplinkDestination()
         } else if (intent.isViewUrlIntent("app.sendsay")) {
+            Logger.i(this, "deeplinkDestination != app.sendsay")
             intent?.data?.path.orEmpty().toDeeplinkDestination()
         } else if (intent.isViewUrlIntent("sendsay")) {
+            Logger.i(this, "deeplinkDestination != sendsay")
             intent?.data?.path.orEmpty().toDeeplinkDestination()
         } else {
+            Logger.i(this, "deeplinkDestination == null")
             null
         }
     }
 
     private fun handleDeeplinkDestination(deeplinkDestination: DeeplinkFlow) {
         when (deeplinkDestination) {
-            DeeplinkFlow.Anonymize -> navigateToItem(Anonymize)
+            DeeplinkFlow.Anonymize -> {
+                Logger.i(this, "deeplinkDestination = Anonymize")
+                navigateToItem(Anonymize)
+            }
             DeeplinkFlow.Fetch -> if (Sendsay.isInAppMessagesEnabled) navigateToItem(Fetch)
             DeeplinkFlow.Manual -> navigateToItem(Manual)
             DeeplinkFlow.Track -> navigateToItem(Track)
             DeeplinkFlow.InAppCb -> if (Sendsay.isInAppCBEnabled) navigateToItem(InAppContentBlock)
             DeeplinkFlow.StopAndContinue -> {
+                Logger.i(this, "deeplinkDestination = StopAndContinue")
                 Sendsay.stopIntegration()
                 if (viewBinding.navigation.selectedItemId == 0) {
                     navigateToItem(Track)
@@ -232,6 +244,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             DeeplinkFlow.StopAndRestart -> {
+                Logger.i(this, "deeplinkDestination = StopAndRestart")
                 Sendsay.stopIntegration()
                 startActivity(Intent(this, AuthenticationActivity::class.java))
                 finish()
