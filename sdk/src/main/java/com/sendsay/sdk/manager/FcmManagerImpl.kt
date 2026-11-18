@@ -123,12 +123,14 @@ internal open class FcmManagerImpl(
             return
         }
         val payload = parseNotificationPayload(messageData, timestamp)
+
         if (payload.deliveredTimestamp == null) {
             // this really should not happen, parsing must find a proper delivery time
             Logger.e(this, "Push notification needs info about time delivery")
             payload.deliveredTimestamp = timestamp
         }
         if (payload.notificationAction.action == SendsayNotificationActionType.SELFCHECK) {
+
             Logger.d(this, "Self-check notification received")
             onSelfCheckReceived()
             return

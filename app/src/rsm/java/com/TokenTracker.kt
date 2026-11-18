@@ -110,6 +110,7 @@ class TokenTracker {
         }.start()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun trackToken(context: Context) {
         getToken(context) { token ->
             Sendsay.trackRsmPushToken(token)

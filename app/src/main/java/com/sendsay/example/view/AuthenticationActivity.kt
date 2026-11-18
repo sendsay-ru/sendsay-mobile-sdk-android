@@ -12,16 +12,12 @@ import com.sendsay.example.managers.CustomerTokenStorage
 import com.sendsay.example.utils.isVaildUrl
 import com.sendsay.example.utils.isValid
 import com.sendsay.example.utils.onTextChanged
-import com.sendsay.sdk.BuildConfig
 import com.sendsay.sdk.Sendsay
 import com.sendsay.sdk.Sendsay.runDebugMode
 import com.sendsay.sdk.models.FlushMode
 import com.sendsay.sdk.models.SendsayConfiguration
 import com.sendsay.sdk.models.SendsayConfiguration.Companion.TOKEN_AUTH_PREFIX
 import com.sendsay.sdk.models.SendsayConfiguration.TokenFrequency.EVERY_LAUNCH
-import com.sendsay.sdk.repository.SendsayConfigRepository
-import com.sendsay.sdk.services.SendsayContextProvider
-import com.sendsay.sdk.util.Logger
 import kotlin.collections.set
 
 class AuthenticationActivity : AppCompatActivity() {
@@ -121,7 +117,7 @@ class AuthenticationActivity : AppCompatActivity() {
 
         // Set up our flushing
         Sendsay.flushMode = FlushMode.IMMEDIATE
-        Sendsay.checkPushSetup = runDebugMode
+        Sendsay.isCheckPushSetup = runDebugMode
 
         // Start our SDK
         // Sendsay.initFromFile(App.instance)

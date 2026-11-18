@@ -40,10 +40,7 @@ class AnonymizeFragment : BaseFragment() {
 
         (activity as AppCompatActivity).supportActionBar?.subtitle = "anonymize"
         viewBinding.btnAnonymize.setOnClickListener {
-//            Sendsay.anonymize()
-            CoroutineScope(Dispatchers.Default).launch {
-                Sendsay.trackGAID(requireContext())
-            }.invokeOnCompletion { Sendsay.getGAID() }
+            Sendsay.anonymize()
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Customer anonymized")

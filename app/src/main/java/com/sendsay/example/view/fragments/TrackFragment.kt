@@ -2,14 +2,15 @@ package com.sendsay.example.view.fragments
 
 import TokenTracker
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +31,7 @@ import com.sendsay.example.view.base.BaseFragment
 import com.sendsay.example.view.dialogs.TrackCustomAttributesDialog
 import com.sendsay.example.view.dialogs.TrackCustomEventDialog
 import com.sendsay.sdk.Sendsay
+import com.sendsay.sdk.Sendsay.runDebugMode
 import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.OrderItem
@@ -145,7 +147,8 @@ class TrackFragment : BaseFragment() {
             ctx.copyToClipboard(viewBinding.tokenText.text)
             Toast.makeText(ctx, "Скопировано в буфер обмена", Toast.LENGTH_SHORT).show()
         }
-        viewBinding.buttonTestPush.setOnClickListener { testLocalPush(ctx) }
+//        viewBinding.buttonTestPush.setOnClickListener { testLocalPush(ctx) }
+        viewBinding.buttonTestPush.setOnClickListener { checkPushSetup(ctx) }
 
         viewBinding.buttonTrackClicked.setOnClickListener { trackPushClicked() }
         viewBinding.buttonTrackDelivered.setOnClickListener { trackPushDelivered() }
@@ -184,8 +187,16 @@ class TrackFragment : BaseFragment() {
     }
 
     /**
+     * Method to handle "check push setup" button
+     */
+    private fun checkPushSetup(context: Context) {
+        Sendsay.startSDKPushChecker(context)
+    }
+
+    /**
      * Method to handle "test RuStore push (Local)" button
      */
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun testLocalPush(context: Context?) {
         TokenTracker().testLocalPush(context)
     }

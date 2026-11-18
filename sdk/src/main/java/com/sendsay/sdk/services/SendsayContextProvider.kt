@@ -12,6 +12,7 @@ import android.os.Bundle
 import com.sendsay.sdk.util.Logger
 import com.sendsay.sdk.util.OnForegroundStateListener
 import com.sendsay.sdk.util.logOnException
+import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -23,6 +24,14 @@ public class SendsayContextProvider : ContentProvider() {
     companion object {
 
         private val foregroundStateListeners = CopyOnWriteArrayList<OnForegroundStateListener>()
+        private var resumedActivityRef: WeakReference<Activity>? = null
+
+        internal val resumedActivity: Activity?
+            get() = resumedActivityRef?.get()
+
+        private fun clearResumedActivity(activity: Activity) {
+            if (resumedActivity === activity) resumedActivityRef = null
+        }
 
         fun registerForegroundStateListener(listener: OnForegroundStateListener) {
             foregroundStateListeners.add(listener)
@@ -57,6 +66,7 @@ public class SendsayContextProvider : ContentProvider() {
 
         internal fun reset() {
             foregroundStateListeners.clear()
+            resumedActivityRef = null
         }
     }
 
@@ -86,15 +96,21 @@ public class SendsayContextProvider : ContentProvider() {
         (applicationContext as? Application)?.registerActivityLifecycleCallbacks(
             object : Application.ActivityLifecycleCallbacks {
                 private var numStarted = 0
-                override fun onActivityPaused(activity: Activity) {}
-                override fun onActivityResumed(activity: Activity) {}
+                override fun onActivityPaused(activity: Activity) {
+                    clearResumedActivity(activity)
+                }
+                override fun onActivityResumed(activity: Activity) {
+                    resumedActivityRef = WeakReference(activity)
+                }
                 override fun onActivityStarted(activity: Activity) {
                     if (numStarted == 0) {
                         applicationIsForeground = true
                     }
                     numStarted++
                 }
-                override fun onActivityDestroyed(activity: Activity) {}
+                override fun onActivityDestroyed(activity: Activity) {
+                    clearResumedActivity(activity)
+                }
                 override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
                 override fun onActivityStopped(activity: Activity) {
                     numStarted--

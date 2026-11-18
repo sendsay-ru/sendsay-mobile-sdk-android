@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.sendsay.sdk.BuildConfig
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -25,10 +26,20 @@ internal class DevicePropertiesTest {
                 sdkVersion = BuildConfig.SENDSAY_VERSION_NAME,
                 deviceModel = Build.MODEL,
                 deviceType = "mobile",
-                appVersion = ""
+                appVersion = "",
+                gaid = null
             ),
             DeviceProperties(ApplicationProvider.getApplicationContext())
         )
+    }
+
+    @Test
+    fun `should include OAID only when available`() {
+        val properties = DeviceProperties(ApplicationProvider.getApplicationContext())
+            .copy(oaid = null)
+
+        assertFalse(properties.toHashMap().containsKey("oaid"))
+        assertEquals("test-oaid", properties.copy(oaid = "test-oaid").toHashMap()["oaid"])
     }
 
     @Test

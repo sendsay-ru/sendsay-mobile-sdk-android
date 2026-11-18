@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +18,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.transition.Visibility
 import com.sendsay.example.BuildConfig
 import com.sendsay.example.R
 import com.sendsay.example.databinding.ActivityMainBinding
@@ -43,7 +41,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -109,9 +106,22 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
+        if (!Sendsay.isInitialized) {
+            startActivity(Intent(this, AuthenticationActivity::class.java))
+            finish()
+            return
+        }
+
+        // GAID or OAID call
+        if (BuildConfig.FLAVOR == "FCM" || BuildConfig.FLAVOR == "RSM") {
+            Sendsay.callGAID(this)
+        } else {
+            Sendsay.callOAID(this)
+        }
+
         // Set log level before first call to SDK function
         Sendsay.loggerLevel = Logger.Level.VERBOSE
-        Sendsay.checkPushSetup = false
+        Sendsay.isCheckPushSetup = true
         Sendsay.handleCampaignIntent(intent, applicationContext)
         Sendsay.pushNotificationsDelegate = object : PushNotificationDelegate {
             override fun onSilentPushNotificationReceived(notificationData: Map<String, Any>) {
@@ -155,12 +165,6 @@ class MainActivity : AppCompatActivity() {
 //        Uncomment this section, if you want to test in-app callback
 //        Sendsay.inAppMessageActionCallback = getInAppMessageCallback()
 //        Sendsay.appInboxProvider = ExampleAppInboxProvider()
-
-        if (!Sendsay.isInitialized) {
-            startActivity(Intent(this, AuthenticationActivity::class.java))
-            finish()
-            return
-        }
 
         setupNavigation()
         Sendsay.registerSegmentationDataCallback(discoverySegmentsCallback)
@@ -231,6 +235,7 @@ class MainActivity : AppCompatActivity() {
                 Logger.i(this, "deeplinkDestination = Anonymize")
                 navigateToItem(Anonymize)
             }
+
             DeeplinkFlow.Fetch -> if (Sendsay.isInAppMessagesEnabled) navigateToItem(Fetch)
             DeeplinkFlow.Manual -> navigateToItem(Manual)
             DeeplinkFlow.Track -> navigateToItem(Track)

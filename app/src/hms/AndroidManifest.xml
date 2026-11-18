@@ -12,5 +12,8 @@
         <meta-data
             android:name="push_kit_auto_init_enabled"
             android:value="true"/>
+        <meta-data
+            android:name="ru.rustore.sdk.pushclient.default_notification_channel_id"
+            android:value="@string/pushes_notification_channel_id" />
     </application>
 </manifest>

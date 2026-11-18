@@ -50,6 +50,7 @@ internal object Constants {
     object PushNotif {
         const val defaultAutomaticListening = true
         const val source = "xnpe_platform"
+        const val sourceNative = "native"
         const val fcmTokenProperty = "google_push_notification_id"
         const val hmsTokenProperty = "huawei_push_notification_id"
         const val rsmTokenProperty = "rustore_push_notification_id"

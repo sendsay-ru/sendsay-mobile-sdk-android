@@ -41,7 +41,7 @@ internal object PublicApiTestCases {
         Pair(Sendsay::notificationDataCallback, null),
         Pair(Sendsay::inAppMessageActionCallback, Constants.InApps.defaultInAppMessageDelegate),
         Pair(Sendsay::customerCookie, null),
-        Pair(Sendsay::checkPushSetup, false),
+        Pair(Sendsay::isCheckPushSetup, false),
         Pair(Sendsay::appInboxProvider, Constants.AppInbox.defaulAppInboxProvider),
         Pair(Sendsay::safeModeEnabled, true),
         Pair(Sendsay::runDebugMode, false),

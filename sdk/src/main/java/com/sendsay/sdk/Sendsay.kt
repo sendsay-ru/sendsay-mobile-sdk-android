@@ -12,10 +12,17 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.flayone.oaid.MyOAIDHelper
+import com.flayone.oaid.OAIDRom
+import com.flayone.oaid.imp.DefaultHelper
+import com.flayone.oaid.imp.MSAOAIDHelper
+import com.flayone.oaid.interfaces.IDGetterAction
+import com.google.android.gms.ads.identifier.AdvertisingIdClient as GoogleAdvertisingIdClient
+import com.huawei.hms.ads.identifier.AdvertisingIdClient as HuaweiAdvertisingIdClient
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
 import com.sendsay.sdk.manager.CampaignManager
 import com.sendsay.sdk.manager.CampaignManagerImpl
@@ -52,6 +59,7 @@ import com.sendsay.sdk.models.MessageItemAction
 import com.sendsay.sdk.models.NotificationAction
 import com.sendsay.sdk.models.NotificationData
 import com.sendsay.sdk.models.NotificationPayload
+import com.sendsay.sdk.models.OaidResult
 import com.sendsay.sdk.models.PurchasedItem
 import com.sendsay.sdk.models.PushNotificationDelegate
 import com.sendsay.sdk.models.PushOpenedData
@@ -94,12 +102,16 @@ import com.sendsay.sdk.view.ContentBlockCarouselView
 import com.sendsay.sdk.view.InAppContentBlockPlaceholderView
 import com.sendsay.sdk.view.InAppMessagePresenter
 import com.sendsay.sdk.view.InAppMessageView
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.time.Duration.Companion.milliseconds
 
 //@SuppressLint("StaticFieldLeak")
 object Sendsay {
@@ -108,14 +120,19 @@ object Sendsay {
     private lateinit var sendsaySdkScope: CoroutineScope
     private lateinit var configuration: SendsayConfiguration
     private lateinit var component: SendsayComponent
-    private var adInfo: AdvertisingIdClient.Info? = null
+    private var adInfo: GoogleAdvertisingIdClient.Info? = null
+    @Volatile
+    private var oaidResult: OaidResult =
+        OaidResult.Unavailable.NOT_AVAILABLE_YET
+    @Volatile
+    private var adTrackingConfigReady: CompletableDeferred<Unit>? = null
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     internal var isStopped = false
     var isInAppMessagesEnabled = false
     var isInAppCBEnabled = false
     var isAppInboxEnabled = false
-    var isADTrackEnabled = false
+    @Volatile var isADTrackEnabled = false
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -239,13 +256,13 @@ object Sendsay {
             }
 //            val storeData = component.pushNotificationRepository.getExtraData()
 //            if (storeData != null) {
-                val repository = getPushNotificationRepository()
-                repository?.popDeliveredPushData()?.forEach {
-                    value.handleReceivedPushUpdate(it)
-                }
-                repository?.popClickedPushData()?.forEach {
-                    value.handleClickedPushUpdate(it)
-                }
+            val repository = getPushNotificationRepository()
+            repository?.popDeliveredPushData()?.forEach {
+                value.handleReceivedPushUpdate(it)
+            }
+            repository?.popClickedPushData()?.forEach {
+                value.handleClickedPushUpdate(it)
+            }
 //                component.pushNotificationRepository.clearExtraData()
 //            }
         }.logOnException()
@@ -349,7 +366,7 @@ object Sendsay {
      * advise you to turn this feature on before initializing the SDK.
      * Self-check only runs in debug mode and does not do anything in release builds.
      */
-    var checkPushSetup: Boolean = false
+    var isCheckPushSetup: Boolean = false
 
     /**
      * Callback is notified for segmentation data updates.
@@ -634,6 +651,19 @@ object Sendsay {
         )
     }.logOnException()
 
+    /** Requests the device's GAID in the background for subsequent events. */
+    fun callGAID(context: Context) {
+        CoroutineScope(Dispatchers.Default).launch {
+            trackGAID(context)
+        }.invokeOnCompletion { getGAID() }
+    }
+
+    /** Requests the device's OAID in the background for subsequent events. */
+    fun callOAID(context: Context) {
+        val appContext = context.applicationContext
+        CoroutineScope(Dispatchers.Default).launch { trackOAID(appContext) }
+    }
+
     private fun trackPushTokenInternal(
         fcmToken: String,
         tokenTrackFrequency: SendsayConfiguration.TokenFrequency,
@@ -756,6 +786,7 @@ object Sendsay {
     fun isSendsayPushNotification(messageData: Map<String, String>?): Boolean {
         if (messageData == null) return false
         return messageData["source"] == Constants.PushNotif.source
+                || messageData["source"] == Constants.PushNotif.sourceNative
     }
 
     /**
@@ -810,6 +841,34 @@ object Sendsay {
         return null
     }.logOnExceptionWithResult().getOrNull()
 
+    /** Fetches the device's OAID when advertising ID collection is enabled. */
+    private suspend fun trackOAID(context: Context) {
+        adTrackingConfigReady?.await()
+        val result = if (isADTrackEnabled) {
+            fetchOAID(context)
+        } else {
+            OaidResult.Unavailable.DISABLED_BY_CONFIG
+        }
+        oaidResult = result
+        if (result is OaidResult.Unavailable) {
+            Logger.d(this, "OAID unavailable (${result.name})")
+        }
+    }
+
+    /** Returns the OAID while advertising ID collection is enabled. */
+    fun getOAID(): String? = (getOAIDResult() as? OaidResult.Available)?.id
+
+    /**
+     * Returns the latest OAID or the reason it is unavailable.
+     * [callOAID] updates this result asynchronously.
+     */
+    fun getOAIDResult(): OaidResult = when {
+        adTrackingConfigReady?.isCompleted == false ->
+            OaidResult.Unavailable.NOT_AVAILABLE_YET
+        !isADTrackEnabled -> OaidResult.Unavailable.DISABLED_BY_CONFIG
+        else -> oaidResult
+    }
+
     /**
      * Handles Sendsay notification payload.
      * Does not handle non-Sendsay notifications, just returns false for them so you can process them yourself.
@@ -831,6 +890,25 @@ object Sendsay {
         fcmManagerInstance?.handleRemoteMessage(messageData, manager, showNotification)
         return true
     }.returnOnException { true }
+
+    /**
+     * Handles start of Sendsay SDK setup checker.
+     **/
+    fun startSDKPushChecker(context: Context) {
+        if (isCheckPushSetup && runDebugMode) {
+            component.pushNotificationSelfCheckManager.start()
+            Toast.makeText(
+                context,
+                "Запущена проверка подключения Sendsay SDK",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Toast.makeText(
+                context, "Work ONLY when isCheckPushSetup=true AND isRunOnDebug",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     private fun getTrackingConsentManager(): TrackingConsentManager? {
         if (isInitialized) {
@@ -983,6 +1061,9 @@ object Sendsay {
 
         component.segmentsManager.onSdkInit()
 
+        val adTrackingReady = CompletableDeferred<Unit>()
+        adTrackingConfigReady = adTrackingReady
+
         component.initConfigManager.fetchInitConfig(onSuccess = {
             Logger.i(this, "Init config fetched successfully")
             isInAppMessagesEnabled =
@@ -990,13 +1071,16 @@ object Sendsay {
             isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
             isAppInboxEnabled =
                 it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
-            isADTrackEnabled = true ?: it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
+            isADTrackEnabled = true
+//                it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
+            adTrackingReady.complete(Unit)
         }, onFailure = {
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
             isInAppCBEnabled = configuration.isInAppCBEnabled
             isAppInboxEnabled = configuration.isAppInboxEnabled
             isADTrackEnabled = configuration.isGAIDEnabled
+            adTrackingReady.complete(Unit)
         })
 
 
@@ -1020,9 +1104,8 @@ object Sendsay {
                 }
         )
 
-        if (checkPushSetup && runDebugMode) {
-            component.pushNotificationSelfCheckManager.start()
-        }
+//        startSDKPushChecker(context)
+
         if (runDebugMode && !isUnitTest()) {
             VersionChecker(component.networkManager, context).warnIfNotLatestSDKVersion()
         }
@@ -1034,16 +1117,77 @@ object Sendsay {
         return device == "robolectric" && product == "robolectric"
     }
 
-    internal suspend fun fetchGAID(context: Context): AdvertisingIdClient.Info? {
+    internal suspend fun fetchGAID(context: Context): GoogleAdvertisingIdClient.Info? {
         return withContext(Dispatchers.IO) {
             try {
                 Logger.w(this, "GAID fetching started")
-                AdvertisingIdClient.getAdvertisingIdInfo(context)
+                GoogleAdvertisingIdClient.getAdvertisingIdInfo(context)
             } catch (e: Exception) {
                 Logger.e(this, "Failed to fetch GAID with message: ${e.message}")
                 e.printStackTrace()
                 null
             }
+        }
+    }
+
+    private suspend fun fetchOAID(
+        context: Context,
+    ): OaidResult = withContext(Dispatchers.IO) {
+        try {
+            if (OAIDRom.isHuawei() || OAIDRom.isEmui()) {
+                val info: HuaweiAdvertisingIdClient.Info? =
+                    HuaweiAdvertisingIdClient.getAdvertisingIdInfo(context)
+                OaidResult.fromProvider(
+                    info?.id,
+                    info?.isLimitAdTrackingEnabled,
+                )
+            } else {
+                fetchFlayoneOAID(context)
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Logger.d(
+                this@Sendsay,
+                "OAID request failed (${error.javaClass.simpleName})",
+            )
+            OaidResult.Unavailable.FETCH_FAILED
+        }
+    }
+
+    private suspend fun fetchFlayoneOAID(context: Context): OaidResult {
+        // Some supported() checks probe a different package than getID().
+        val manufacturer = MyOAIDHelper.createOaidGetter(context)
+        val id = if (manufacturer is DefaultHelper) {
+            null
+        } else {
+            requestProviderOAID(manufacturer)
+        }
+
+        // A zeroed ID can signal a reset or restriction. Keep that response.
+        if (!id.isNullOrEmpty()) return OaidResult.fromProvider(id)
+
+        val msaIntent = Intent("com.bun.msa.action.bindto.service")
+            .setClassName("com.mdid.msa", "com.mdid.msa.service.MsaIdService")
+        if (context.packageManager.resolveService(msaIntent, 0) != null) {
+            val msaId = requestProviderOAID(MSAOAIDHelper(context))
+                ?: return OaidResult.Unavailable.TIMEOUT
+            return OaidResult.fromProvider(msaId)
+        }
+
+        return when {
+            manufacturer is DefaultHelper -> OaidResult.Unavailable.UNSUPPORTED
+            id == null -> OaidResult.Unavailable.TIMEOUT
+            else -> OaidResult.Unavailable.EMPTY_RESPONSE
+        }
+    }
+
+    private suspend fun requestProviderOAID(provider: IDGetterAction): String? {
+        // Keep empty callbacks distinct from timeouts.
+        val result = CompletableDeferred<String>()
+        return withTimeoutOrNull(5_000.milliseconds) {
+            provider.getID { result.complete(it?.trim().orEmpty()) }
+            result.await()
         }
     }
 
@@ -1490,7 +1634,7 @@ object Sendsay {
     ): InAppContentBlockPlaceholderView? = runCatching<InAppContentBlockPlaceholderView?> {
         requireInitialized<InAppContentBlockPlaceholderView>(
             initializedBlock = {
-                Sendsay.component.inAppContentBlockManager!!.getPlaceholderView(
+                component.inAppContentBlockManager!!.getPlaceholderView(
                     placeholderId,
                     context,
                     config ?: InAppContentBlockPlaceholderConfiguration()

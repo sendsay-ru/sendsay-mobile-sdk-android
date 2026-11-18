@@ -107,7 +107,7 @@ data class SendsayConfiguration(
      * Can/Must be overridden by get config from Backend method.
      * Default value is false, cause if the config was not retrieved from server,
      */
-    var isGAIDEnabled: Boolean = false,
+    var isGAIDEnabled: Boolean = true,
 ) {
 
     companion object {
