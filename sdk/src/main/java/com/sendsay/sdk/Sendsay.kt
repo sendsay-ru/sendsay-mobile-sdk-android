@@ -9,7 +9,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Looper
-import android.util.Log
+import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -22,6 +22,9 @@ import com.flayone.oaid.imp.DefaultHelper
 import com.flayone.oaid.imp.MSAOAIDHelper
 import com.flayone.oaid.interfaces.IDGetterAction
 import com.google.android.gms.ads.identifier.AdvertisingIdClient as GoogleAdvertisingIdClient
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailabilityLight
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.huawei.hms.ads.identifier.AdvertisingIdClient as HuaweiAdvertisingIdClient
 import com.sendsay.sdk.exceptions.InvalidConfigurationException
 import com.sendsay.sdk.manager.CampaignManager
@@ -40,6 +43,7 @@ import com.sendsay.sdk.models.CustomerIds
 import com.sendsay.sdk.models.CustomerRecommendation
 import com.sendsay.sdk.models.CustomerRecommendationOptions
 import com.sendsay.sdk.models.CustomerRecommendationRequest
+import com.sendsay.sdk.models.DeviceIdentifiers
 import com.sendsay.sdk.models.DeviceProperties
 import com.sendsay.sdk.models.EventType
 import com.sendsay.sdk.models.FetchError
@@ -49,6 +53,7 @@ import com.sendsay.sdk.models.FlushMode.IMMEDIATE
 import com.sendsay.sdk.models.FlushMode.MANUAL
 import com.sendsay.sdk.models.FlushMode.PERIOD
 import com.sendsay.sdk.models.FlushPeriod
+import com.sendsay.sdk.models.GaidResult
 import com.sendsay.sdk.models.InAppContentBlock
 import com.sendsay.sdk.models.InAppContentBlockAction
 import com.sendsay.sdk.models.InAppContentBlockPlaceholderConfiguration
@@ -72,6 +77,8 @@ import com.sendsay.sdk.models.SendsayNotificationActionType
 import com.sendsay.sdk.models.SendsayProject
 import com.sendsay.sdk.models.TrackSSECData
 import com.sendsay.sdk.models.TrackingSSECType
+import com.sendsay.sdk.models.resolveDeviceIdentifiers
+import com.sendsay.sdk.models.usableAdvertisingId
 import com.sendsay.sdk.preferences.SendsayPreferencesImpl
 import com.sendsay.sdk.receiver.NotificationsPermissionReceiver
 import com.sendsay.sdk.repository.PushNotificationRepository
@@ -107,9 +114,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.IOException
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -120,15 +131,14 @@ object Sendsay {
     private lateinit var sendsaySdkScope: CoroutineScope
     private lateinit var configuration: SendsayConfiguration
     private lateinit var component: SendsayComponent
-    private var adInfo: GoogleAdvertisingIdClient.Info? = null
+    private val deviceIdentifiersMutex = Mutex()
     @Volatile
-    private var oaidResult: OaidResult =
-        OaidResult.Unavailable.NOT_AVAILABLE_YET
+    private var deviceIdentifiers = DeviceIdentifiers()
     @Volatile
     private var adTrackingConfigReady: CompletableDeferred<Unit>? = null
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
-    internal var isStopped = false
+    @Volatile internal var isStopped = false
     var isInAppMessagesEnabled = false
     var isInAppCBEnabled = false
     var isAppInboxEnabled = false
@@ -436,11 +446,11 @@ object Sendsay {
     fun init(context: Context, configuration: SendsayConfiguration) = runCatching {
         this.application = context.applicationContext as Application
 
-        sendsaySdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         if (isInitialized) {
             Logger.e(this, "Sendsay SDK is already initialized!")
             return
         }
+        sendsaySdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         isStopped = false
 
         configuration.validate()
@@ -653,9 +663,8 @@ object Sendsay {
 
     /** Requests the device's GAID in the background for subsequent events. */
     fun callGAID(context: Context) {
-        CoroutineScope(Dispatchers.Default).launch {
-            trackGAID(context)
-        }.invokeOnCompletion { getGAID() }
+        val appContext = context.applicationContext
+        CoroutineScope(Dispatchers.Default).launch { trackGAID(appContext) }
     }
 
     /** Requests the device's OAID in the background for subsequent events. */
@@ -810,48 +819,35 @@ object Sendsay {
         component.trackingConsentManager.trackSSEC(type, data)
     }.logOnException()
 
+    /** Refreshes the GAID when device identifier collection is enabled. */
     suspend fun trackGAID(context: Context) {
-        if (!isADTrackEnabled) {
-            Logger.w(this, "Getting GAID is disabled by init config")
-            return
-        }
-        adInfo = fetchGAID(context)
-    }
-
-    /**
-     * Returns GAID if it is enabled in init config and user has not limited ad tracking, otherwise returns null.
-     */
-    fun getGAID(): String? = runCatching {
-        Log.d(
-            "GAID_LOG",
-            "Текущий GAID: ${adInfo?.id}, isLimitAdTrackingEnabledByUser: ${adInfo?.isLimitAdTrackingEnabled}"
-        )
-        adInfo?.let {
-            if (it.isLimitAdTrackingEnabled) {
-                Logger.w(this, "Получение GAID ограничено пользователем")
-                return null
-            } else {
-                return it.id
+        updateDeviceIdentifiers { current ->
+            when (val result = fetchGAID(context.applicationContext)) {
+                is GaidResult.Available -> DeviceIdentifiers(
+                    gaid = result.id,
+                    oaid = OaidResult.Unavailable.NOT_SELECTED,
+                )
+                GaidResult.Unavailable -> current.copy(
+                    gaid = null,
+                    androidId = null,
+                )
+                GaidResult.Unsupported -> current.copy(gaid = null)
             }
         }
-        Logger.w(
-            this,
-            "GAID не был запрошен, инициализируйте запрос GAID с помощью метода '''Sendsay.trackGAID(context)''' "
-        )
-        return null
-    }.logOnExceptionWithResult().getOrNull()
+    }
+
+    /** Returns a usable GAID while identifier collection is enabled. */
+    fun getGAID(): String? = getDeviceIdentifiers().gaid
 
     /** Fetches the device's OAID when advertising ID collection is enabled. */
     private suspend fun trackOAID(context: Context) {
-        adTrackingConfigReady?.await()
-        val result = if (isADTrackEnabled) {
-            fetchOAID(context)
-        } else {
-            OaidResult.Unavailable.DISABLED_BY_CONFIG
-        }
-        oaidResult = result
-        if (result is OaidResult.Unavailable) {
-            Logger.d(this, "OAID unavailable (${result.name})")
+        updateDeviceIdentifiers { current ->
+            when (val result = fetchOAID(context)) {
+                is OaidResult.Available -> DeviceIdentifiers(oaid = result)
+                OaidResult.Unavailable.UNSUPPORTED ->
+                    current.copy(oaid = result)
+                else -> current.copy(oaid = result, androidId = null)
+            }
         }
     }
 
@@ -860,13 +856,45 @@ object Sendsay {
 
     /**
      * Returns the latest OAID or the reason it is unavailable.
-     * [callOAID] updates this result asynchronously.
+     * SDK initialization and [callOAID] can update this result asynchronously.
      */
     fun getOAIDResult(): OaidResult = when {
         adTrackingConfigReady?.isCompleted == false ->
             OaidResult.Unavailable.NOT_AVAILABLE_YET
-        !isADTrackEnabled -> OaidResult.Unavailable.DISABLED_BY_CONFIG
-        else -> oaidResult
+        !canCollectDeviceIdentifiers() ->
+            OaidResult.Unavailable.DISABLED_BY_CONFIG
+        else -> deviceIdentifiers.oaid
+    }
+
+    internal fun getDeviceIdentifiers(): DeviceIdentifiers =
+        if (!canCollectDeviceIdentifiers() ||
+            adTrackingConfigReady?.isCompleted == false
+        ) {
+            DeviceIdentifiers()
+        } else {
+            deviceIdentifiers
+        }
+
+    private fun canCollectDeviceIdentifiers() = isADTrackEnabled && !isStopped
+
+    private suspend fun updateDeviceIdentifiers(
+        update: suspend (DeviceIdentifiers) -> DeviceIdentifiers,
+    ) {
+        val ready = adTrackingConfigReady
+        ready?.await()
+        deviceIdentifiersMutex.withLock {
+            if (ready !== adTrackingConfigReady ||
+                !canCollectDeviceIdentifiers()
+            ) {
+                return@withLock
+            }
+            val identifiers = update(deviceIdentifiers)
+            if (ready === adTrackingConfigReady &&
+                canCollectDeviceIdentifiers()
+            ) {
+                deviceIdentifiers = identifiers
+            }
+        }
     }
 
     /**
@@ -1018,6 +1046,11 @@ object Sendsay {
      */
 
     private fun initializeSdk(context: Context) {
+        val adTrackingReady = CompletableDeferred<Unit>()
+        adTrackingConfigReady = adTrackingReady
+        isADTrackEnabled = false
+        deviceIdentifiers = DeviceIdentifiers()
+
         this.component = SendsayComponent(this.configuration, context)
         deintegration.registerForIntegrationStopped(component.serviceManager)
         deintegration.registerForIntegrationStopped(component.eventRepository)
@@ -1044,13 +1077,6 @@ object Sendsay {
 
         if (flushMode == PERIOD) startPeriodicFlushService()
 
-        /**
-         * GAID is needed for better targeting and personalization,
-         * so we initialize it on app start in debug mode.
-         * In release mode, it will be initialized only if the developer explicitly calls trackGAID or if init config enables it.
-         */
-        if (BuildConfig.DEBUG) sendsaySdkScope.launch { trackGAID(context) }
-
         trackInstallEvent()
 
         trackSavedToken()
@@ -1061,29 +1087,38 @@ object Sendsay {
 
         component.segmentsManager.onSdkInit()
 
-        val adTrackingReady = CompletableDeferred<Unit>()
-        adTrackingConfigReady = adTrackingReady
-
-        component.initConfigManager.fetchInitConfig(onSuccess = {
+        val collectDeviceIds = configuration.isGAIDEnabled
+        component.initConfigManager.fetchInitConfig(onSuccess = onSuccess@{
+            if (adTrackingConfigReady !== adTrackingReady) return@onSuccess
             Logger.i(this, "Init config fetched successfully")
             isInAppMessagesEnabled =
                 it?.firstOrNull()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
             isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
             isAppInboxEnabled =
                 it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
-            isADTrackEnabled = true
-//                it?.firstOrNull()?.isADTrackEnabled ?: configuration.isGAIDEnabled
+            val remoteSetting = it?.firstOrNull()?.isADTrackEnabled
+            isADTrackEnabled = collectDeviceIds && (remoteSetting != false)
             adTrackingReady.complete(Unit)
-        }, onFailure = {
+        }, onFailure = onFailure@{
+            if (adTrackingConfigReady !== adTrackingReady) return@onFailure
             Logger.e(this, "Failed to fetch init config with message: ${it.message}")
             isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
             isInAppCBEnabled = configuration.isInAppCBEnabled
             isAppInboxEnabled = configuration.isAppInboxEnabled
-            isADTrackEnabled = configuration.isGAIDEnabled
+            isADTrackEnabled = collectDeviceIds
             adTrackingReady.complete(Unit)
         })
 
-
+        val appContext = context.applicationContext
+        sendsaySdkScope.launch {
+            updateDeviceIdentifiers {
+                resolveDeviceIdentifiers(
+                    fetchGaid = { fetchGAID(appContext) },
+                    fetchOaid = { fetchOAID(appContext) },
+                    fetchAndroidId = { fetchAndroidId(appContext) },
+                )
+            }
+        }
 
         context.addAppStateCallbacks(
             onOpen =
@@ -1117,26 +1152,59 @@ object Sendsay {
         return device == "robolectric" && product == "robolectric"
     }
 
-    internal suspend fun fetchGAID(context: Context): GoogleAdvertisingIdClient.Info? {
-        return withContext(Dispatchers.IO) {
+    private suspend fun fetchGAID(context: Context): GaidResult =
+        withContext(Dispatchers.IO) {
             try {
-                Logger.w(this, "GAID fetching started")
-                GoogleAdvertisingIdClient.getAdvertisingIdInfo(context)
-            } catch (e: Exception) {
-                Logger.e(this, "Failed to fetch GAID with message: ${e.message}")
-                e.printStackTrace()
-                null
+                val availability = GoogleApiAvailabilityLight.getInstance()
+                    .isGooglePlayServicesAvailable(context)
+                when (availability) {
+                    ConnectionResult.SERVICE_MISSING,
+                    ConnectionResult.SERVICE_DISABLED,
+                    ConnectionResult.SERVICE_INVALID ->
+                        return@withContext GaidResult.Unsupported
+                    ConnectionResult.SUCCESS,
+                    ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> Unit
+                    else -> return@withContext GaidResult.Unavailable
+                }
+
+                val info =
+                    GoogleAdvertisingIdClient.getAdvertisingIdInfo(context)
+                val id = info.id.usableAdvertisingId()
+                if (info.isLimitAdTrackingEnabled || id == null) {
+                    GaidResult.Unavailable
+                } else {
+                    GaidResult.Available(id)
+                }
+            } catch (_: GooglePlayServicesNotAvailableException) {
+                GaidResult.Unsupported
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Logger.d(
+                    this@Sendsay,
+                    "GAID request failed (${error.javaClass.simpleName})",
+                )
+                GaidResult.Unavailable
             }
         }
-    }
 
     private suspend fun fetchOAID(
         context: Context,
     ): OaidResult = withContext(Dispatchers.IO) {
         try {
             if (OAIDRom.isHuawei() || OAIDRom.isEmui()) {
-                val info: HuaweiAdvertisingIdClient.Info? =
+                val info: HuaweiAdvertisingIdClient.Info? = try {
                     HuaweiAdvertisingIdClient.getAdvertisingIdInfo(context)
+                } catch (error: IOException) {
+                    val available =
+                        HuaweiAdvertisingIdClient.isAdvertisingIdAvailable(
+                            context,
+                        )
+                    if (!available) {
+                        return@withContext OaidResult.Unavailable.UNSUPPORTED
+                    }
+                    throw error
+                }
                 OaidResult.fromProvider(
                     info?.id,
                     info?.isLimitAdTrackingEnabled,
@@ -1154,6 +1222,19 @@ object Sendsay {
             OaidResult.Unavailable.FETCH_FAILED
         }
     }
+
+    private suspend fun fetchAndroidId(context: Context): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                Settings.Secure.getString(
+                    context.contentResolver,
+                    Settings.Secure.ANDROID_ID,
+                )?.takeIf { it.isNotBlank() }
+            } catch (_: SecurityException) {
+                Logger.d(this@Sendsay, "Android ID is inaccessible")
+                null
+            }
+        }
 
     private suspend fun fetchFlayoneOAID(context: Context): OaidResult {
         // Some supported() checks probe a different package than getID().
@@ -1837,6 +1918,12 @@ object Sendsay {
             initializedBlock = {
                 Logger.i(this, "Stopping of SDK integration starts")
                 isStopped = true
+                val ready = adTrackingConfigReady
+                adTrackingConfigReady = null
+                isADTrackEnabled = false
+                deviceIdentifiers = DeviceIdentifiers()
+                ready?.complete(Unit)
+                sendsaySdkScope.cancel()
                 deintegration.notifyDeintegration()
                 deintegration.clearLocalCustomerData()
                 initGate.clear()

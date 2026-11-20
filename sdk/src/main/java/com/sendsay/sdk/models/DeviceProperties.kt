@@ -19,7 +19,8 @@ internal data class DeviceProperties(
     val deviceType: String,
     val appVersion: String,
     val gaid: String?,
-    val oaid: String? = null
+    val oaid: String? = null,
+    val androidId: String? = null,
 ) {
     companion object {
         private fun getDeviceType(context: Context): String {
@@ -50,6 +51,14 @@ internal data class DeviceProperties(
     }
 
     constructor(context: Context) : this(
+        context,
+        Sendsay.getDeviceIdentifiers(),
+    )
+
+    private constructor(
+        context: Context,
+        identifiers: DeviceIdentifiers,
+    ) : this(
         osName = Constants.DeviceInfo.osName,
         osVersion = Build.VERSION.RELEASE,
         sdk = Constants.DeviceInfo.sdk,
@@ -57,8 +66,9 @@ internal data class DeviceProperties(
         deviceModel = Build.MODEL,
         deviceType = getDeviceType(context),
         appVersion = context.getAppVersion(context),
-        gaid = Sendsay.getGAID(),
-        oaid = Sendsay.getOAID()
+        gaid = identifiers.gaid,
+        oaid = (identifiers.oaid as? OaidResult.Available)?.id,
+        androidId = identifiers.androidId,
     )
 
     fun toHashMap(): HashMap<String, Any> {
@@ -76,6 +86,9 @@ internal data class DeviceProperties(
         }
         if (oaid != null) {
             map["oaid"] = oaid
+        }
+        if (androidId != null) {
+            map["android_id"] = androidId
         }
         return map
     }

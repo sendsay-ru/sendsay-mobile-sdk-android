@@ -43,6 +43,20 @@ internal class DevicePropertiesTest {
     }
 
     @Test
+    fun `should serialize the Android ID in its own field`() {
+        val properties = DeviceProperties(
+            ApplicationProvider.getApplicationContext(),
+        ).copy(gaid = null, oaid = null, androidId = null)
+
+        assertFalse(properties.toHashMap().containsKey("android_id"))
+        val fallback = properties.copy(androidId = "test-android-id")
+            .toHashMap()
+        assertEquals("test-android-id", fallback["android_id"])
+        assertFalse(fallback.containsKey("gaid"))
+        assertFalse(fallback.containsKey("oaid"))
+    }
+
+    @Test
     fun `should get app version from package manager`() {
         val packageManager = shadowOf(ApplicationProvider.getApplicationContext<Application>().packageManager)
         val packageInfo = PackageInfo()

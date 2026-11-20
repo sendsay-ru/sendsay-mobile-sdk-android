@@ -103,9 +103,8 @@ data class SendsayConfiguration(
      */
     var isAppInboxEnabled: Boolean = false,
     /**
-     * Flag that enables or disables permission to GAID for this session.
-     * Can/Must be overridden by get config from Backend method.
-     * Default value is false, cause if the config was not retrieved from server,
+     * Enables device identifier collection. The backend can also disable it.
+     * Defaults to true when the backend does not return a setting.
      */
     var isGAIDEnabled: Boolean = true,
 ) {

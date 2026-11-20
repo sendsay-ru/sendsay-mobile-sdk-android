@@ -83,7 +83,9 @@
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
-        <!-- OAID services queried by HMS and oaid-source on Android 11+. -->
+        <!-- Identifier providers queried on Android 11+. -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
         <package android:name="com.huawei.hwid" />
         <package android:name="com.huawei.hwid.tv" />
         <package android:name="com.huawei.hms" />

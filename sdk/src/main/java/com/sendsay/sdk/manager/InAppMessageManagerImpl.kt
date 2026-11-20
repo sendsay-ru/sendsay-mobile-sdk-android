@@ -771,7 +771,7 @@ internal class EventManagerInAppMessageTrackingDelegate(
     context: Context,
     private val eventManager: EventManager
 ) : InAppMessageTrackingDelegate {
-    private val deviceProperties = DeviceProperties(context)
+    private val appContext = context.applicationContext
 
     override fun track(
         message: InAppMessage,
@@ -797,7 +797,7 @@ internal class EventManagerInAppMessageTrackingDelegate(
                 "variant_name" to message.variantName
             )
         )
-        properties.putAll(deviceProperties.toHashMap())
+        properties.putAll(DeviceProperties(appContext).toHashMap())
         if (text != null) {
             properties["text"] = text
         }

@@ -13,7 +13,7 @@ internal class InAppContentBlockTrackingDelegateImpl(
     context: Context,
     private val eventManager: EventManager
 ) : InAppContentBlockTrackingDelegate {
-    private val deviceProperties = DeviceProperties(context)
+    private val appContext = context.applicationContext
 
     override fun track(
         placeholderId: String,
@@ -44,7 +44,7 @@ internal class InAppContentBlockTrackingDelegateImpl(
         contentBlock.personalizedData?.variantName?.let {
             properties.put("variant_name", it)
         }
-        properties.putAll(deviceProperties.toHashMap())
+        properties.putAll(DeviceProperties(appContext).toHashMap())
         if (text != null) {
             properties["text"] = text
         }

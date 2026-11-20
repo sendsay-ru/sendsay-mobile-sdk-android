@@ -112,13 +112,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // GAID or OAID call
-        if (BuildConfig.FLAVOR == "FCM" || BuildConfig.FLAVOR == "RSM") {
-            Sendsay.callGAID(this)
-        } else {
-            Sendsay.callOAID(this)
-        }
-
         // Set log level before first call to SDK function
         Sendsay.loggerLevel = Logger.Level.VERBOSE
         Sendsay.isCheckPushSetup = true
