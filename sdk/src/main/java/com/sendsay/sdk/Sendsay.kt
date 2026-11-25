@@ -37,6 +37,7 @@ import com.sendsay.sdk.manager.TrackingConsentManager.MODE.CONSIDER_CONSENT
 import com.sendsay.sdk.manager.TrackingConsentManager.MODE.IGNORE_CONSENT
 import com.sendsay.sdk.manager.TrackingConsentManagerImpl
 import com.sendsay.sdk.models.CampaignData
+import com.sendsay.sdk.models.ConfigItem
 import com.sendsay.sdk.models.Consent
 import com.sendsay.sdk.models.Constants
 import com.sendsay.sdk.models.CustomerIds
@@ -115,9 +116,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
@@ -128,21 +128,19 @@ import kotlin.time.Duration.Companion.milliseconds
 object Sendsay {
 
     private lateinit var application: Application
-    private lateinit var sendsaySdkScope: CoroutineScope
+    @Volatile
+    private var sendsaySdkScope: CoroutineScope? = null
     private lateinit var configuration: SendsayConfiguration
     private lateinit var component: SendsayComponent
-    private val deviceIdentifiersMutex = Mutex()
     @Volatile
     private var deviceIdentifiers = DeviceIdentifiers()
-    @Volatile
-    private var adTrackingConfigReady: CompletableDeferred<Unit>? = null
     internal val initGate = SendsayInitManager()
     internal val deintegration = SendsayDeintegrateManager()
     @Volatile internal var isStopped = false
     var isInAppMessagesEnabled = false
     var isInAppCBEnabled = false
     var isAppInboxEnabled = false
-    @Volatile var isADTrackEnabled = false
+    @Volatile var isADTrackEnabled = true
 
     /**
      * Cookie of the current customer. Null before the SDK is initialized
@@ -450,7 +448,6 @@ object Sendsay {
             Logger.e(this, "Sendsay SDK is already initialized!")
             return
         }
-        sendsaySdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         isStopped = false
 
         configuration.validate()
@@ -466,7 +463,12 @@ object Sendsay {
 
         this.configuration = configuration
         SendsayConfigRepository.set(context, configuration)
-        initializeSdk(context)
+        sendsaySdkScope?.cancel()
+//        isADTrackEnabled = false
+        deviceIdentifiers = DeviceIdentifiers()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        sendsaySdkScope = scope
+        initializeSdk(context, scope)
         isInitialized = true
         initGate.notifyInitializedState()
         SendsayContextProvider.registerForegroundStateListener(object : OnForegroundStateListener {
@@ -664,13 +666,13 @@ object Sendsay {
     /** Requests the device's GAID in the background for subsequent events. */
     fun callGAID(context: Context) {
         val appContext = context.applicationContext
-        CoroutineScope(Dispatchers.Default).launch { trackGAID(appContext) }
+        sendsaySdkScope?.launch { trackGAID(appContext) }
     }
 
     /** Requests the device's OAID in the background for subsequent events. */
     fun callOAID(context: Context) {
         val appContext = context.applicationContext
-        CoroutineScope(Dispatchers.Default).launch { trackOAID(appContext) }
+        sendsaySdkScope?.launch { trackOAID(appContext) }
     }
 
     private fun trackPushTokenInternal(
@@ -821,17 +823,18 @@ object Sendsay {
 
     /** Refreshes the GAID when device identifier collection is enabled. */
     suspend fun trackGAID(context: Context) {
-        updateDeviceIdentifiers { current ->
-            when (val result = fetchGAID(context.applicationContext)) {
+        val appContext = context.applicationContext
+        updateDeviceIdentifiers(fetch = { fetchGAID(appContext) }) { result ->
+            when (result) {
                 is GaidResult.Available -> DeviceIdentifiers(
                     gaid = result.id,
                     oaid = OaidResult.Unavailable.NOT_SELECTED,
                 )
-                GaidResult.Unavailable -> current.copy(
+                GaidResult.Unavailable -> copy(
                     gaid = null,
                     androidId = null,
                 )
-                GaidResult.Unsupported -> current.copy(gaid = null)
+                GaidResult.Unsupported -> copy(gaid = null)
             }
         }
     }
@@ -840,13 +843,12 @@ object Sendsay {
     fun getGAID(): String? = getDeviceIdentifiers().gaid
 
     /** Fetches the device's OAID when advertising ID collection is enabled. */
-    private suspend fun trackOAID(context: Context) {
-        updateDeviceIdentifiers { current ->
-            when (val result = fetchOAID(context)) {
+    suspend fun trackOAID(context: Context) {
+        updateDeviceIdentifiers(fetch = { fetchOAID(context) }) { result ->
+            when (result) {
                 is OaidResult.Available -> DeviceIdentifiers(oaid = result)
-                OaidResult.Unavailable.UNSUPPORTED ->
-                    current.copy(oaid = result)
-                else -> current.copy(oaid = result, androidId = null)
+                OaidResult.Unavailable.UNSUPPORTED -> copy(oaid = result)
+                else -> copy(oaid = result, androidId = null)
             }
         }
     }
@@ -858,41 +860,27 @@ object Sendsay {
      * Returns the latest OAID or the reason it is unavailable.
      * SDK initialization and [callOAID] can update this result asynchronously.
      */
-    fun getOAIDResult(): OaidResult = when {
-        adTrackingConfigReady?.isCompleted == false ->
-            OaidResult.Unavailable.NOT_AVAILABLE_YET
-        !canCollectDeviceIdentifiers() ->
-            OaidResult.Unavailable.DISABLED_BY_CONFIG
-        else -> deviceIdentifiers.oaid
+    fun getOAIDResult(): OaidResult = if (isADTrackEnabled) {
+        deviceIdentifiers.oaid
+    } else {
+        OaidResult.Unavailable.DISABLED_BY_CONFIG
     }
 
     internal fun getDeviceIdentifiers(): DeviceIdentifiers =
-        if (!canCollectDeviceIdentifiers() ||
-            adTrackingConfigReady?.isCompleted == false
-        ) {
-            DeviceIdentifiers()
-        } else {
-            deviceIdentifiers
-        }
+        if (isADTrackEnabled) deviceIdentifiers else DeviceIdentifiers()
 
-    private fun canCollectDeviceIdentifiers() = isADTrackEnabled && !isStopped
-
-    private suspend fun updateDeviceIdentifiers(
-        update: suspend (DeviceIdentifiers) -> DeviceIdentifiers,
+    private suspend fun <T> updateDeviceIdentifiers(
+        fetch: suspend () -> T,
+        update: DeviceIdentifiers.(T) -> DeviceIdentifiers,
     ) {
-        val ready = adTrackingConfigReady
-        ready?.await()
-        deviceIdentifiersMutex.withLock {
-            if (ready !== adTrackingConfigReady ||
-                !canCollectDeviceIdentifiers()
-            ) {
-                return@withLock
-            }
-            val identifiers = update(deviceIdentifiers)
-            if (ready === adTrackingConfigReady &&
-                canCollectDeviceIdentifiers()
-            ) {
-                deviceIdentifiers = identifiers
+        val scope = sendsaySdkScope ?: return
+        if (!isADTrackEnabled) return
+
+        val result = fetch()
+        synchronized(this) {
+            // A request can finish after stopIntegration cancels its scope.
+            if (scope.isActive && isADTrackEnabled) {
+                deviceIdentifiers = deviceIdentifiers.update(result)
             }
         }
     }
@@ -1045,12 +1033,7 @@ object Sendsay {
      * Initialize and start all services and automatic configurations.
      */
 
-    private fun initializeSdk(context: Context) {
-        val adTrackingReady = CompletableDeferred<Unit>()
-        adTrackingConfigReady = adTrackingReady
-        isADTrackEnabled = false
-        deviceIdentifiers = DeviceIdentifiers()
-
+    private fun initializeSdk(context: Context, scope: CoroutineScope) {
         this.component = SendsayComponent(this.configuration, context)
         deintegration.registerForIntegrationStopped(component.serviceManager)
         deintegration.registerForIntegrationStopped(component.eventRepository)
@@ -1087,38 +1070,39 @@ object Sendsay {
 
         component.segmentsManager.onSdkInit()
 
-        val collectDeviceIds = configuration.isGAIDEnabled
-        component.initConfigManager.fetchInitConfig(onSuccess = onSuccess@{
-            if (adTrackingConfigReady !== adTrackingReady) return@onSuccess
-            Logger.i(this, "Init config fetched successfully")
-            isInAppMessagesEnabled =
-                it?.firstOrNull()?.isInAppMessagesEnabled ?: configuration.isInAppMessagesEnabled
-            isInAppCBEnabled = it?.firstOrNull()?.isInAppCBEnabled ?: configuration.isInAppCBEnabled
-            isAppInboxEnabled =
-                it?.firstOrNull()?.isAppInboxEnabled ?: configuration.isAppInboxEnabled
-            val remoteSetting = it?.firstOrNull()?.isADTrackEnabled
-            isADTrackEnabled = collectDeviceIds && (remoteSetting != false)
-            adTrackingReady.complete(Unit)
-        }, onFailure = onFailure@{
-            if (adTrackingConfigReady !== adTrackingReady) return@onFailure
-            Logger.e(this, "Failed to fetch init config with message: ${it.message}")
-            isInAppMessagesEnabled = configuration.isInAppMessagesEnabled
-            isInAppCBEnabled = configuration.isInAppCBEnabled
-            isAppInboxEnabled = configuration.isAppInboxEnabled
-            isADTrackEnabled = collectDeviceIds
-            adTrackingReady.complete(Unit)
-        })
-
+        val defaults = configuration
         val appContext = context.applicationContext
-        sendsaySdkScope.launch {
-            updateDeviceIdentifiers {
-                resolveDeviceIdentifiers(
-                    fetchGaid = { fetchGAID(appContext) },
-                    fetchOaid = { fetchOAID(appContext) },
-                    fetchAndroidId = { fetchAndroidId(appContext) },
-                )
+
+        fun applyInitConfig(remote: ConfigItem?) {
+            scope.launch {
+                synchronized(this@Sendsay) {
+                    if (!scope.isActive) return@launch
+                    isInAppMessagesEnabled = remote?.isInAppMessagesEnabled
+                        ?: defaults.isInAppMessagesEnabled
+                    isInAppCBEnabled = remote?.isInAppCBEnabled
+                        ?: defaults.isInAppCBEnabled
+                    isAppInboxEnabled = remote?.isAppInboxEnabled
+                        ?: defaults.isAppInboxEnabled
+                    isADTrackEnabled = defaults.isGAIDEnabled &&
+                        remote?.isADTrackEnabled != false
+                }
+                updateDeviceIdentifiers(fetch = {
+                    resolveDeviceIdentifiers(
+                        fetchGaid = { fetchGAID(appContext) },
+                        fetchOaid = { fetchOAID(appContext) },
+                        fetchAndroidId = { fetchAndroidId(appContext) },
+                    )
+                }) { it }
             }
         }
+
+        component.initConfigManager.fetchInitConfig(onSuccess = {
+            Logger.i(this, "Init config fetched successfully")
+            applyInitConfig(it?.firstOrNull())
+        }, onFailure = {
+            Logger.e(this, "Failed to fetch init config: ${it.message}")
+            applyInitConfig(null)
+        })
 
         context.addAppStateCallbacks(
             onOpen =
@@ -1918,12 +1902,12 @@ object Sendsay {
             initializedBlock = {
                 Logger.i(this, "Stopping of SDK integration starts")
                 isStopped = true
-                val ready = adTrackingConfigReady
-                adTrackingConfigReady = null
-                isADTrackEnabled = false
-                deviceIdentifiers = DeviceIdentifiers()
-                ready?.complete(Unit)
-                sendsaySdkScope.cancel()
+                synchronized(this) {
+                    sendsaySdkScope?.cancel()
+                    sendsaySdkScope = null
+                    isADTrackEnabled = false
+                    deviceIdentifiers = DeviceIdentifiers()
+                }
                 deintegration.notifyDeintegration()
                 deintegration.clearLocalCustomerData()
                 initGate.clear()

@@ -22,5 +22,4 @@ class SendsayFirebaseMessageService : FirebaseMessagingService() {
         Sendsay.handleNewToken(applicationContext, token)
     }
 
-//    override fun on
 }
